@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Control Escolar IDEE - Maestro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-ide">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" href="#">
+          IDEE • Portal maestro
+        </a>
+        <span class="badge-role d-none d-md-inline-block ms-2">Maestro</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="userNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" onclick="mostrarSeccion('maestroGruposSection'); return false;">
+                Mis grupos
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="mostrarSeccion('maestroCriteriosSection'); return false;">
+                Criterios de evaluación
+              </a>
+            </li>
+          </ul>
+          <span class="me-3 small text-light">maestro@ide.edu.mx</span>
+          <a href="../index.html" class="btn btn-outline-light btn-sm">
+            Cerrar sesión
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container dashboard-content">
+      <!-- Listado de grupos -->
+      <section id="maestroGruposSection" class="user-section">
+        <h3 class="section-title">Mis grupos y asignaturas</h3>
+        <p class="text-muted">
+          Consulta de los grupos en los que impartes clase. Desde aquí puedes visualizar
+          alumnos y capturar calificaciones.
+        </p>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-1">Lic. Ing. en Sistemas Computacionales</h5>
+                <p class="card-subtitle text-muted small mb-2">Grupo: 3A • Periodo: 2025-2</p>
+                <p class="small text-muted mb-2">
+                  Asignaturas: Programación II, Estructura de Datos.
+                </p>
+                <button class="btn btn-ide btn-sm me-2" onclick="verListaAlumnos('3A - Programación II')">
+                  Ver lista de alumnos
+                </button>
+                <button class="btn btn-outline-light btn-sm" onclick="capturarCalificaciones('3A - Programación II')">
+                  Capturar calificaciones
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-1">Licenciatura en Administración</h5>
+                <p class="card-subtitle text-muted small mb-2">Grupo: 1B • Periodo: 2025-2</p>
+                <p class="small text-muted mb-2">
+                  Asignatura: Introducción a la Administración.
+                </p>
+                <button class="btn btn-ide btn-sm me-2" onclick="verListaAlumnos('1B - Intro. Administración')">
+                  Ver lista de alumnos
+                </button>
+                <button class="btn btn-outline-light btn-sm"
+                  onclick="capturarCalificaciones('1B - Intro. Administración')">
+                  Capturar calificaciones
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <h5 class="mb-3">Resumen docente</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card card-small-center">
+              <div class="card-body">
+                <div class="small text-muted mb-1">Grupos activos</div>
+                <div class="h4 mb-0">3</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-small-center">
+              <div class="card-body">
+                <div class="small text-muted mb-1">Asignaturas</div>
+                <div class="h4 mb-0">4</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card card-small-center">
+              <div class="card-body">
+                <div class="small text-muted mb-1">Evaluación docente</div>
+                <div class="h4 mb-0">—</div>
+                <div class="small text-muted">Próximamente</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Criterios de evaluación -->
+      <section id="maestroCriteriosSection" class="user-section d-none">
+        <h3 class="section-title">Configurar criterios de evaluación</h3>
+        <p class="text-muted">
+          Selecciona tus criterios de evaluación por <strong>asignatura/grupo</strong>. Deben sumar el 100%.
+          <br>La asistencia es obligatoria y siempre debe incluirse.
+          <br>Una vez guardados, ya no podrán modificarse para esa asignatura.
+        </p>
+
+        <!-- Selección de asignatura -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Asignatura / grupo</label>
+            <select id="selectAsignaturaCriterios" class="form-select">
+              <option value="">Selecciona...</option>
+              <option value="3A - Programación II">3A - Programación II</option>
+              <option value="3A - Estructura de Datos">3A - Estructura de Datos</option>
+              <option value="1B - Intro. Administración">1B - Intro. Administración</option>
+            </select>
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div id="estadoAsignaturaCriterios" class="alert alert-secondary w-100 py-2 mb-0 small">
+              Selecciona una asignatura para configurar criterios.
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info" id="criteriosInfo">
+          Configura tus criterios antes de capturar calificaciones. Se aplican solo a la asignatura/grupo seleccionado.
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+
+            <!-- CRITERIO OBLIGATORIO: ASISTENCIA -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Asistencia (obligatoria)</label>
+                <input type="text" class="form-control" value="Asistencia" disabled />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Porcentaje</label>
+                <input type="number" class="form-control criterio-input" id="pesoAsistencia" placeholder="%" min="1"
+                  max="100" />
+              </div>
+            </div>
+
+            <!-- CRITERIOS SELECCIONABLES -->
+            <div id="criteriosContainer">
+              <div class="row g-3 mb-3 criterio-row">
+                <div class="col-md-6">
+                  <label class="form-label">Seleccionar criterio</label>
+                  <select class="form-select criterio-select">
+                    <option value="">Selecciona...</option>
+                    <option value="Tareas">Tareas</option>
+                    <option value="Exámenes parciales">Exámenes parciales</option>
+                    <option value="Proyecto final">Proyecto final</option>
+                    <option value="Participación">Participación</option>
+                    <option value="Otros">Otros</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Porcentaje</label>
+                  <input type="number" class="form-control criterio-input" placeholder="%" min="1" max="100" />
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                  <button type="button" class="btn btn-danger btn-sm w-100" onclick="eliminarCriterio(this)">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BOTÓN PARA AGREGAR CRITERIO -->
+            <div class="mt-2 mb-3">
+              <button type="button" class="btn btn-outline-primary btn-sm" id="btnAgregarCriterio"
+                onclick="agregarCriterio()">
+                + Agregar otro criterio
+              </button>
+            </div>
+
+            <!-- SUMA TOTAL -->
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">Suma total</label>
+                <input type="text" id="totalCriterios" class="form-control" value="0%" readonly />
+              </div>
+            </div>
+
+            <!-- BOTÓN GUARDAR -->
+            <div class="text-end mt-3">
+              <button class="btn btn-ide" id="btnGuardarCriterios" onclick="guardarCriterios()">
+                Guardar criterios
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="alert alert-warning d-none" id="criteriosBloqueados">
+          Los criterios de evaluación ya fueron guardados y no pueden editarse para esta asignatura.
+        </div>
+      </section>
+
+      <!-- Lista de alumnos del grupo -->
+      <section id="maestroListaAlumnosSection" class="user-section d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="section-title mb-0">Alumnos del grupo</h3>
+          <button class="btn btn-outline-secondary btn-sm" onclick="mostrarSeccion('maestroGruposSection')">
+            Volver a mis grupos
+          </button>
+        </div>
+        <p class="text-muted" id="grupoSeleccionadoLabel"></p>
+
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Matrícula</th>
+                    <th>Nombre</th>
+                    <th>Asistencia acumulada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>IDE2025001</td>
+                    <td>María López García</td>
+                    <td>95%</td>
+                  </tr>
+                  <tr>
+                    <td>IDE2024023</td>
+                    <td>Carlos Hernández Ruiz</td>
+                    <td>82%</td>
+                  </tr>
+                  <tr>
+                    <td>IDE2025123</td>
+                    <td>Ana Torres Ramírez</td>
+                    <td>78%</td>
+                  </tr>
+                  <!-- Más filas -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Captura de calificaciones -->
+      <section id="maestroCalificacionesSection" class="user-section d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="section-title mb-0">Captura de calificaciones</h3>
+          <button class="btn btn-outline-secondary btn-sm" onclick="mostrarSeccion('maestroGruposSection')">
+            Volver a mis grupos
+          </button>
+        </div>
+        <p class="text-muted" id="grupoSeleccionadoCalifLabel"></p>
+
+        <div class="alert alert-info">
+          <strong>Regla:</strong> el requisito es <strong>80% de asistencia</strong> para acreditar.
+          Las calificaciones se basan en los criterios configurados para esta asignatura.
+          Una vez que guardes y envíes, ya no podrás editar; las calificaciones pasan a revisión
+          de personal administrativo.
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <!-- En un sistema real, las columnas visibles se ajustarían a los criterios de esa asignatura -->
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Matrícula</th>
+                    <th>Alumno</th>
+                    <th>Asistencia %</th>
+                    <th>Tareas</th>
+                    <th>Parciales</th>
+                    <th>Proyecto</th>
+                    <th>Calificación final</th>
+                    <th>Estatus sugerido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>IDE2025001</td>
+                    <td>María López García</td>
+                    <td>95%</td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="95" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="90" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="92" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="92" /></td>
+                    <td><span class="badge bg-success-subtle text-success">Acredita</span></td>
+                  </tr>
+                  <tr>
+                    <td>IDE2024023</td>
+                    <td>Carlos Hernández Ruiz</td>
+                    <td>82%</td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="80" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="75" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="78" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="78" /></td>
+                    <td><span class="badge bg-success-subtle text-success">Acredita</span></td>
+                  </tr>
+                  <tr>
+                    <td>IDE2025123</td>
+                    <td>Ana Torres Ramírez</td>
+                    <td>78%</td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="60" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="55" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="58" /></td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="58" /></td>
+                    <td><span class="badge bg-danger-subtle text-danger">No acredita</span></td>
+                  </tr>
+                  <!-- Más filas -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer d-flex justify-content-between align-items-center">
+            <span class="small text-muted">
+              Al enviar, las calificaciones quedan bloqueadas para el maestro y pasan a revisión de control escolar.
+            </span>
+            <button class="btn btn-ide btn-sm" onclick="enviarCalificaciones()">
+              Guardar y enviar a control escolar
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let calificacionesEnviadas = false;
+
+    // criteriosPorAsignatura:
+    // {
+    //   "3A - Programación II": {
+    //      bloqueado: true/false,
+    //      asistencia: 20,
+    //      criterios: [ { nombre: "Tareas", porcentaje: 40 }, ... ]
+    //   },
+    //   ...
+    // }
+    let criteriosPorAsignatura = {};
+    let asignaturaSeleccionada = null;
+
+    function mostrarSeccion(id) {
+      document.querySelectorAll(".user-section").forEach((s) => s.classList.add("d-none"));
+      document.getElementById(id).classList.remove("d-none");
+    }
+
+    function verListaAlumnos(grupo) {
+      document.getElementById("grupoSeleccionadoLabel").textContent =
+        "Grupo / asignatura: " + grupo;
+      mostrarSeccion("maestroListaAlumnosSection");
+    }
+
+    function capturarCalificaciones(grupo) {
+      document.getElementById("grupoSeleccionadoCalifLabel").textContent =
+        "Grupo / asignatura: " + grupo;
+      mostrarSeccion("maestroCalificacionesSection");
+    }
+
+    function enviarCalificaciones() {
+      if (calificacionesEnviadas) {
+        alert("Las calificaciones ya fueron enviadas. No puedes editarlas (demo).");
+        return;
+      }
+      calificacionesEnviadas = true;
+      alert(
+        "Calificaciones enviadas a control escolar.\nA partir de este momento el maestro ya no puede editarlas (lógica que se implementaría en backend)."
+      );
+    }
+
+    // ======== Criterios por asignatura (listas desplegables + asistencia obligatoria) ========
+
+    const asistenciaInput = document.getElementById("pesoAsistencia");
+    const totalCriteriosInput = document.getElementById("totalCriterios");
+    const criteriosInfo = document.getElementById("criteriosInfo");
+    const criteriosBloqueados = document.getElementById("criteriosBloqueados");
+    const selectAsignaturaCriterios = document.getElementById("selectAsignaturaCriterios");
+    const estadoAsignaturaCriterios = document.getElementById("estadoAsignaturaCriterios");
+    const criteriosContainer = document.getElementById("criteriosContainer");
+    const btnAgregarCriterio = document.getElementById("btnAgregarCriterio");
+    const btnGuardarCriterios = document.getElementById("btnGuardarCriterios");
+
+    asistenciaInput.addEventListener("input", actualizarTotalCriterios);
+    criteriosContainer.addEventListener("input", function (e) {
+      if (e.target.classList.contains("criterio-input")) {
+        actualizarTotalCriterios();
+      }
+    });
+
+    selectAsignaturaCriterios.addEventListener("change", cargarCriteriosAsignatura);
+
+    function crearFilaCriterio(nombre = "", porcentaje = "") {
+      const row = document.createElement("div");
+      row.classList.add("row", "g-3", "mb-3", "criterio-row");
+
+      row.innerHTML = `
+        <div class="col-md-6">
+          <label class="form-label">Seleccionar criterio</label>
+          <select class="form-select criterio-select">
+            <option value="">Selecciona...</option>
+            <option value="Tareas">Tareas</option>
+            <option value="Exámenes parciales">Exámenes parciales</option>
+            <option value="Proyecto final">Proyecto final</option>
+            <option value="Participación">Participación</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Porcentaje</label>
+          <input type="number" class="form-control criterio-input" placeholder="%" min="1" max="100" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button type="button" class="btn btn-danger btn-sm w-100" onclick="eliminarCriterio(this)">
+            Eliminar
+          </button>
+        </div>
+      `;
+
+      const select = row.querySelector(".criterio-select");
+      const input = row.querySelector(".criterio-input");
+
+      if (nombre) select.value = nombre;
+      if (porcentaje !== "") input.value = porcentaje;
+
+      return row;
+    }
+
+    function resetCriteriosUI() {
+      asistenciaInput.value = "";
+      criteriosContainer.innerHTML = "";
+      criteriosContainer.appendChild(crearFilaCriterio());
+      totalCriteriosInput.value = "0%";
+      totalCriteriosInput.classList.remove("is-valid", "is-invalid");
+    }
+
+    function setCriteriosEdicionEnabled(enabled) {
+      const section = document.getElementById("maestroCriteriosSection");
+      section.querySelectorAll("input, select, button").forEach(el => {
+        if (el.id === "selectAsignaturaCriterios") return; // siempre habilitado para cambiar de asignatura
+        el.disabled = !enabled;
+      });
+    }
+
+    function cargarCriteriosAsignatura() {
+      asignaturaSeleccionada = selectAsignaturaCriterios.value;
+      criteriosInfo.classList.add("d-none");
+      criteriosBloqueados.classList.add("d-none");
+
+      if (!asignaturaSeleccionada) {
+        resetCriteriosUI();
+        setCriteriosEdicionEnabled(false);
+        estadoAsignaturaCriterios.textContent =
+          "Selecciona una asignatura para configurar criterios.";
+        return;
+      }
+
+      const conf = criteriosPorAsignatura[asignaturaSeleccionada];
+
+      if (!conf) {
+        // Nueva configuración
+        resetCriteriosUI();
+        setCriteriosEdicionEnabled(true);
+        criteriosInfo.classList.remove("d-none");
+        estadoAsignaturaCriterios.textContent =
+          "Asignatura sin criterios guardados. Configura y guarda por primera vez.";
+      } else {
+        // Cargar configuración existente
+        resetCriteriosUI();
+        asistenciaInput.value = conf.asistencia || "";
+        criteriosContainer.innerHTML = "";
+
+        (conf.criterios || []).forEach(c => {
+          criteriosContainer.appendChild(crearFilaCriterio(c.nombre, c.porcentaje));
+        });
+
+        actualizarTotalCriterios();
+
+        if (conf.bloqueado) {
+          setCriteriosEdicionEnabled(false);
+          criteriosBloqueados.classList.remove("d-none");
+          estadoAsignaturaCriterios.textContent =
+            "Criterios ya guardados y bloqueados para esta asignatura.";
+        } else {
+          setCriteriosEdicionEnabled(true);
+          criteriosInfo.classList.remove("d-none");
+          estadoAsignaturaCriterios.textContent =
+            "Criterios en edición para esta asignatura.";
+        }
+      }
+    }
+
+    function agregarCriterio() {
+      if (!asignaturaSeleccionada) {
+        alert("Primero selecciona la asignatura/grupo.");
+        return;
+      }
+      criteriosContainer.appendChild(crearFilaCriterio());
+    }
+
+    function eliminarCriterio(btn) {
+      btn.closest(".criterio-row").remove();
+      actualizarTotalCriterios();
+    }
+
+    function actualizarTotalCriterios() {
+      let total = 0;
+      let activos = 0;
+
+      const asistenciaVal = parseInt(asistenciaInput.value || "0", 10);
+      if (!isNaN(asistenciaVal) && asistenciaVal > 0) {
+        total += asistenciaVal;
+        activos++;
+      }
+
+      const filas = criteriosContainer.querySelectorAll(".criterio-row");
+      filas.forEach(row => {
+        const select = row.querySelector(".criterio-select");
+        const inp = row.querySelector(".criterio-input");
+        const val = parseInt(inp.value || "0", 10);
+
+        if (select.value && !isNaN(val) && val > 0) {
+          total += val;
+          activos++;
+        }
+      });
+
+      totalCriteriosInput.value = total + "%";
+
+      if (total === 100 && activos >= 3) {
+        totalCriteriosInput.classList.remove("is-invalid");
+        totalCriteriosInput.classList.add("is-valid");
+      } else {
+        totalCriteriosInput.classList.remove("is-valid");
+        totalCriteriosInput.classList.add("is-invalid");
+      }
+    }
+
+    function guardarCriterios() {
+      if (!asignaturaSeleccionada) {
+        alert("Primero selecciona la asignatura/grupo.");
+        return;
+      }
+
+      const existente = criteriosPorAsignatura[asignaturaSeleccionada];
+      if (existente && existente.bloqueado) {
+        alert("Los criterios ya fueron guardados y no se pueden modificar para esta asignatura (demo).");
+        return;
+      }
+
+      const asistenciaVal = parseInt(asistenciaInput.value || "0", 10);
+      if (isNaN(asistenciaVal) || asistenciaVal <= 0) {
+        alert("Debes asignar un porcentaje válido a Asistencia (mayor a 0).");
+        return;
+      }
+
+      let total = asistenciaVal;
+      let activos = 1; // Asistencia ya cuenta
+      const criterios = [];
+
+      const filas = criteriosContainer.querySelectorAll(".criterio-row");
+      filas.forEach(row => {
+        const select = row.querySelector(".criterio-select");
+        const inp = row.querySelector(".criterio-input");
+        const nombre = select.value;
+        const val = parseInt(inp.value || "0", 10);
+
+        // Si alguno de los dos está lleno, validamos que ambos lo estén
+        if (nombre || val > 0) {
+          if (!nombre || isNaN(val) || val <= 0) {
+            throw new Error("Todos los criterios deben tener nombre y porcentaje mayor a 0.");
+          }
+          total += val;
+          activos++;
+          criterios.push({ nombre, porcentaje: val });
+        }
+      });
+
+      if (activos < 3) {
+        alert("Debes tener al menos 3 criterios activos (incluyendo Asistencia).");
+        return;
+      }
+
+      if (total !== 100) {
+        alert("La suma de los porcentajes (Asistencia + criterios) debe ser exactamente 100%.");
+        return;
+      }
+
+      criteriosPorAsignatura[asignaturaSeleccionada] = {
+        bloqueado: true,
+        asistencia: asistenciaVal,
+        criterios: criterios
+      };
+
+      setCriteriosEdicionEnabled(false);
+      criteriosInfo.classList.add("d-none");
+      criteriosBloqueados.classList.remove("d-none");
+      estadoAsignaturaCriterios.textContent =
+        "Criterios guardados y bloqueados para esta asignatura.";
+
+      alert(
+        "Criterios guardados para " +
+        asignaturaSeleccionada +
+        ". A partir de ahora ya no se pueden editar (demo)."
+      );
+    }
+
+    // Estado inicial: formulario deshabilitado hasta que elijan asignatura
+    resetCriteriosUI();
+    setCriteriosEdicionEnabled(false);
+  </script>
+
+  <!-- Scripts de conexión al backend -->
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Variables globales
+    let currentUser = null;
+    let maestroData = null;
+
+    // Inicializar página
+    async function initMaestroPage() {
+      try {
+        // Verificar autenticación y cargar datos del usuario
+        currentUser = await initializePage('MAESTRO');
+
+        if (!currentUser) {
+          return;
+        }
+
+        // Cargar datos específicos del maestro
+        await loadMaestroData();
+
+        console.log('Página de maestro inicializada correctamente');
+      } catch (error) {
+        handleNetworkError(error);
+      }
+    }
+
+    // Cargar datos del maestro desde el backend
+    async function loadMaestroData() {
+      try {
+        // Obtener información completa del usuario incluyendo datos de maestro
+        const response = await authFetch('/auth/me');
+
+        if (response.maestro) {
+          maestroData = response.maestro;
+          updateMaestroUI();
+        } else {
+          console.warn('No se encontraron datos de maestro asociados a este usuario');
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del maestro:', error);
+        showError('Error al cargar información del maestro');
+      }
+    }
+
+    // Actualizar UI con datos del maestro
+    function updateMaestroUI() {
+      if (!maestroData) return;
+
+      // Actualizar email en navbar
+      const emailSpan = document.querySelector('.navbar .text-light');
+      if (emailSpan && maestroData.correoInstitucional) {
+        emailSpan.textContent = maestroData.correoInstitucional;
+      }
+
+      console.log('Datos del maestro cargados:', maestroData);
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initMaestroPage);
+  </script>
+</body>
+
+</html>

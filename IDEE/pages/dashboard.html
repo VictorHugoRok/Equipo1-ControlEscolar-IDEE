@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Control Escolar IDEE - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-ide">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" href="#">
+          <span id="navbarBrand">IDEE • Dashboard</span>
+        </a>
+        <span class="badge-role d-none d-md-inline-block ms-2" id="navbarRole">Control escolar</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4" id="navbarMenuPrincipal">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" data-admin-section="programasSection">Programas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-admin-section="docentesSection">Docentes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-admin-section="alumnosSection">Alumnos</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="controlEscolarDropdown" role="button"
+                data-bs-toggle="dropdown">
+                Control escolar
+              </a>
+              <ul class="dropdown-menu" id="controlEscolarMenu">
+                <li>
+                  <a class="dropdown-item" href="#" data-admin-section="calificacionesSection">Calificaciones</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#" data-admin-section="horariosSection">Horarios</a>
+                </li>
+                <li id="menuCertificados" class="d-none">
+                  <a class="dropdown-item" href="#" data-admin-section="certificadosSection">Certificados</a>
+                </li>
+                <li id="menuConstancias" class="d-none">
+                  <a class="dropdown-item" href="#" data-admin-section="constanciasSection">Constancias</a>
+                </li>
+                <li id="dividerSep" class="d-none">
+                  <hr class="dropdown-divider">
+                </li>
+                <li id="menuConfigSep" class="d-none">
+                  <a class="dropdown-item" href="#" data-admin-section="configuracionSepSection">Configuración Títulos
+                    SEP</a>
+                </li>
+                <li id="menuTitulos" class="d-none">
+                  <a class="dropdown-item" href="titulos-electronicos.html">Títulos Electrónicos</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <span class="me-3 small text-light" id="userEmail">personal@ide.edu.mx</span>
+          <a href="../index.html" class="btn btn-outline-light btn-sm" id="btnLogout">
+            Cerrar sesión
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container dashboard-content">
+
+      <!-- PROGRAMAS + ASIGNATURAS -->
+      <section id="programasSection" class="admin-section">
+        <h3 class="section-title">Programas educativos</h3>
+        <p class="text-muted">
+          Alta, modificación y baja de programas (licenciatura, maestría, especialidad, doctorado),
+          así como la captura de sus asignaturas.
+        </p>
+
+        <!-- Alta programa -->
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Nuevo programa educativo
+          </div>
+          <div class="card-body">
+            <form id="programaForm" class="row g-3">
+              <input type="hidden" id="programaId" />
+              <div class="col-md-2">
+                <label class="form-label">Clave interna</label>
+                <input type="text" id="programaClave" class="form-control" placeholder="ODO" required />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Clave DGP</label>
+                <input type="text" id="programaClaveDgp" class="form-control" placeholder="DGP-001" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Nombre del programa</label>
+                <input type="text" id="programaNombre" class="form-control" placeholder="Licenciatura en Administración"
+                  required />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Tipo de programa</label>
+                <select id="programaTipo" class="form-select" required>
+                  <option value="">Selecciona...</option>
+                  <option value="LICENCIATURA">Licenciatura</option>
+                  <option value="MAESTRIA">Maestría</option>
+                  <option value="ESPECIALIDAD">Especialidad</option>
+                  <option value="DOCTORADO">Doctorado</option>
+                  <option value="EXTRACURRICULAR">Extracurricular</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Duración (periodos)</label>
+                <input type="number" id="programaDuracion" min="1" class="form-control" placeholder="8" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Tipo de periodo</label>
+                <select id="programaTipoPeriodo" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="SEMESTRE">Semestre</option>
+                  <option value="TRIMESTRE">Trimestre</option>
+                  <option value="CUATRIMESTRE">Cuatrimestre</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Modalidad</label>
+                <select id="programaModalidad" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="ESCOLARIZADO">Escolarizado</option>
+                  <option value="MIXTO">Mixto</option>
+                  <option value="EN_LINEA">En línea</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Créditos totales</label>
+                <input type="number" id="programaCreditos" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">RVOE</label>
+                <input type="text" id="programaRvoe" class="form-control" placeholder="RVOE-2025-12345" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Fecha de RVOE</label>
+                <input type="date" id="programaFechaRvoe" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Estatus</label>
+                <select id="programaEstatus" class="form-select" required>
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INACTIVO">Inactivo</option>
+                </select>
+              </div>
+              <div class="col-md-6 d-flex align-items-end justify-content-end">
+                <button type="button" id="btnGuardarPrograma" class="btn btn-ide">
+                  Guardar programa
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Lista programas -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center bg-soft-primary">
+            <span>Programas registrados</span>
+            <input type="text" id="buscarProgramaInput" class="form-control form-control-sm w-auto"
+              placeholder="Buscar por clave o nombre" />
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Clave</th>
+                    <th>Clave DGP</th>
+                    <th>Programa</th>
+                    <th>Tipo</th>
+                    <th>Periodo</th>
+                    <th>RVOE</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="programasTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12 d-flex align-items-end justify-content-end">
+          <button type="button" class="btn btn-outline-success">
+            Descargar Excel de Programas y Asignaturas
+          </button>
+        </div>
+        <p></p>
+
+        <!-- Asignaturas del programa seleccionado -->
+        <div class="card">
+          <div class="card-header bg-soft-primary d-flex justify-content-between align-items-center">
+            <span>Asignaturas del programa: <strong id="programaSeleccionadoLabel">Seleccione un
+                programa...</strong></span>
+            <button class="btn btn-ide btn-sm" type="button">
+              Agregar asignatura
+            </button>
+          </div>
+          <div class="card-body">
+            <!-- Alta de asignaturas del programa -->
+            <form id="asignaturaForm" class="row g-3 mb-4">
+              <input type="hidden" id="asignaturaId" />
+              <div class="col-md-2">
+                <label class="form-label">Clave</label>
+                <input type="text" id="asignaturaClave" class="form-control" placeholder="MAT" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Nombre de la asignatura</label>
+                <input type="text" id="asignaturaNombre" class="form-control" placeholder="Cálculo Diferencial"
+                  required />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Tipo</label>
+                <select id="asignaturaTipo" class="form-select" required>
+                  <option value="">Selecciona...</option>
+                  <option value="OBLIGATORIA">Obligatoria</option>
+                  <option value="OPTATIVA">Optativa</option>
+                  <option value="LIBRE">Libre</option>
+                  <option value="EXTRACURRICULAR">Extracurricular</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Periodo (sem/tri/cuat)</label>
+                <input type="number" id="asignaturaPeriodo" min="1" class="form-control" placeholder="1" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Créditos</label>
+                <input type="number" id="asignaturaCreditos" class="form-control" placeholder="8" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Horas con docente (aula)</label>
+                <input type="number" id="asignaturaHorasAula" class="form-control" placeholder="3" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Horas con docente (práctica)</label>
+                <input type="number" id="asignaturaHorasPractica" class="form-control" placeholder="2" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Horas independientes</label>
+                <input type="number" id="asignaturaHorasIndependientes" class="form-control" placeholder="3" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Estatus</label>
+                <select id="asignaturaEstatus" class="form-select" required>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="INACTIVA">Inactiva</option>
+                </select>
+              </div>
+
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="button" id="btnGuardarAsignatura" class="btn btn-ide w-100">
+                  Guardar asignatura
+                </button>
+              </div>
+            </form>
+
+            <!-- Lista de asignaturas -->
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Clave</th>
+                    <th>Asignatura</th>
+                    <th>Tipo</th>
+                    <th>Periodo</th>
+                    <th>Créditos</th>
+                    <th>Horas aula/práctica/indep.</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="asignaturasTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- DOCENTES -->
+      <section id="docentesSection" class="admin-section d-none">
+        <h3 class="section-title">Docentes</h3>
+        <p class="text-muted">
+          Administración de maestros y sus datos fiscales y académicos.
+        </p>
+
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Alta de maestro
+          </div>
+          <div class="card-body">
+            <form id="maestroForm" class="row g-3">
+              <input type="hidden" id="maestroId" />
+              <div class="col-md-3">
+                <label class="form-label">CURP (clave de maestro)</label>
+                <input type="text" id="maestroCurp" class="form-control" placeholder="CURP..." required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Nombre(s)</label>
+                <input type="text" id="maestroNombre" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido paterno</label>
+                <input type="text" id="maestroApellidoPaterno" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido materno</label>
+                <input type="text" id="maestroApellidoMaterno" class="form-control" required />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Etiqueta (cómo desea ser llamado)</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <select class="form-select" id="etiquetaSelect" onchange="mostrarCampoOtroEtiqueta()">
+                      <option value="">Selecciona...</option>
+                      <option>Dr.</option>
+                      <option>Dra.</option>
+                      <option>Mtro.</option>
+                      <option>Mtra.</option>
+                      <option>Lic.</option>
+                      <option>CDEO</option>
+                      <option>CDEE</option>
+                      <option>CDEP</option>
+                      <option>LOEO</option>
+                      <option value="otro">Otro (especificar)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 d-none" id="campoEtiquetaOtro">
+                    <input type="text" id="etiquetaOtro" class="form-control" placeholder="Especificar..." />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Último grado académico</label>
+                <select id="maestroGrado" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="LICENCIATURA">Licenciatura</option>
+                  <option value="ESPECIALIDAD">Especialidad</option>
+                  <option value="MAESTRIA">Maestría</option>
+                  <option value="DOCTORADO">Doctorado</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Cédula profesional</label>
+                <input type="text" id="maestroCedula" class="form-control" placeholder="Número de cédula" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Área / Departamento</label>
+                <select id="maestroArea" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option>Salud</option>
+                  <option>Ciencias sociales</option>
+                  <option>Humanidades</option>
+                  <option>Ingenierías</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Correo institucional</label>
+                <input type="email" id="maestroCorreoInstitucional" class="form-control"
+                  placeholder="maestro@ide.edu.mx" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Correo personal</label>
+                <input type="email" id="maestroCorreoPersonal" class="form-control" placeholder="correo personal" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" id="maestroTelefono" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Código postal</label>
+                <input type="text" id="maestroCodigoPostal" class="form-control" placeholder="CP" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Nombre contacto de emergencia</label>
+                <input type="text" id="maestroContactoNombre" class="form-control" placeholder="Nombre completo" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Teléfono contacto de emergencia</label>
+                <input type="tel" id="maestroContactoTelefono" class="form-control" placeholder="Número de teléfono" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">RFC</label>
+                <input type="text" id="maestroRfc" class="form-control" placeholder="RFC" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Régimen fiscal</label>
+                <select id="maestroRegimen" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option>Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
+                  <option>Régimen Simplificado de Confianza (RESICO PF)</option>
+                  <option>Actividades Empresariales y Profesionales</option>
+                  <option>Régimen de Arrendamiento</option>
+                  <option>Ingresos por Intereses</option>
+                  <option>Ingresos por Obtención de Premios</option>
+                  <option>Enajenación de Bienes</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Tipo de maestro</label>
+                <select id="maestroTipo" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="TIEMPO_COMPLETO">Tiempo completo</option>
+                  <option value="MEDIO_TIEMPO">Medio tiempo</option>
+                  <option value="POR_HORAS">Por horas</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Fecha de alta</label>
+                <input type="date" id="maestroFechaAlta" class="form-control" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Activo</label>
+                <select id="maestroActivo" class="form-select">
+                  <option value="true">Sí</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-md-9">
+                <label class="form-label">Antecedentes académicos (PDF)</label>
+                <input type="file" id="maestroAntecedentes" class="form-control" multiple accept="application/pdf" />
+                <div class="form-text">
+                  Puedes subir varios PDFs: CV, constancias, diplomas, etc.
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label">Observaciones</label>
+                <textarea class="form-control" id="maestroObservaciones" rows="2"></textarea>
+
+                <div class="form-check mt-2">
+                  <input class="form-check-input" type="checkbox" id="obsVisible">
+                  <label class="form-check-label" for="obsVisible">
+                    Hacer visible esta observación para el docente
+                  </label>
+                </div>
+
+                <div class="form-text text-muted">
+                  • Si activas esta opción, la observación será visible desde el portal del docente.<br>
+                  • Si no la activas, será solo para uso interno de control escolar.
+                </div>
+              </div>
+
+              <div class="col-md-3 d-flex">
+                <button type="button" id="btnGuardarMaestro" class="btn btn-ide w-100">
+                  Guardar maestro
+                </button>
+              </div>
+              <div class="col-md-9 d-flex align-items-end justify-content-end">
+                <button type="button" class="btn btn-outline-success" onclick="descargarExcelDocentes()">
+                  Descargar Excel de Docentes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center bg-soft-primary">
+            <span>Docentes registrados</span>
+            <input type="text" id="buscarDocenteInput" class="form-control form-control-sm w-auto"
+              placeholder="Buscar por nombre, CURP o correo" />
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>CURP</th>
+                    <th>Nombre</th>
+                    <th>Etiqueta</th>
+                    <th>Grado</th>
+                    <th>Área</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="docentesTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ALUMNOS -->
+      <section id="alumnosSection" class="admin-section d-none">
+        <h3 class="section-title">Alumnos</h3>
+        <p class="text-muted">
+          Captura, consulta avanzada, edición y baja lógica de alumnos. Posibilidad de exportar a Excel.
+        </p>
+
+        <!-- Alta de alumno -->
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Alta de alumno
+          </div>
+          <div class="card-body">
+            <form id="alumnoForm" class="row g-3">
+              <input type="hidden" id="alumnoId" />
+              <div class="col-md-2">
+                <label class="form-label">Matrícula (20 caracteres)</label>
+                <input type="text" id="alumnoMatricula" class="form-control" placeholder="ABCD2025000000000000"
+                  minlength="20" maxlength="20" pattern="[A-Za-z0-9]{20}" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Programa de estudios</label>
+                <select id="alumnoProgramaId" class="form-select" required>
+                  <option value="">Selecciona...</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Ciclo escolar</label>
+                <select id="alumnoCiclo" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="2025-2029">2025-2029</option>
+                  <option value="2024-2028">2024-2028</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Turno</label>
+                <select id="alumnoTurno" class="form-select">
+                  <option value="">Selecciona...</option>
+                  <option value="MATUTINO">Matutino</option>
+                  <option value="VESPERTINO">Vespertino</option>
+                  <option value="MIXTO">Mixto</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Estatus matrícula</label>
+                <select id="alumnoEstatus" class="form-select" required>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="INACTIVA">Inactiva</option>
+                  <option value="BAJA_TEMPORAL">Baja temporal</option>
+                  <option value="BAJA_DEFINITIVA">Baja definitiva</option>
+                  <option value="EGRESADO">Egresado</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Nombre(s)</label>
+                <input type="text" id="alumnoNombre" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido paterno</label>
+                <input type="text" id="alumnoApellidoPaterno" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido materno</label>
+                <input type="text" id="alumnoApellidoMaterno" class="form-control" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">CURP</label>
+                <input type="text" id="alumnoCurp" class="form-control" required />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Correo institucional</label>
+                <input type="email" id="alumnoCorreoInstitucional" class="form-control"
+                  placeholder="alumno@ide.edu.mx" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Correo personal</label>
+                <input type="email" id="alumnoCorreoPersonal" class="form-control" placeholder="correo personal" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Teléfono</label>
+                <input type="tel" id="alumnoTelefono" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Código postal</label>
+                <input type="text" id="alumnoCodigoPostal" class="form-control" placeholder="CP" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Nombre contacto de emergencia</label>
+                <input type="text" id="alumnoContactoNombre" class="form-control" placeholder="Nombre completo" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Teléfono contacto de emergencia</label>
+                <input type="tel" id="alumnoContactoTelefono" class="form-control" placeholder="Número de teléfono" />
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Foto del alumno</label>
+                <input type="file" id="alumnoFoto" class="form-control" accept="image/*" />
+              </div>
+
+              <div class="col-md-9">
+                <label class="form-label">Antecedentes académicos (subir documentos)</label>
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <small>Acta de nacimiento</small>
+                    <input type="file" id="alumnoDocActa" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <small>Certificado</small>
+                    <input type="file" id="alumnoDocCertificado" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <small>Copia título / cédula</small>
+                    <input type="file" id="alumnoDocTitulo" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <small>INE</small>
+                    <input type="file" id="alumnoDocIne" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <small>Constancia de situación fiscal</small>
+                    <input type="file" id="alumnoDocConstanciaFiscal" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <small>CURP</small>
+                    <input type="file" id="alumnoDocCurp" class="form-control" />
+                  </div>
+                </div>
+                <div class="form-text">
+                  Al guardar el alumno, se enviará automáticamente un correo a su correo personal
+                  indicándole continuar el proceso de inscripción entregando documentos en la escuela (demo).
+                </div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label">Observaciones</label>
+                <textarea class="form-control" id="alumnoObservaciones" rows="2"></textarea>
+
+                <div class="form-check mt-2">
+                  <input class="form-check-input" type="checkbox" id="obsVisible">
+                  <label class="form-check-label" for="obsVisible">
+                    Hacer visible esta observación para el alumno
+                  </label>
+                </div>
+
+                <div class="form-text text-muted">
+                  • Si activas esta opción, la observación será visible desde el portal del alumno.<br>
+                  • Si no la activas, será solo para uso interno de control escolar.
+                </div>
+              </div>
+
+              <div class="col-md-3 d-flex align-items-end">
+                <button type="button" id="btnGuardarAlumnoAdmin" class="btn btn-ide w-100">
+                  Guardar alumno
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Filtros de búsqueda -->
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Consulta de alumnos
+          </div>
+          <div class="card-body">
+            <form id="alumnoSearchForm" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Programa de estudios</label>
+                <select id="alumnoFiltroPrograma" class="form-select alumno-filter">
+                  <option value="">Todos</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Ciclo escolar</label>
+                <select id="alumnoFiltroCiclo" class="form-select alumno-filter">
+                  <option value="">Todos</option>
+                  <option value="2024-2028">2024-2028</option>
+                  <option value="2025-2029">2025-2029</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Matrícula</label>
+                <input type="text" id="alumnoFiltroMatricula" class="form-control alumno-filter"
+                  placeholder="IDE2025001" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">CURP</label>
+                <input type="text" id="alumnoFiltroCurp" class="form-control alumno-filter" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Sexo</label>
+                <select id="alumnoFiltroSexo" class="form-select alumno-filter">
+                  <option value="">Todos</option>
+                  <option value="MASCULINO">Hombre</option>
+                  <option value="FEMENINO">Mujer</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" id="alumnoFiltroNombre" class="form-control alumno-filter" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido paterno</label>
+                <input type="text" id="alumnoFiltroApellidoPaterno" class="form-control alumno-filter" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Apellido materno</label>
+                <input type="text" id="alumnoFiltroApellidoMaterno" class="form-control alumno-filter" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Estatus matrícula</label>
+                <select id="alumnoFiltroEstatus" class="form-select alumno-filter">
+                  <option value="">Todos</option>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="INACTIVA">Inactiva</option>
+                  <option value="BAJA_TEMPORAL">Baja temporal</option>
+                  <option value="BAJA_DEFINITIVA">Baja definitiva</option>
+                  <option value="EGRESADO">Egresado</option>
+                </select>
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end gap-2">
+                <button type="button" id="btnBuscarAlumnos" class="btn btn-ide">
+                  Buscar alumnos
+                </button>
+                <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary">
+                  Limpiar filtros
+                </button>
+              </div>
+
+              <div class="col-md-6 d-flex align-items-end justify-content-end">
+                <button type="button" class="btn btn-outline-success" onclick="descargarExcelAlumnos()">
+                  Descargar Excel de alumnos inscritos
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Lista de alumnos -->
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary d-flex justify-content-between align-items-center">
+            <span>Alumnos encontrados</span>
+            <button id="btnNuevoAlumno" class="btn btn-ide btn-sm" type="button">
+              Nuevo alumno
+            </button>
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Foto</th>
+                    <th>Matrícula</th>
+                    <th>Nombre</th>
+                    <th>Programa</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+
+                <tbody id="alumnosTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- CALIFICACIONES -->
+      <section id="calificacionesSection" class="admin-section d-none">
+        <h3 class="section-title">Calificaciones</h3>
+        <p id="calificacionesDesc" class="text-muted">
+          El maestro captura las calificaciones con sus criterios. Aquí puede visualizar.
+        </p>
+
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Filtros de calificaciones
+          </div>
+          <div class="card-body">
+            <form class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Programa</label>
+                <select class="form-select">
+                  <option value="">Todos</option>
+                  <option>Lic. Ing. Sistemas</option>
+                  <option>Lic. Administración</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Periodo / ciclo</label>
+                <select class="form-select">
+                  <option>2025-2</option>
+                  <option>2025-1</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Grupo</label>
+                <input type="text" class="form-control" placeholder="3A" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Asignatura</label>
+                <input type="text" class="form-control" placeholder="Programación II" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Estatus</label>
+                <select class="form-select">
+                  <option>Todos</option>
+                  <option>Pendiente de revisión</option>
+                  <option>Confirmada</option>
+                </select>
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-ide me-2">
+                  Buscar
+                </button>
+                <button type="button" class="btn btn-outline-secondary">
+                  Limpiar filtros
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header bg-soft-primary">
+            <span id="calificacionesTableTitle">Calificaciones capturadas por maestros</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Matrícula</th>
+                    <th>Alumno</th>
+                    <th>Programa</th>
+                    <th>Grupo</th>
+                    <th>Asignatura</th>
+                    <th>Calif. maestro</th>
+                    <th>Asistencia %</th>
+                    <th>Calif. final</th>
+                    <th>Estatus</th>
+                    <th id="calificacionesActionHeader" class="d-none">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>IDE2025001</td>
+                    <td>María López García</td>
+                    <td>Ing. Sistemas</td>
+                    <td>3A</td>
+                    <td>Programación II</td>
+                    <td>90</td>
+                    <td>95%</td>
+                    <td><input type="number" min="0" max="100" class="form-control form-control-sm" value="90"
+                        disabled /></td>
+                    <td><span class="badge bg-warning-subtle text-warning">Pendiente</span></td>
+                    <td id="calificacionesActionCell" class="d-none">
+                      <button class="btn btn-sm btn-ide">
+                        Confirmar
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer text-muted small">
+            <span id="calificacionesFooter">Nota: Solo puede visualizar las calificaciones.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- HORARIOS -->
+      <section id="horariosSection" class="admin-section d-none">
+        <h3 class="section-title">Horarios</h3>
+        <p class="text-muted">
+          Construcción de horarios que los alumnos verán en su portal: asignaturas, horas, aulas y maestros.
+        </p>
+
+        <div class="card mb-4">
+          <div class="card-header bg-soft-primary">
+            Definir bloque de horario
+          </div>
+          <div class="card-body">
+            <form class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Programa</label>
+                <select class="form-select">
+                  <option>Lic. Ing. Sistemas</option>
+                  <option>Lic. Administración</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Periodo / ciclo</label>
+                <select class="form-select">
+                  <option>2025-2</option>
+                  <option>2025-1</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Grupo</label>
+                <input type="text" class="form-control" placeholder="3A" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Día</label>
+                <select class="form-select">
+                  <option>Lunes</option>
+                  <option>Martes</option>
+                  <option>Miércoles</option>
+                  <option>Jueves</option>
+                  <option>Viernes</option>
+                  <option>Sábado</option>
+                </select>
+              </div>
+              <div class="col-md-1">
+                <label class="form-label">Hora inicio</label>
+                <input type="time" class="form-control" />
+              </div>
+              <div class="col-md-1">
+                <label class="form-label">Hora fin</label>
+                <input type="time" class="form-control" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Asignatura</label>
+                <select class="form-select">
+                  <option>Programación II</option>
+                  <option>Estructura de Datos</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Maestro</label>
+                <select class="form-select">
+                  <option>Juan Pérez</option>
+                  <option>María López</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Aula</label>
+                <input type="text" class="form-control" placeholder="Lab 1" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Estatus</label>
+                <select class="form-select">
+                  <option>Activo</option>
+                  <option>Cancelado</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-ide w-100">
+                  Guardar bloque
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header bg-soft-primary">
+            Horario de ejemplo (lo que verá el alumno)
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-striped mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Día</th>
+                    <th>Hora</th>
+                    <th>Programa</th>
+                    <th>Grupo</th>
+                    <th>Asignatura</th>
+                    <th>Maestro</th>
+                    <th>Aula</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Lunes</td>
+                    <td>08:00 - 10:00</td>
+                    <td>Lic. Ing. Sistemas</td>
+                    <td>3A</td>
+                    <td>Programación II</td>
+                    <td>Juan Pérez</td>
+                    <td>Lab 1</td>
+                    <td><span class="badge bg-success-subtle text-success">Activo</span></td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-secondary me-1" onclick="demoEdit('bloque de horario')">
+                        Editar
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger"
+                        onclick="confirmDelete('bloque de horario','Lun 08:00 - Programación II')">
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CERTIFICADOS -->
+      <section id="certificadosSection" class="admin-section d-none">
+        <h3 class="section-title">Certificados</h3>
+        <p class="text-muted">
+          Generación y control de certificados parciales y finales a partir de kardex y calificaciones confirmadas.
+        </p>
+        <div class="alert alert-info">
+          Se integrará la generación de certificados con base en el historial de
+          calificaciones y créditos del alumno, listo para impresión o exportación.
+        </div>
+      </section>
+
+      <!-- CONSTANCIAS -->
+      <section id="constanciasSection" class="admin-section d-none">
+        <h3 class="section-title">Constancias</h3>
+        <p class="text-muted">
+          Generación de constancias de inscripción, estatus y otros documentos.
+        </p>
+        <div class="alert alert-info">
+          Se integrará la generación de constancias según los requerimientos institucionales.
+        </div>
+      </section>
+
+      <!-- CONFIGURACIÓN TÍTULOS SEP -->
+      <section id="configuracionSepSection" class="admin-section d-none">
+        <h3 class="section-title">
+          <i class="bi bi-gear-fill text-primary"></i> Configuración de Títulos Electrónicos SEP
+        </h3>
+        <p class="text-muted">
+          Configuración institucional, responsables de firma y certificados digitales para la generación de títulos
+          profesionales electrónicos.
+        </p>
+
+        <!-- Tabs de configuración -->
+        <ul class="nav nav-tabs mb-4" id="configSepTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="institucion-sep-tab" data-bs-toggle="tab"
+              data-bs-target="#institucionSep" type="button" role="tab">
+              <i class="bi bi-building"></i> Institución
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="responsables-sep-tab" data-bs-toggle="tab" data-bs-target="#responsablesSep"
+              type="button" role="tab">
+              <i class="bi bi-people-fill"></i> Responsables de Firma
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="certificados-sep-tab" data-bs-toggle="tab" data-bs-target="#certificadosSep"
+              type="button" role="tab">
+              <i class="bi bi-shield-check"></i> Certificados SAT
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="configSepTabsContent">
+          <!-- TAB: Configuración Institucional -->
+          <div class="tab-pane fade show active" id="institucionSep" role="tabpanel">
+            <div class="card">
+              <div class="card-header bg-soft-primary">
+                <h5 class="mb-0">
+                  <i class="bi bi-building"></i> Configuración Institucional
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">Contenido de configuración institucional para títulos SEP.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Responsables de Firma -->
+          <div class="tab-pane fade" id="responsablesSep" role="tabpanel">
+            <div class="card">
+              <div class="card-header bg-soft-primary">
+                <h5 class="mb-0">
+                  <i class="bi bi-people-fill"></i> Responsables de Firma
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">Contenido de responsables de firma.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB: Certificados SAT -->
+          <div class="tab-pane fade" id="certificadosSep" role="tabpanel">
+            <div class="card">
+              <div class="card-header bg-soft-primary">
+                <h5 class="mb-0">
+                  <i class="bi bi-shield-check"></i> Certificados SAT
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted">Contenido de certificados SAT.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ✅ ORDEN CORRECTO DE CARGA: CRÍTICO PARA EL SISTEMA DE ROLES -->
+  <!-- 1. Configuración general -->
+  <script src="../js/config.js"></script>
+  
+  <!-- 2. ROLES Y PERMISOS (ÚNICO lugar donde se definen) -->
+  <script src="../js/roles.js"></script>
+  
+  <!-- 3. Autenticación JWT -->
+  <script src="../js/auth.js"></script>
+
+  <!-- 4. Sistema de roles unificado (DESPUÉS de roles.js) -->
+  <script src="../js/sistema-roles-unified.js"></script>
+
+  <!-- 5. App principal y otros módulos -->
+  <script src="../js/app.js"></script>
+  <script src="../js/gestion-programas.js"></script>
+  <script src="../js/gestion-asignaturas.js"></script>
+  <script src="../js/gestion-docentes.js"></script>
+  <script src="../js/gestion-alumnos-admin.js"></script>
+  <script src="../js/gestion-permisos.js"></script>
+
+  <script>
+
+ 
+    // Configurar logout
+    document.addEventListener('DOMContentLoaded', async function () {
+      // ✅ PRIMERO: Validar sesión ANTES de cargar contenido
+      console.log('🔐 [Dashboard] Validando sesión al cargar página...');
+
+      if (!isAuthenticated()) {
+        console.warn('❌ [Dashboard] No autenticado, redirigiendo a login');
+        window.location.href = '../index.html';
+        return;
+      }
+
+
+      console.log('✅ [Dashboard] Token válido en cliente');
+
+      // ✅ SEGUNDO: Validar token con backend
+      try {
+        const userData = await getCurrentUser();
+        console.log('✅ [Dashboard] Sesión validada con backend:', userData.email);
+
+        // Actualizar UI con datos del usuario
+        document.getElementById('userEmail').textContent = userData.email;
+
+        // Aplicar permisos según el rol
+        const userTipo = localStorage.getItem('userTipo');
+        if (userTipo) {
+          aplicarPermisosSegunRol(userTipo);
+        }
+
+        // ✅ SEÑAL: Marcar que sesión está validada para que gestion-*.js carguen datos
+        dashboardSessionValidated = true;
+        window.dispatchEvent(new Event('dashboardSessionValidated'));
+        console.log('✅ [Dashboard] Disparando evento: dashboardSessionValidated');
+
+      } catch (error) {
+        console.error('❌ [Dashboard] Error validando sesión:', error);
+        // ✅ SOLO logout si es realmente 401
+        if (error.message && error.message.includes('401')) {
+          console.warn('⚠️ Token rechazado por backend (401) - cerrando sesión');
+          logout();
+          window.location.href = '../index.html';
+        } else {
+          // ⚠️ Error de red o timeout - mantener sesión activa
+          console.warn('⚠️ Error de red/timeout - sesión se mantiene activa:', error.message);
+          // NO hacer logout ni redirigir
+          // Permitir que la página continúe intentando cargar
+        }
+        return;
+      }
+
+      // ✅ TERCERO: Setup botón de logout
+      const btnLogout = document.getElementById('btnLogout');
+      if (btnLogout) {
+        btnLogout.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (confirm('¿Seguro que deseas cerrar sesión?')) {
+            console.log('👋 [Dashboard] Cerrando sesión...');
+            logout();
+          }
+        });
+      }
+    });
+
+    // Utilidades globales
+    function confirmDelete(tipo, nombre) {
+      const seguro = confirm(`¿Seguro que quieres eliminar el/la ${tipo}: "${nombre}"?`);
+      if (seguro) {
+        alert(`${tipo} eliminado (demo, sin persistencia).`);
+      }
+    }
+
+    function demoEdit(tipo) {
+      alert(`Aquí se abriría el formulario para editar el/la ${tipo}. (Demo visual)`);
+    }
+
+    function descargarExcelAlumnos() {
+      alert("Descarga de Excel de alumnos inscritos.\n(Demo: se generaría un archivo .xlsx).");
+    }
+
+    function descargarExcelDocentes() {
+      alert("Descarga de Excel de docentes inscritos.\n(Demo: se generaría un archivo .xlsx).");
+    }
+
+    function seleccionarPrograma(nombre) {
+      document.getElementById("programaSeleccionadoLabel").textContent = nombre;
+    }
+
+    function mostrarCampoOtroEtiqueta() {
+      const select = document.getElementById("etiquetaSelect");
+      const campoOtro = document.getElementById("campoEtiquetaOtro");
+
+      if (select.value === "otro") {
+        campoOtro.classList.remove("d-none");
+      } else {
+        campoOtro.classList.add("d-none");
+      }
+    }
+
+    function limpiarFiltros() {
+      document
+        .querySelectorAll("#alumnoSearchForm .alumno-filter")
+        .forEach((input) => {
+          if (input.tagName === "SELECT") {
+            input.selectedIndex = 0;
+          } else {
+            input.value = "";
+          }
+        });
+    }
+  </script>
+</body>
+
+</html>

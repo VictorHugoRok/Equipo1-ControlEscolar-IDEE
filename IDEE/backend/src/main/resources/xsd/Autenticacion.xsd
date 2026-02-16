@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="https://www.siged.sep.gob.mx/titulos/"
+ targetNamespace="https://www.siged.sep.gob.mx/titulos/" elementFormDefault="qualified">
+ <xs:element name="Autenticacion">
+ <xs:annotation>
+ <xs:documentation>Nodo que contiene la definición de los atributos de sello del documento electrónico.</xs:documentation>
+ </xs:annotation>
+ <xs:complexType>
+ <xs:attribute name="version" fixed="1.0" type="xs:string" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido con el valor prefijado a 1.0 que indica la versión del estándar bajo el que se encuentra expresado el título electrónico.</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ <xs:attribute name="folioDigital" type="xs:string" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido que define el folio único del documento (UUUID) electrónico conforme al estándar RFC 4122.</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ <xs:attribute name="fechaAutenticacion" type="xs:dateTime" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido para expresar la fecha y hora de la generación del sello del Documento Electrónico de la autoridad competente. Se expresa en la forma aaaa-mm-ddThh:mm:ss.
+</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ <xs:attribute name="selloTitulo" type="xs:string" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido que contiene los sellos digitales de los firmantes responsables concatenados del documento electrónico, que será autenticado. El sello deberá ser expresado cómo una cadena de texto en formato Base 64.</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ <xs:attribute name="noCertificadoAutoridad" type="xs:string" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido para expresar el número de serie del certificado de la autoridad competente, usada para generar el sello digital del documento electrónico.</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ <xs:attribute name="selloAutenticacion" type="xs:string" use="required">
+ <xs:annotation>
+ <xs:documentation>Atributo requerido para contener el sello digital al que hace referencia al documento electrónico. El sello deberá ser expresado cómo una cadena de texto en formato Base 64.</xs:documentation>
+ </xs:annotation>
+ </xs:attribute>
+ </xs:complexType>
+ </xs:element>
+</xs:schema>

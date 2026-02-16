@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbHVtbm9AaWRlZS5lZHUubXgiLCJpYXQiOjE3NjYwNzc2NTIsImV4cCI6MTc2NjE2NDA1Mn0.jz33DeA9OtiN94ItvhQC41p5ts7uuT-nuK_CtKIGcz5S7nqJZMqT_uES6D9TfyFzbj6RXQUFSeUpx38eS6bT-A\")",
+      "Bash(curl:*)",
+      "Bash(xargs:*)",
+      "Bash(PGPASSWORD=admin1234 psql:*)",
+      "Bash(python3:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBpZGVlLmVkdS5teCIsImlhdCI6MTc2NzEyMTY5NCwiZXhwIjoxNzY3MjA4MDk0fQ.TXRK7aGrwpvHvWHM-C4hLYMr0uzKszqEjf0AYXzuFqxWUpdqMs2fXgiSOXSKuxF7t2TcMQ3XbqhSS_zA2pGvmQ\")",
+      "Bash(__NEW_LINE__ curl -s \"http://localhost:8080/api/alumnos/matricula/IDEE2022ESP002\" )"
+    ]
+  }
+}

@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Control Escolar IDEE - Alumno</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-ide">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-semibold" href="#">
+          IDEE • Portal alumno
+        </a>
+        <span class="badge-role d-none d-md-inline-block ms-2">Alumno</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="userNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" onclick="mostrarSeccion('alumnoProgramasSection'); return false;">
+                Mis programas
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#" onclick="mostrarSeccion('alumnoSolicitudesSection'); return false;">
+                Solicitudes
+              </a>
+            </li>
+          </ul>
+          <span class="me-3 small text-light">alumno@ide.edu.mx</span>
+          <a href="../index.html" class="btn btn-outline-light btn-sm">
+            Cerrar sesión
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container dashboard-content">
+      <!-- Listado de programas -->
+      <section id="alumnoProgramasSection" class="user-section">
+        <h3 class="section-title">Mis programas</h3>
+        <p class="text-muted">
+          Programas educativos en los que has estado inscrito(a) o estás inscrito(a).
+        </p>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card cursor-pointer"
+              onclick="seleccionarProgramaAlumno('Ingeniería en Sistemas Computacionales')">
+              <div class="card-body">
+                <h5 class="card-title mb-1">Ingeniería en Sistemas Computacionales</h5>
+                <p class="card-subtitle text-muted small mb-2">Generación 2025-2029 • Activo</p>
+                <p class="mb-0 small text-muted">
+                  Consulta tu horario, calificaciones, kardex, observaciones y documentos entregados.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card cursor-pointer" onclick="seleccionarProgramaAlumno('Licenciatura en Administración')">
+              <div class="card-body">
+                <h5 class="card-title mb-1">Licenciatura en Administración</h5>
+                <p class="card-subtitle text-muted small mb-2">Generación 2023-2027 • Historial</p>
+                <p class="mb-0 small text-muted">
+                  Visualiza tu historial académico completo y documentos de este programa.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Detalle de programa -->
+      <section id="alumnoDetalleSection" class="user-section d-none">
+        <h3 class="section-title">
+          Programa seleccionado: <span id="alumnoProgramaSeleccionado" class="fw-normal"></span>
+        </h3>
+
+        <ul class="nav nav-tabs mb-3" id="alumnoTabs">
+          <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabHorarioAlumno">
+              Consultar horario
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabInfoAcademicaAlumno">
+              Información académica
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabEvalDocenteAlumno">
+              Evaluación docente
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Horario -->
+          <div class="tab-pane fade show active" id="tabHorarioAlumno">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Horario vigente</h5>
+                <p class="text-muted">
+                  Este es el horario que fue construido en el módulo de control escolar.
+                </p>
+                <div class="table-responsive">
+                  <table class="table table-striped align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Día</th>
+                        <th>Hora</th>
+                        <th>Asignatura</th>
+                        <th>Maestro</th>
+                        <th>Aula</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Lunes</td>
+                        <td>08:00 - 10:00</td>
+                        <td>Programación II</td>
+                        <td>Juan Pérez</td>
+                        <td>Lab 1</td>
+                      </tr>
+                      <tr>
+                        <td>Martes</td>
+                        <td>10:00 - 12:00</td>
+                        <td>Estructura de Datos</td>
+                        <td>Juan Pérez</td>
+                        <td>Lab 1</td>
+                      </tr>
+                      <!-- Más filas -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información académica -->
+          <div class="tab-pane fade" id="tabInfoAcademicaAlumno">
+            <div class="card">
+              <div class="card-header bg-soft-primary">
+                Información académica
+              </div>
+              <div class="card-body">
+                <ul class="nav nav-pills mb-3">
+                  <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pillCalifAlumno">
+                      Calificaciones
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillKardexAlumno">
+                      Kardex
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillObsAlumno">
+                      Observaciones
+                    </button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillDocsAlumno">
+                      Documentos entregados
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <!-- Calificaciones -->
+                  <div class="tab-pane fade show active" id="pillCalifAlumno">
+                    <h6>Calificaciones por periodo</h6>
+                    <div class="table-responsive mb-3">
+                      <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Periodo</th>
+                            <th>Asignatura</th>
+                            <th>Calificación final</th>
+                            <th>Tipo de evaluación</th>
+                            <th>Estatus</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>2025-1</td>
+                            <td>Programación I</td>
+                            <td>90</td>
+                            <td>Ordinario</td>
+                            <td><span class="badge bg-success-subtle text-success">Aprobado</span></td>
+                          </tr>
+                          <tr>
+                            <td>2025-1</td>
+                            <td>Cálculo Diferencial</td>
+                            <td>75</td>
+                            <td>Ordinario</td>
+                            <td><span class="badge bg-success-subtle text-success">Aprobado</span></td>
+                          </tr>
+                          <!-- Más filas -->
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="small text-muted">
+                      Nota: las calificaciones mostradas son las confirmadas por control escolar.
+                    </div>
+                  </div>
+
+                  <!-- Kardex -->
+                  <div class="tab-pane fade" id="pillKardexAlumno">
+                    <h6>Kardex académico</h6>
+                    <div class="table-responsive mb-3">
+                      <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Periodo</th>
+                            <th>Clave</th>
+                            <th>Asignatura</th>
+                            <th>Calificación</th>
+                            <th>Créditos</th>
+                            <th>Estatus</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>2025-1</td>
+                            <td>PROG-I</td>
+                            <td>Programación I</td>
+                            <td>90</td>
+                            <td>8</td>
+                            <td><span class="badge bg-success-subtle text-success">Aprobada</span></td>
+                          </tr>
+                          <tr>
+                            <td>2025-1</td>
+                            <td>CALC-I</td>
+                            <td>Cálculo Diferencial</td>
+                            <td>75</td>
+                            <td>8</td>
+                            <td><span class="badge bg-success-subtle text-success">Aprobada</span></td>
+                          </tr>
+                          <!-- Más filas -->
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <div class="card card-small-center">
+                          <div class="card-body">
+                            <div class="small text-muted mb-1">Créditos cursados</div>
+                            <div class="h4 mb-0">32</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="card card-small-center">
+                          <div class="card-body">
+                            <div class="small text-muted mb-1">Créditos requeridos</div>
+                            <div class="h4 mb-0">320</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="card card-small-center">
+                          <div class="card-body">
+                            <div class="small text-muted mb-1">Promedio general</div>
+                            <div class="h4 mb-0">88.5</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Observaciones -->
+                  <div class="tab-pane fade" id="pillObsAlumno">
+                    <h6>Observaciones registradas</h6>
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Detalle</th>
+                            <th>Registró</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>15/03/2025</td>
+                            <td>Académica</td>
+                            <td>Alumno con buen desempeño en proyectos de programación.</td>
+                            <td>Coordinación de carrera</td>
+                          </tr>
+                          <tr>
+                            <td>20/04/2025</td>
+                            <td>Administrativa</td>
+                            <td>Entregó tardíamente comprobante de pago, regularizado.</td>
+                            <td>Control escolar</td>
+                          </tr>
+                          <!-- Más filas -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Documentos entregados -->
+                  <div class="tab-pane fade" id="pillDocsAlumno">
+                    <h6>Documentos entregados</h6>
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Documento</th>
+                            <th>Entregado</th>
+                            <th>Fecha de recepción</th>
+                            <th>Observaciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Acta de nacimiento</td>
+                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
+                            <td>10/08/2025</td>
+                            <td>Original legible.</td>
+                          </tr>
+                          <tr>
+                            <td>Certificado de bachillerato</td>
+                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
+                            <td>12/08/2025</td>
+                            <td>Sin observaciones.</td>
+                          </tr>
+                          <tr>
+                            <td>CURP impresa</td>
+                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
+                            <td>10/08/2025</td>
+                            <td>—</td>
+                          </tr>
+                          <tr>
+                            <td>Fotografías</td>
+                            <td><span class="badge bg-warning-subtle text-warning">Pendiente</span></td>
+                            <td>—</td>
+                            <td>Traer 4 fotos tamaño infantil.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="small text-muted mt-2">
+                      La información de documentos es capturada y actualizada por control escolar.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evaluación docente -->
+          <div class="tab-pane fade" id="tabEvalDocenteAlumno">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-3">Evaluación docente</h5>
+                <div class="alert alert-warning mb-0">
+                  Por el momento no hay actividad de este tipo disponible para este periodo.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="alumnoSolicitudesSection" class="user-section d-none">
+        <h3 class="section-title">Solicitudes</h3>
+        <p class="text-muted">
+          Desde aquí puedes solicitar documentos como Kardex o constancias.
+          Tu solicitud será enviada a Secretaría Administrativa para su revisión.
+        </p>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <form id="solicitudConstanciaForm" class="row g-3">
+
+              <div class="col-md-6">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" class="form-control" id="solNombre" placeholder="Nombre completo" required>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Matrícula</label>
+                <input type="text" class="form-control" id="solMatricula" placeholder="IDE2025..." required>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Programa</label>
+                <select class="form-select" id="solPrograma" required>
+                  <option value="">Selecciona...</option>
+                  <option>Lic. Cirujano Dentista</option>
+                  <option>Especialidad en Ortodoncia</option>
+                  <option>Especialidad en Endodoncia</option>
+                  <!-- etc -->
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Documentos solicitados</label>
+                <p class="small text-muted mb-2">
+                  Agrega uno o varios tipos de documentos y la cantidad de cada uno (ej. 2 Kardex y 1 constancia).
+                </p>
+              </div>
+
+              <!-- Contenedor de filas detalle -->
+              <div class="col-12" id="solicitudesDetalleContainer">
+                <div class="row g-2 align-items-end solicitud-item mb-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Documento</label>
+                    <select class="form-select sol-tipo" required>
+                      <option value="">Selecciona...</option>
+                      <option value="kardex">Kardex</option>
+                      <option value="constancia_promedio">Constancia con promedio</option>
+                      <option value="constancia_simple">Constancia simple</option>
+                      <option value="constancia_inscripcion">Constancia de inscripción</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Cantidad</label>
+                    <input type="number" class="form-control sol-cantidad" min="1" value="1" required>
+                  </div>
+                  <div class="col-md-3">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                      onclick="eliminarSolicitudItem(this)">
+                      Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="agregarSolicitudItem()">
+                  + Agregar otro documento
+                </button>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Comprobante de pago (fotografía)</label>
+                <input type="file" class="form-control" id="solComprobante" accept="image/*" required>
+                <div class="form-text">
+                  Adjunta una foto clara de tu comprobante de pago.
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <button type="submit" class="btn btn-ide">
+                  Enviar solicitud
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Historial de solicitudes (demo) -->
+        <div class="card">
+          <div class="card-header bg-soft-primary">
+            Historial de solicitudes
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Documentos</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="solicitudesHistorialBody">
+                  <!-- demo -->
+                  <tr>
+                    <td>10/12/2025</td>
+                    <td>1 Kardex, 1 Constancia con promedio</td>
+                    <td><span class="badge bg-warning-subtle text-warning">En revisión</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function mostrarSeccion(id) {
+      document.querySelectorAll(".user-section").forEach((s) => s.classList.add("d-none"));
+      document.getElementById(id).classList.remove("d-none");
+    }
+
+    function seleccionarProgramaAlumno(nombrePrograma) {
+      document.getElementById("alumnoProgramaSeleccionado").textContent = nombrePrograma;
+      mostrarSeccion("alumnoDetalleSection");
+    }
+
+    function agregarSolicitudItem() {
+      const cont = document.getElementById("solicitudesDetalleContainer");
+
+      const row = document.createElement("div");
+      row.classList.add("row", "g-2", "align-items-end", "solicitud-item", "mb-2");
+
+      row.innerHTML = `
+      <div class="col-md-6">
+        <label class="form-label">Documento</label>
+        <select class="form-select sol-tipo" required>
+          <option value="">Selecciona...</option>
+          <option value="kardex">Kardex</option>
+          <option value="constancia_promedio">Constancia con promedio</option>
+          <option value="constancia_simple">Constancia simple</option>
+          <option value="constancia_inscripcion">Constancia de inscripción</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" class="form-control sol-cantidad" min="1" value="1" required>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                onclick="eliminarSolicitudItem(this)">
+          Eliminar
+        </button>
+      </div>
+    `;
+
+      cont.appendChild(row);
+    }
+
+    function eliminarSolicitudItem(btn) {
+      const row = btn.closest(".solicitud-item");
+      if (row) row.remove();
+    }
+
+    document.getElementById("solicitudConstanciaForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Aquí solo simulamos envío; en backend enviarías los datos a la BD
+      alert("Solicitud enviada a Secretaría Administrativa (demo).");
+
+      // Opcional: agregar al historial (demo visual)
+      const nombre = document.getElementById("solNombre").value;
+      const tipos = Array.from(document.querySelectorAll(".solicitud-item")).map(row => {
+        const t = row.querySelector(".sol-tipo");
+        const c = row.querySelector(".sol-cantidad");
+        return (c.value || 1) + " " + (t.options[t.selectedIndex]?.text || "");
+      });
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+      <td>${new Date().toLocaleDateString()}</td>
+      <td>${tipos.join(", ")}</td>
+      <td><span class="badge bg-warning-subtle text-warning">En revisión</span></td>
+    `;
+      document.getElementById("solicitudesHistorialBody").appendChild(tr);
+
+      // Reset parcial del formulario (si quieres)
+      this.reset();
+      // Dejar al menos una fila de detalle
+      const cont = document.getElementById("solicitudesDetalleContainer");
+      cont.innerHTML = "";
+      agregarSolicitudItem();
+    });
+
+    // Para que haya al menos una fila desde el inicio
+    window.addEventListener("DOMContentLoaded", () => {
+      // Si ya hay una en el HTML, no hace falta; pero por si limpiaste:
+      const cont = document.getElementById("solicitudesDetalleContainer");
+      if (!cont.querySelector(".solicitud-item")) {
+        agregarSolicitudItem();
+      }
+    });
+  </script>
+
+  <!-- Scripts de conexión al backend -->
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Variables globales
+    let currentUser = null;
+    let alumnoData = null;
+
+    // Inicializar página
+    async function initAlumnoPage() {
+      try {
+        // Verificar autenticación y cargar datos del usuario
+        currentUser = await initializePage('ALUMNO');
+
+        if (!currentUser) {
+          return;
+        }
+
+        // Cargar datos específicos del alumno
+        await loadAlumnoData();
+
+        console.log('Página de alumno inicializada correctamente');
+      } catch (error) {
+        handleNetworkError(error);
+      }
+    }
+
+    // Cargar datos del alumno desde el backend
+    async function loadAlumnoData() {
+      try {
+        // Obtener información completa del usuario incluyendo datos de alumno
+        const response = await authFetch('/auth/me');
+
+        if (response.alumno) {
+          alumnoData = response.alumno;
+          updateAlumnoUI();
+        } else {
+          console.warn('No se encontraron datos de alumno asociados a este usuario');
+        }
+      } catch (error) {
+        console.error('Error al cargar datos del alumno:', error);
+        showError('Error al cargar información del alumno');
+      }
+    }
+
+    // Actualizar UI con datos del alumno
+    function updateAlumnoUI() {
+      if (!alumnoData) return;
+
+      // Actualizar email en navbar
+      const emailSpan = document.querySelector('.navbar .text-light');
+      if (emailSpan && alumnoData.correoInstitucional) {
+        emailSpan.textContent = alumnoData.correoInstitucional;
+      }
+
+      console.log('Datos del alumno cargados:', alumnoData);
+    }
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', initAlumnoPage);
+  </script>
+</body>
+
+</html>

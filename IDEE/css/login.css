@@ -1,0 +1,106 @@
+:root {
+  --ide-primary: #184170;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at top left, #285799, #0b1b33);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* CONTENEDOR DEL LOGIN */
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;   /* centrado vertical y horizontal */
+  padding: 0 1rem;
+}
+
+/* TARJETA DEL LOGIN */
+.card-login {
+  background: #ffffff;
+  color: #212529;
+  border-radius: 1.2rem;
+  width: 100%;
+  max-width: 450px;
+  border: none;
+}
+
+/* Logo dentro de la card, ya con padding superior de .card-body */
+.login-logo {
+  width: 80px;
+  object-fit: contain;
+}
+
+/* TÍTULOS */
+.text-primary-ide {
+  color: var(--ide-primary);
+}
+
+/* Botón ver contraseña */
+.toggle-password {
+  position: absolute;
+  top: 38px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.toggle-password:hover {
+  opacity: 1;
+}
+
+/* Botón principal */
+.btn-ide {
+  background-color: var(--ide-primary);
+  border-color: var(--ide-primary);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.45rem;
+}
+
+.btn-ide:hover {
+  background-color: #102b4b;
+  border-color: #102b4b;
+  color: #fff;
+}
+
+/* Link recuperar contraseña */
+.link-ide {
+  color: var(--ide-primary);
+  font-weight: 500;
+}
+
+.link-ide:hover {
+  color: #0f2a4a;
+}
+
+/* BOTÓN IDE */
+.btn-ide {
+  background-color: var(--ide-primary);
+  border-color: var(--ide-primary);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.45rem;
+}
+
+.btn-ide:hover {
+  background-color: #102b4b;
+  border-color: #102b4b;
+  color: #fff;
+}
+
+/* LINK DE RECUPERAR CONTRASEÑA */
+.link-ide {
+  color: var(--ide-primary);
+  font-weight: 500;
+}
+
+.link-ide:hover {
+  color: #0f2a4a;
+}

@@ -1,0 +1,109 @@
+package com.idee.controlescolar.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.idee.controlescolar.security.RequierePermiso;
+import com.idee.controlescolar.model.Calificacion;
+import com.idee.controlescolar.service.CalificacionService;
+import java.util.List;
+
+/**
+ * EJEMPLO: Controlador de Calificaciones CON VALIDACIÓN DE PERMISOS
+ * ==================================================================
+ * 
+ * Este controlador demuestra cómo usar @RequierePermiso para
+ * proteger los endpoints de acuerdo a los roles y permisos.
+ * 
+ * La validación se ejecuta ANTES de entrar al método.
+ * Si el usuario no tiene permisos: respuesta 403 FORBIDDEN
+ */
+@RestController
+@RequestMapping("/api/calificaciones")
+public class CalificacionControllerEjemplo {
+
+    @Autowired
+    private CalificacionService calificacionService;
+
+    /**
+     * VER CALIFICACIONES: Acceso permitido para ADMIN y SECRETARIA_ACADEMICA
+     * 
+     * - ADMIN: Solo lectura ✓
+     * - SECRETARIA_ACADEMICA: Lectura ✓
+     * - MAESTRO: Solo sus propias calificaciones
+     * - OTROS: Acceso denegado
+     */
+    @GetMapping
+    @RequierePermiso("VER_CALIFICACIONES")
+    public ResponseEntity<List<Calificacion>> obtenerCalificaciones() {
+        return ResponseEntity.ok(calificacionService.obtenerTodas());
+    }
+
+    @GetMapping("/{id}")
+    @RequierePermiso("VER_CALIFICACIONES")
+    public ResponseEntity<Calificacion> obtenerCalificacion(@PathVariable Long id) {
+        return ResponseEntity.ok(calificacionService.obtenerPorId(id));
+    }
+
+    /**
+     * CREAR CALIFICACIÓN: Solo SECRETARIA_ACADEMICA y MAESTRO
+     * 
+     * Los maestros crean calificaciones para sus alumnos
+     * La secretaría académica puede hacerlo en su nombre
+     */
+    @PostMapping
+    @RequierePermiso("REGISTRAR_CALIFICACIONES")
+    public ResponseEntity<Calificacion> crearCalificacion(@RequestBody Calificacion calificacion) {
+        return ResponseEntity.ok(calificacionService.crear(calificacion));
+    }
+
+    /**
+     * EDITAR CALIFICACIÓN: Solo SECRETARIA_ACADEMICA
+     * 
+     * - ADMIN: DENEGADO (aunque puede verlas)
+     * - SECRETARIA_ACADEMICA: Permitido
+     * - OTROS: DENEGADO
+     */
+    @PutMapping("/{id}")
+    @RequierePermiso("EDITAR_CALIFICACIONES")
+    public ResponseEntity<Calificacion> actualizarCalificacion(
+            @PathVariable Long id,
+            @RequestBody Calificacion calificacion) {
+        return ResponseEntity.ok(calificacionService.actualizar(id, calificacion));
+    }
+
+    /**
+     * CONFIRMAR CALIFICACIÓN: Solo SECRETARIA_ACADEMICA
+     * 
+     * Una vez confirmada, la calificación NO puede editarse.
+     * Solo la secretaría académica puede hacer esto.
+     */
+    @PostMapping("/{id}/confirmar")
+    @RequierePermiso("CONFIRMAR_CALIFICACIONES")
+    public ResponseEntity<Void> confirmarCalificacion(@PathVariable Long id) {
+        calificacionService.confirmar(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * ELIMINAR CALIFICACIÓN: Solo SECRETARIA_ACADEMICA
+     * 
+     * Las calificaciones confirmadas NO pueden eliminarse
+     */
+    @DeleteMapping("/{id}")
+    @RequierePermiso("CONFIRMAR_CALIFICACIONES")  // Requiere mismo permiso que confirmar
+    public ResponseEntity<Void> eliminarCalificacion(@PathVariable Long id) {
+        calificacionService.eliminar(id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * OBTENER ESTADO DE CALIFICACIÓN: Acceso público para usuario autenticado
+     * 
+     * No requiere permiso específico, solo estar autenticado
+     */
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<String> obtenerEstado(@PathVariable Long id) {
+        return ResponseEntity.ok(calificacionService.obtenerEstado(id));
+    }
+}

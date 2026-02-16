@@ -1,0 +1,107 @@
+package com.idee.controlescolar.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import com.idee.controlescolar.security.RequierePermiso;
+import com.idee.controlescolar.model.EstatusTitulo;
+import com.idee.controlescolar.dto.TituloElectronicoResponse;
+import com.idee.controlescolar.service.TituloElectronicoService;
+import java.util.List;
+
+/**
+ * EJEMPLO: Controlador de Títulos Electrónicos CON VALIDACIÓN DE PERMISOS
+ * ========================================================================
+ * 
+ * Demuestra cómo los títulos son accesibles SOLO por SECRETARIA_ACADEMICA
+ * 
+ * - ADMIN: Acceso COMPLETAMENTE DENEGADO
+ * - SECRETARIA_ACADEMICA: Acceso COMPLETO
+ * - OTROS: Acceso DENEGADO
+ */
+@RestController
+@RequestMapping("/api/titulos-electronicos")
+public class TituloElectronicoControllerEjemplo {
+
+    @Autowired
+    private TituloElectronicoService tituloService;
+
+    /**
+     * VER TÍTULOS: Solo SECRETARIA_ACADEMICA
+     * 
+     * El ADMIN NO puede acceder a esto (mismo que en el frontend)
+     */
+    @GetMapping
+    @RequierePermiso("VER_TITULOS_ELECTRONICOS")
+    public ResponseEntity<List<TituloElectronicoResponse>> obtenerTitulos() {
+        // TODO: Implementar obtenerTodos() en TituloElectronicoService
+        // Por ahora retornamos lista vacía
+        return ResponseEntity.ok(List.of());
+    }
+
+    /**
+     * VER DETALLE DE TÍTULO: Solo SECRETARIA_ACADEMICA
+     */
+    @GetMapping("/{id}")
+    @RequierePermiso("VER_TITULOS_ELECTRONICOS")
+    public ResponseEntity<TituloElectronicoResponse> obtenerTitulo(@PathVariable Long id) {
+        return ResponseEntity.ok(tituloService.obtenerTituloPorId(id));
+    }
+
+    /**
+     * GENERAR TÍTULO: Solo SECRETARIA_ACADEMICA
+     * 
+     * Crea un nuevo título electrónico para un alumno
+     */
+    @PostMapping
+    @RequierePermiso("GENERAR_TITULOS_ELECTRONICOS")
+    public ResponseEntity<TituloElectronicoResponse> generarTitulo(
+            @RequestBody com.idee.controlescolar.dto.TituloElectronicoRequest request) {
+        return ResponseEntity.ok(tituloService.generarTitulo(request));
+    }
+
+    /**
+     * FIRMAR TÍTULO: Solo SECRETARIA_ACADEMICA
+     * 
+     * Aplica la firma digital y sello del SAT
+     */
+    @PostMapping("/{id}/firmar")
+    @RequierePermiso("FIRMAR_TITULOS")
+    public ResponseEntity<TituloElectronicoResponse> firmarTitulo(@PathVariable Long id) {
+        Object resultado = tituloService.firmar(id);
+        if (resultado instanceof TituloElectronicoResponse) {
+            return ResponseEntity.ok((TituloElectronicoResponse) resultado);
+        }
+        return ResponseEntity.status(500).build();
+    }
+
+    /**
+     * CANCELAR TÍTULO: Solo SECRETARIA_ACADEMICA
+     * 
+     * Una vez firmado, se debe usar cancelación
+     */
+    @PostMapping("/{id}/cancelar")
+    @RequierePermiso("GENERAR_TITULOS_ELECTRONICOS")
+    public ResponseEntity<Void> cancelarTitulo(@PathVariable Long id) {
+        tituloService.actualizarEstatus(id, EstatusTitulo.RECHAZADO_SEP);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * VERIFICAR FIRMA DE TÍTULO: Acceso público
+     * 
+     * Cualquiera puede verificar si un título es legítimo
+     * No requiere login
+     */
+    @GetMapping("/{id}/verificar")
+    public ResponseEntity<Boolean> verificarFirma(@PathVariable Long id) {
+        try {
+            TituloElectronicoResponse titulo = tituloService.obtenerTituloPorId(id);
+            // Verificar que el título tiene sello digital
+            boolean esValido = titulo.isTieneSello() && titulo.getEstatus() == EstatusTitulo.FIRMADO;
+            return ResponseEntity.ok(esValido);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
+    }
+}

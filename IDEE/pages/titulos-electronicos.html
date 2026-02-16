@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Títulos Electrónicos - IDEE Control Escolar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="../assets/logo.png" alt="IDEE" height="40" class="me-2">
+                IDEE - Control Escolar
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="secretariacadem.html">
+                            <i class="bi bi-arrow-left"></i> Volver al Panel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="btnCerrarSesion">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4" id="titulosElectronicosSection">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4">
+                    <i class="bi bi-award-fill text-primary"></i>
+                    Generación de Títulos Profesionales Electrónicos
+                </h2>
+            </div>
+        </div>
+
+        <!-- Tabs de navegación -->
+        <ul class="nav nav-tabs mb-4" id="titulosTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="generar-tab" data-bs-toggle="tab"
+                        data-bs-target="#generar" type="button" role="tab">
+                    <i class="bi bi-plus-circle"></i> Generar Título
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="consultar-tab" data-bs-toggle="tab"
+                        data-bs-target="#consultar" type="button" role="tab">
+                    <i class="bi bi-search"></i> Consultar Títulos
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="titulosTabsContent">
+
+            <!-- TAB: Generar Título -->
+            <div class="tab-pane fade show active" id="generar" role="tabpanel">
+                <div class="row">
+                    <!-- Búsqueda de Alumno -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-person-search"></i> Buscar Alumno
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="buscarAlumno" class="form-label">
+                                        Matrícula o CURP
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="buscarAlumno"
+                                               placeholder="Ingrese matrícula o CURP">
+                                        <button class="btn btn-primary" type="button" id="btnBuscarAlumno">
+                                            <i class="bi bi-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="alumnoInfo" class="d-none">
+                                    <hr>
+                                    <h6 class="text-primary">Datos del Alumno</h6>
+                                    <div class="mb-2">
+                                        <strong>Nombre:</strong>
+                                        <span id="alumnoNombre"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Matrícula:</strong>
+                                        <span id="alumnoMatricula"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>CURP:</strong>
+                                        <span id="alumnoCurp"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Email:</strong>
+                                        <span id="alumnoEmail"></span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Estatus:</strong>
+                                        <span id="alumnoEstatus" class="badge"></span>
+                                    </div>
+
+                                    <div id="requisitosValidacion" class="mt-3"></div>
+                                </div>
+
+                                <div id="alumnoNoEncontrado" class="alert alert-warning d-none">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    No se encontró el alumno especificado
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Generación -->
+                    <div class="col-lg-8 mb-4">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-file-earmark-text"></i> Datos del Título
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="formGenerarTitulo">
+                                    <input type="hidden" id="alumnoIdTitulo">
+                                    <input type="hidden" id="programaId">
+
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i>
+                                        <strong>Nota:</strong> Primero debe buscar y seleccionar un alumno para generar su título
+                                    </div>
+
+                                    <h6 class="text-primary mb-3">
+                                        <i class="bi bi-calendar-event"></i> Fechas
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fechaExpedicion" class="form-label">
+                                                Fecha de Expedición <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control" id="fechaExpedicion" required>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fechaExamenProfesional" class="form-label">
+                                                Fecha de Examen Profesional <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control" id="fechaExamenProfesional" required>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <h6 class="text-primary mb-3">
+                                        <i class="bi bi-mortarboard"></i> Modalidad de Titulación
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="idModalidadTitulacion" class="form-label">
+                                                ID Modalidad <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="idModalidadTitulacion"
+                                                   required placeholder="Ej: 1" value="1">
+                                            <small class="text-muted">Según catálogo SEP</small>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="modalidadTitulacion" class="form-label">
+                                                Modalidad <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select" id="modalidadTitulacion" required>
+                                                <option value="">Seleccione...</option>
+                                                <option value="POR TESIS" selected>POR TESIS</option>
+                                                <option value="Por Examen">Por Examen</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <h6 class="text-primary mb-3">
+                                        <i class="bi bi-hand-thumbs-up"></i> Servicio Social
+                                    </h6>
+
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="cumplioServicioSocial">
+                                        <label class="form-check-label" for="cumplioServicioSocial">
+                                            El alumno cumplió con el Servicio Social
+                                        </label>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="idFundamentoLegalServicioSocial" class="form-label">
+                                                ID Fundamento Legal <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="idFundamentoLegalServicioSocial"
+                                                   required placeholder="Ej: 1" value="5">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fundamentoLegalServicioSocial" class="form-label">
+                                                Fundamento Legal <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="fundamentoLegalServicioSocial"
+                                                   required placeholder="Ej: Artículo 55 de la Ley Reglamentaria" value="NO APLICA">
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <h6 class="text-primary mb-3">
+                                        <i class="bi bi-building"></i> Antecedente Académico
+                                    </h6>
+
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <label for="institucionProcedencia" class="form-label">
+                                                Institución de Procedencia <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="institucionProcedencia"
+                                                   required placeholder="Nombre de la universidad/institución de licenciatura">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="idTipoEstudioAntecedente" class="form-label">
+                                                ID Tipo de Estudio <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="idTipoEstudioAntecedente"
+                                                   required placeholder="Ej: 5" value="2">
+                                            <small class="text-muted">5 = Licenciatura/Profesional</small>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="tipoEstudioAntecedente" class="form-label">
+                                                Tipo de Estudio <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="tipoEstudioAntecedente"
+                                                   required value="Licenciatura">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="idEntidadFederativaAntecedente" class="form-label">
+                                                ID Entidad Federativa <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="idEntidadFederativaAntecedente"
+                                                   required placeholder="Ej: 09">
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label for="entidadFederativaAntecedente" class="form-label">
+                                                Entidad Federativa <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="entidadFederativaAntecedente"
+                                                   required placeholder="Ej: Ciudad de México">
+                                        </div>
+
+                                        <div class="col-md-4 mb-3">
+                                            <label for="fechaTerminacionAntecedente" class="form-label">
+                                                Fecha de Terminación <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="date" class="form-control" id="fechaTerminacionAntecedente" required>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-secondary" id="btnLimpiarForm">
+                                            <i class="bi bi-x-circle"></i> Limpiar
+                                        </button>
+                                        <button type="submit" class="btn btn-success" id="btnGenerarTitulo" disabled>
+                                            <i class="bi bi-file-earmark-check"></i> Generar Título
+                                        </button>
+                                    </div>
+                                </form>
+
+                                <div id="alertaGeneracion" class="alert d-none mt-3" role="alert"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Consultar Títulos -->
+            <div class="tab-pane fade" id="consultar" role="tabpanel">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Títulos Generados
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="buscarTitulo" class="form-label">
+                                    Buscar por Folio de Control o Matrícula
+                                </label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="buscarTitulo"
+                                           placeholder="Ingrese folio o matrícula">
+                                    <button class="btn btn-primary" type="button" id="btnBuscarTitulo">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Filtro por Estatus</label>
+                                <select class="form-select" id="filtroEstatus">
+                                    <option value="">Todos</option>
+                                    <option value="GENERADO">Generado</option>
+                                    <option value="FIRMADO">Firmado</option>
+                                    <option value="ENVIADO_SEP">Enviado a SEP</option>
+                                    <option value="VALIDADO_SEP">Validado SEP</option>
+                                    <option value="RECHAZADO_SEP">Rechazado SEP</option>
+                                    <option value="ENTREGADO">Entregado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Folio Control</th>
+                                        <th>Alumno</th>
+                                        <th>Matrícula</th>
+                                        <th>Programa</th>
+                                        <th>Fecha Expedición</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaTitulos">
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">
+                                            Busque un título o seleccione un filtro para mostrar resultados
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal: Cambiar Estatus -->
+    <div class="modal fade" id="modalCambiarEstatus" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-arrow-repeat"></i> Cambiar Estatus del Título
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="tituloIdCambioEstatus">
+
+                    <div class="mb-3">
+                        <label for="nuevoEstatus" class="form-label">
+                            Nuevo Estatus <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="nuevoEstatus" required>
+                            <option value="">Seleccione...</option>
+                            <option value="GENERADO">Generado</option>
+                            <option value="FIRMADO">Firmado</option>
+                            <option value="ENVIADO_SEP">Enviado a SEP</option>
+                            <option value="VALIDADO_SEP">Validado SEP</option>
+                            <option value="RECHAZADO_SEP">Rechazado SEP</option>
+                            <option value="ENTREGADO">Entregado</option>
+                        </select>
+                    </div>
+
+                    <div id="alertaEstatus" class="alert d-none" role="alert"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnConfirmarCambioEstatus">
+                        <i class="bi bi-check-circle"></i> Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- ✅ ORDEN CORRECTO: Scripts en dependencia -->
+    <script src="../js/config.js"></script>
+    <script src="../js/roles.js"></script>              <!-- ✅ NUEVO: Fuente única de roles -->
+    <script src="../js/auth.js"></script>
+    <script src="../js/sistema-roles-unified.js"></script> <!-- ✅ Funciones de roles disponibles -->
+    <script src="../js/titulos-electronicos.js"></script>
+</body>
+</html>
