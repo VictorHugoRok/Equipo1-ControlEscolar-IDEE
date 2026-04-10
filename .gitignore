@@ -1,0 +1,178 @@
+#######################################
+# 🔥 Compilados / Binarios
+#######################################
+*.class
+*.jar
+*.war
+*.ear
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.app
+
+#######################################
+# 🧱 Build folders (general)
+#######################################
+target/
+build/
+dist/
+out/
+bin/
+obj/
+
+#######################################
+# 📦 Package managers
+#######################################
+node_modules/
+bower_components/
+jspm_packages/
+
+#######################################
+# 🧪 Testing / Coverage
+#######################################
+coverage/
+*.lcov
+.nyc_output/
+
+#######################################
+# 📄 Logs
+#######################################
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+#######################################
+# ⚙️ Environment / Secrets
+#######################################
+.env
+.env.*
+*.env
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+
+#######################################
+# 🧠 IDEs
+#######################################
+
+# IntelliJ / WebStorm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+#######################################
+# 💻 OS files
+#######################################
+.DS_Store
+Thumbs.db
+desktop.ini
+
+#######################################
+# ☕ Java / Spring Boot
+#######################################
+*.pid
+*.seed
+*.pid.lock
+*.err
+hs_err_pid*
+
+#######################################
+# 🐍 Python
+#######################################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.egg-info/
+.venv/
+venv/
+env/
+
+#######################################
+# 🌐 Node / JS / TS
+#######################################
+.next/
+.nuxt/
+.angular/
+.svelte-kit/
+*.tsbuildinfo
+
+#######################################
+# 🟦 .NET
+#######################################
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+#######################################
+# 🐳 Docker
+#######################################
+docker-compose.override.yml
+*.tar
+
+#######################################
+# ☁️ Cloud / Terraform
+#######################################
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+#######################################
+# 🧾 Database
+#######################################
+*.sql
+*.db
+*.sqlite
+
+#######################################
+# 📁 Temporary files
+#######################################
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+#######################################
+# 🧩 Misc
+#######################################
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+#######################################
+# 🔐 Configs sensibles (ejemplos)
+#######################################
+application-local.properties
+application-dev.properties
+application-prod.properties
