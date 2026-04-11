@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Controlador REST para gestionar programas educativos
@@ -27,9 +26,6 @@ public class ProgramaEducativoController {
     @GetMapping
     public ResponseEntity<List<ProgramaEducativo>> obtenerTodos() {
         List<ProgramaEducativo> programas = programaEducativoRepository.findAll();
-        if (programas != null) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
         return ResponseEntity.ok(programas);
     }
 
@@ -37,24 +33,20 @@ public class ProgramaEducativoController {
      * Obtener un programa educativo por ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
-        Optional<ProgramaEducativo> programaOpt = programaEducativoRepository.findById(id);
-        if (!programaOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(programaOpt.get());
+    public ResponseEntity<ProgramaEducativo> obtenerPorId(@PathVariable Long id) {
+        return programaEducativoRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * Obtener un programa educativo por clave
      */
     @GetMapping("/clave/{clave}")
-    public ResponseEntity<?> obtenerPorClave(@PathVariable String clave) {
-        Optional<ProgramaEducativo> programaOpt = programaEducativoRepository.findByClave(clave);
-        if (!programaOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(programaOpt.get());
+    public ResponseEntity<ProgramaEducativo> obtenerPorClave(@PathVariable String clave) {
+        return programaEducativoRepository.findByClave(clave)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -82,25 +74,24 @@ public class ProgramaEducativoController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody ProgramaEducativo programaActualizado) {
-        Optional<ProgramaEducativo> programaOpt = programaEducativoRepository.findById(id);
-        if (!programaOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        ProgramaEducativo programa = programaOpt.get();
-        programa.setClave(programaActualizado.getClave());
-        programa.setClaveDgp(programaActualizado.getClaveDgp());
-        programa.setNombre(programaActualizado.getNombre());
-        programa.setTipoPrograma(programaActualizado.getTipoPrograma());
-        programa.setDuracionPeriodos(programaActualizado.getDuracionPeriodos());
-        programa.setTipoPeriodo(programaActualizado.getTipoPeriodo());
-        programa.setModalidad(programaActualizado.getModalidad());
-        programa.setCreditosTotales(programaActualizado.getCreditosTotales());
-        programa.setRvoe(programaActualizado.getRvoe());
-        programa.setFechaRvoe(programaActualizado.getFechaRvoe());
-        programa.setEstatus(programaActualizado.getEstatus());
-        programa.setDescripcion(programaActualizado.getDescripcion());
-        ProgramaEducativo programaGuardado = programaEducativoRepository.save(programa);
-        return ResponseEntity.ok(programaGuardado);
+        return programaEducativoRepository.findById(id)
+                .map(programa -> {
+                    programa.setClave(programaActualizado.getClave());
+                    programa.setNombre(programaActualizado.getNombre());
+                    programa.setTipoPrograma(programaActualizado.getTipoPrograma());
+                    programa.setDuracionPeriodos(programaActualizado.getDuracionPeriodos());
+                    programa.setTipoPeriodo(programaActualizado.getTipoPeriodo());
+                    programa.setModalidad(programaActualizado.getModalidad());
+                    programa.setCreditosTotales(programaActualizado.getCreditosTotales());
+                    programa.setRvoe(programaActualizado.getRvoe());
+                    programa.setFechaRvoe(programaActualizado.getFechaRvoe());
+                    programa.setEstatus(programaActualizado.getEstatus());
+                    programa.setDescripcion(programaActualizado.getDescripcion());
+
+                    ProgramaEducativo programaGuardado = programaEducativoRepository.save(programa);
+                    return ResponseEntity.ok(programaGuardado);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -108,11 +99,11 @@ public class ProgramaEducativoController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        Optional<ProgramaEducativo> programaOpt = programaEducativoRepository.findById(id);
-        if (!programaOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        programaEducativoRepository.delete(programaOpt.get());
-        return ResponseEntity.ok().build();
+        return programaEducativoRepository.findById(id)
+                .map(programa -> {
+                    programaEducativoRepository.delete(programa);
+                    return ResponseEntity.ok().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
