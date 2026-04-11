@@ -27,6 +27,9 @@ public class ProgramaEducativoController {
     @GetMapping
     public ResponseEntity<List<ProgramaEducativo>> obtenerTodos() {
         List<ProgramaEducativo> programas = programaEducativoRepository.findAll();
+        if (programas != null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         return ResponseEntity.ok(programas);
     }
 
