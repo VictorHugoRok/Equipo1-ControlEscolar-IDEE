@@ -5,6 +5,7 @@ import com.idee.controlescolar.repository.CalificacionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class CalificacionController {
     private final CalificacionRepository calificacionRepository;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARIA_ACADEMICA')")
     public ResponseEntity<List<Calificacion>> listarTodas() {
         List<Calificacion> lista = calificacionRepository.findAll();
         return ResponseEntity.ok(lista);
@@ -32,6 +34,7 @@ public class CalificacionController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Calificacion payload) {
         Optional<Calificacion> opt = calificacionRepository.findById(id);
         if (!opt.isPresent()) {
@@ -50,6 +53,7 @@ public class CalificacionController {
     }
 
     @PostMapping("/{id}/confirmar")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<?> confirmar(@PathVariable Long id) {
         Optional<Calificacion> opt = calificacionRepository.findById(id);
         if (!opt.isPresent()) {

@@ -58,8 +58,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             } catch (Exception e) {
-                // ⚠️ Importante: NO romper el flujo
                 log.warn("⚠️ JWT inválido o expirado: {}", e.getMessage());
+                response.setContentType("application/json;charset=UTF-8");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"JWT inválido o expirado\"}");
+                return;
             }
         }
 

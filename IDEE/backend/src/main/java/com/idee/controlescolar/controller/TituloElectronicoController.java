@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +30,41 @@ public class TituloElectronicoController {
     private final TituloElectronicoService tituloService;
 
     /**
+     * Lista todos los títulos electrónicos.
+     *
+     * GET /api/titulos-electronicos
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
+    public ResponseEntity<List<TituloElectronicoResponse>> listarTodos() {
+        List<TituloElectronicoResponse> titulos = tituloService.listarTodos();
+        return ResponseEntity.ok(titulos);
+    }
+
+    /**
+     * Firma digitalmente un título existente.
+     *
+     * POST /api/titulos-electronicos/{id}/firmar
+     */
+    @PostMapping("/{id}/firmar")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
+    public ResponseEntity<TituloElectronicoResponse> firmarTitulo(@PathVariable Long id) {
+        try {
+            TituloElectronicoResponse titulo = tituloService.firmar(id);
+            return ResponseEntity.ok(titulo);
+        } catch (Exception e) {
+            log.error("Error al firmar título {}: {}", id, e.getMessage(), e);
+            throw new RuntimeException("Error al firmar título: " + e.getMessage());
+        }
+    }
+
+    /**
      * Genera un nuevo título profesional electrónico.
      *
      * POST /api/titulos-electronicos
      */
     @PostMapping
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<TituloElectronicoResponse> generarTitulo(
             @Valid @RequestBody TituloElectronicoRequest request) {
         try {
@@ -52,6 +83,7 @@ public class TituloElectronicoController {
      * GET /api/titulos-electronicos/alumno/{alumnoId}
      */
     @GetMapping("/alumno/{alumnoId}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<List<TituloElectronicoResponse>> obtenerTitulosPorAlumno(
             @PathVariable Long alumnoId) {
         try {
@@ -69,6 +101,7 @@ public class TituloElectronicoController {
      * GET /api/titulos-electronicos/{id}
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<TituloElectronicoResponse> obtenerTitulo(@PathVariable Long id) {
         try {
             TituloElectronicoResponse titulo = tituloService.obtenerTituloPorId(id);
@@ -85,6 +118,7 @@ public class TituloElectronicoController {
      * GET /api/titulos-electronicos/folio/{folioControl}
      */
     @GetMapping("/folio/{folioControl}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<TituloElectronicoResponse> obtenerTituloPorFolio(
             @PathVariable String folioControl) {
         try {
@@ -102,6 +136,7 @@ public class TituloElectronicoController {
      * PUT /api/titulos-electronicos/{id}/estatus
      */
     @PutMapping("/{id}/estatus")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<TituloElectronicoResponse> actualizarEstatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
@@ -126,6 +161,7 @@ public class TituloElectronicoController {
      * GET /api/titulos-electronicos/{id}/descargar-xml
      */
     @GetMapping("/{id}/descargar-xml")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<byte[]> descargarXml(@PathVariable Long id) {
         try {
             byte[] xmlBytes = tituloService.descargarXml(id);
@@ -149,6 +185,7 @@ public class TituloElectronicoController {
      * GET /api/titulos-electronicos/validar-requisitos/{alumnoId}
      */
     @GetMapping("/validar-requisitos/{alumnoId}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<Map<String, Object>> validarRequisitos(@PathVariable Long alumnoId) {
         try {
             boolean cumpleRequisitos = tituloService.validarRequisitosAlumno(alumnoId);

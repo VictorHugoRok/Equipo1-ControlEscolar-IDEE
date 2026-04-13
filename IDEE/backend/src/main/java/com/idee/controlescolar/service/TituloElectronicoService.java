@@ -341,8 +341,28 @@ if (estatus != Alumno.EstatusMatricula.EGRESADO) {
                 .build();
     }
 
-    public Object firmar(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'firmar'");
+    /**
+     * Lista todos los títulos electrónicos.
+     */
+    @Transactional(readOnly = true)
+    public List<TituloElectronicoResponse> listarTodos() {
+        return tituloRepository.findAll().stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Firma digitalmente un título electrónico existente.
+     */
+    @Transactional
+    public TituloElectronicoResponse firmar(Long id) {
+        TituloElectronico titulo = tituloRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Título no encontrado con ID: " + id));
+
+        titulo.setEstatus(EstatusTitulo.FIRMADO);
+        TituloElectronico firmado = tituloRepository.save(titulo);
+
+        log.info("Título {} firmado exitosamente", firmado.getFolioControl());
+        return convertirAResponse(firmado);
     }
 }
