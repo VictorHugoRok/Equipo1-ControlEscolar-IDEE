@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ public class ConfiguracionInstitucionalController {
     private final FirmaDigitalService firmaDigitalService;
 
     @GetMapping
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     @Transactional(readOnly = true)
     public ResponseEntity<ConfiguracionInstitucional> obtenerConfiguracion() {
         return configuracionRepository.findByActivoTrue()
@@ -36,6 +38,7 @@ public class ConfiguracionInstitucionalController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<ConfiguracionInstitucional> crearConfiguracion(
             @RequestBody ConfiguracionInstitucional configuracion) {
         configuracion.setActivo(true);
@@ -44,6 +47,7 @@ public class ConfiguracionInstitucionalController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<ConfiguracionInstitucional> actualizarConfiguracion(
             @PathVariable Long id,
             @RequestBody ConfiguracionInstitucional configuracion) {
@@ -63,6 +67,7 @@ public class ConfiguracionInstitucionalController {
      * ANTES de guardarlos en BD.
      */
     @PostMapping(value = "/certificados", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<?> subirCertificados(
             @RequestPart("cer") MultipartFile cer,
             @RequestPart("key") MultipartFile key,
@@ -135,6 +140,7 @@ public class ConfiguracionInstitucionalController {
      * Prueba si el .cer y .key son válidos y da información detallada del error
      */
     @PostMapping(value = "/certificados/validar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<?> validarCertificadosSinGuardar(
             @RequestPart("cer") MultipartFile cer,
             @RequestPart("key") MultipartFile key,
@@ -213,6 +219,7 @@ public class ConfiguracionInstitucionalController {
      * Devuelve si hay certificados, si son válidos, y su información.
      */
     @GetMapping("/certificados/diagnostico")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<?> diagnosticoCertificados() {
         try {
             ConfiguracionInstitucional cfg = configuracionRepository.findByActivoTrue()
@@ -276,6 +283,7 @@ public class ConfiguracionInstitucionalController {
      * POST /api/configuracion-institucional/{id}/certificados
      */
     @PostMapping("/{id}/certificados")
+    @PreAuthorize("hasRole('SECRETARIA_ACADEMICA')")
     public ResponseEntity<Map<String, Object>> subirCertificadosLegacy(
             @PathVariable Long id,
             @RequestParam("certificado") MultipartFile certificadoFile,

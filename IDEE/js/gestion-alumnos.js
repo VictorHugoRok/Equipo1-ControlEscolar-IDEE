@@ -1,23 +1,7 @@
 // Variables globales
 let alumnos = [];
-let programasEducativos = [];
+let programasEducativosAlumnos = [];
 let alumnoEditando = null;
-
-// Función para obtener headers con autenticación opcional
-function getHeaders(includeContentType = true) {
-    const headers = {};
-
-    if (includeContentType) {
-        headers['Content-Type'] = 'application/json';
-    }
-
-    const token = localStorage.getItem('token');
-    if (token && token !== 'null' && token !== 'undefined') {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
-}
 
 // ==================== CARGAR DATOS ====================
 
@@ -39,7 +23,7 @@ async function cargarAlumnos() {
  */
 async function cargarProgramasEducativos() {
     try {
-        programasEducativos = await authFetch('/programas-educativos');
+        programasEducativosAlumnos = await authFetch('/programas-educativos');
         llenarSelectProgramas();
     } catch (error) {
         console.error('Error al cargar programas:', error);
@@ -55,7 +39,7 @@ function llenarSelectProgramas() {
 
     select.innerHTML = '<option value="">Seleccionar...</option>';
 
-    programasEducativos.forEach(programa => {
+    programasEducativosAlumnos.forEach(programa => {
         const option = document.createElement('option');
         option.value = programa.id;
         option.textContent = `${programa.nombre} (${programa.tipoPrograma || ''})`;

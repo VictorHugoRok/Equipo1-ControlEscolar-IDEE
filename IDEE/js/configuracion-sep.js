@@ -32,43 +32,36 @@ function getHeaders(includeContentType = true) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔍 DOMContentLoaded en configuracion-sep.js');
 
-    // Solo inicializar si estamos en la página correcta
-    const configuracionSection = document.getElementById('configuracionSepSection');
-    console.log('configuracionSepSection:', configuracionSection);
-
-    if (configuracionSection) {
-        console.log('✅ Inicializando configuración SEP...');
-        console.log('Tipo de inicializarEventos:', typeof inicializarEventos);
-        try {
-            inicializarEventosConfiguracion();
-        } catch (error) {
-            console.error('❌ Error al inicializar eventos:', error);
-        }
-
-        // Cargar datos solo cuando se muestre la sección
-        // Observar cambios en la visibilidad de la sección
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.attributeName === 'class') {
-                    const target = mutation.target;
-                    if (!target.classList.contains('d-none')) {
-                        // La sección se volvió visible, cargar datos
-                        cargarConfiguracionInstitucional();
-                        cargarResponsablesFirma();
-                    }
-                }
-            });
-        });
-
-        observer.observe(configuracionSection, { attributes: true });
-
-        // Si la sección ya está visible, cargar datos inmediatamente
-        if (!configuracionSection.classList.contains('d-none')) {
-            cargarConfiguracionInstitucional();
-            cargarResponsablesFirma();
-        }
+    // Esta es una página standalone: verificar que los elementos del formulario existen
+    const formInstitucion = document.getElementById('formInstitucion');
+    if (!formInstitucion) {
+        console.log('ℹ️ formInstitucion no encontrado, saliendo de configuracion-sep.js');
+        return;
     }
+
+    // Proteger la página: redirige a login si no hay sesión válida
+    if (typeof protectPage === 'function') protectPage();
+
+    // Mostrar email del usuario en la barra de navegación
+    mostrarUsuarioActual();
+
+    console.log('✅ Inicializando configuración SEP...');
+    try {
+        inicializarEventosConfiguracion();
+    } catch (error) {
+        console.error('❌ Error al inicializar eventos:', error);
+    }
+
+    cargarConfiguracionInstitucional();
+    cargarResponsablesFirma();
 });
+
+function mostrarUsuarioActual() {
+    const emailSpan = document.getElementById('navUserEmail');
+    if (!emailSpan) return;
+    const email = localStorage.getItem('userEmail');
+    if (email) emailSpan.textContent = email;
+}
 
 function inicializarEventosConfiguracion() {
     console.log('🎯 Ejecutando inicializarEventosConfiguracion()');
@@ -84,6 +77,15 @@ function inicializarEventosConfiguracion() {
     const btnCancelarInstitucion = document.getElementById('btnCancelarInstitucion');
     if (btnCancelarInstitucion) {
         btnCancelarInstitucion.addEventListener('click', limpiarFormularioInstitucion);
+    }
+
+    // Cerrar sesión
+    const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+    if (btnCerrarSesion) {
+        btnCerrarSesion.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (typeof logout === 'function') logout();
+        });
     }
 
     // Formulario de Responsables
@@ -125,8 +127,10 @@ async function cargarConfiguracionInstitucional() {
         if (response.ok) {
             configuracionActual = await response.json();
             mostrarConfiguracionEnFormulario(configuracionActual);
+            ocultarAlertaEstado();
         } else if (response.status === 404) {
             console.log('No hay configuración institucional activa');
+            mostrarAlertaEstado();
         } else {
             throw new Error('Error al cargar configuración');
         }
@@ -134,6 +138,16 @@ async function cargarConfiguracionInstitucional() {
         console.error('Error:', error);
         mostrarAlerta('alertaInstitucion', 'danger', 'Error al cargar la configuración institucional');
     }
+}
+
+function mostrarAlertaEstado() {
+    const el = document.getElementById('estadoConfiguracion');
+    if (el) el.classList.remove('d-none');
+}
+
+function ocultarAlertaEstado() {
+    const el = document.getElementById('estadoConfiguracion');
+    if (el) el.classList.add('d-none');
 }
 
 function mostrarConfiguracionEnFormulario(config) {
@@ -178,6 +192,7 @@ async function guardarConfiguracionInstitucional(event) {
         if (response.ok) {
             const resultado = await response.json();
             configuracionActual = resultado;
+            ocultarAlertaEstado();
             mostrarAlerta('alertaInstitucion', 'success', 'Configuración guardada exitosamente');
             mostrarConfiguracionEnFormulario(resultado);
         } else {

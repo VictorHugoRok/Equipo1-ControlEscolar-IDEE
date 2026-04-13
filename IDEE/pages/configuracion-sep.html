@@ -12,18 +12,21 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img src="../assets/logo.png" alt="IDEE" height="40" class="me-2">
-                IDEE - Control Escolar
+                <i class="bi bi-gear-fill me-2"></i>
+                IDEE · Configuración SEP
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="secretariacadem.html">
                             <i class="bi bi-arrow-left"></i> Volver al Panel
                         </a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="navbar-text text-white-50 me-3 small" id="navUserEmail"></span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="btnCerrarSesion">
@@ -36,13 +39,24 @@
     </nav>
 
     <div class="container-fluid mt-4">
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-12">
-                <h2 class="mb-4">
+                <h2 class="mb-1">
                     <i class="bi bi-gear-fill text-primary"></i>
                     Configuración de Títulos Electrónicos SEP
                 </h2>
+                <p class="text-muted mb-0">
+                    Administra los datos institucionales, responsables de firma y certificados digitales
+                    necesarios para emitir títulos profesionales electrónicos según el estándar SEP.
+                </p>
             </div>
+        </div>
+
+        <!-- Estado de configuración -->
+        <div id="estadoConfiguracion" class="alert alert-warning d-none mb-3">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <strong>Sin configuración activa.</strong>
+            Complete primero la pestaña <strong>Institución</strong> antes de subir certificados.
         </div>
 
         <!-- Tabs de navegación -->
@@ -72,7 +86,7 @@
             <!-- TAB: Configuración Institucional -->
             <div class="tab-pane fade show active" id="institucion" role="tabpanel">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-light border-bottom">
                         <h5 class="mb-0">
                             <i class="bi bi-building"></i> Configuración Institucional
                         </h5>
@@ -147,7 +161,7 @@
             <!-- TAB: Responsables de Firma -->
             <div class="tab-pane fade" id="responsables" role="tabpanel">
                 <div class="card">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="bi bi-people-fill"></i> Responsables Autorizados para Firmar
                         </h5>
@@ -187,7 +201,7 @@
             <!-- TAB: Certificados SAT -->
             <div class="tab-pane fade" id="certificados" role="tabpanel">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-light border-bottom">
                         <h5 class="mb-0">
                             <i class="bi bi-shield-check"></i> Certificados Digitales SAT
                         </h5>
