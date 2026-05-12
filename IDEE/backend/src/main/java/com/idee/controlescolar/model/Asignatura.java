@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,7 @@ public class Asignatura {
     @JsonIgnoreProperties({"asignaturas", "alumnos"})
     private ProgramaEducativo programa;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "asignatura_maestro",
@@ -55,6 +57,7 @@ public class Asignatura {
     )
     private List<Maestro> maestros = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "asignatura")
     private List<Grupo> grupos = new ArrayList<>();
 

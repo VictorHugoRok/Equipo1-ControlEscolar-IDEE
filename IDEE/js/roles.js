@@ -14,7 +14,7 @@
 const ROLES = Object.freeze({
     ADMIN: 'ADMIN',
     SECRETARIA_ACADEMICA: 'SECRETARIA_ACADEMICA',
-    SECRETARIO_ADMINISTRATIVO: 'SECRETARIO_ADMINISTRATIVO'
+    SECRETARIA_ADMINISTRATIVA: 'SECRETARIA_ADMINISTRATIVA'
 });
 
 /**
@@ -65,7 +65,7 @@ const PERMISOS_POR_ROL = Object.freeze({
         rolDisplay: 'Secretaría Académica',
         rolBadge: 'Control Académico'
     },
-    SECRETARIO_ADMINISTRATIVO: {
+    SECRETARIA_ADMINISTRATIVA: {
         secciones: [
             'programasSection',
             'docentesSection',

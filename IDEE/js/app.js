@@ -305,7 +305,7 @@ function redirectToDashboard() {
     const userRole = localStorage.getItem('userTipo') || 
                      (window.currentUser && window.currentUser.rol);
     
-    if (userRole === 'ADMIN' || userRole === 'SECRETARIA_ACADEMICA') {
+    if (userRole === 'ADMIN' || userRole === 'SECRETARIA_ACADEMICA' || userRole === 'SECRETARIA_ADMINISTRATIVA') {
         window.location.href = '/pages/dashboard.html';
     } else {
         console.error('Rol no soportado para dashboard:', userRole);

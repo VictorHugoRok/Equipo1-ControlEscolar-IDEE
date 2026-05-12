@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -92,15 +93,19 @@ public class Alumno {
     @JsonIgnoreProperties({"alumno", "maestro", "personal"})
     private Usuario usuario;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<Calificacion> calificaciones = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<Observacion> observaciones_list = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<DocumentoAlumno> documentos = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private List<SolicitudConstancia> solicitudes = new ArrayList<>();
 

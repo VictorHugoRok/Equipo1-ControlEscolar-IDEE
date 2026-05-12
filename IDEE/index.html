@@ -74,29 +74,28 @@
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // Redirigir si ya está autenticado (con validación estricta)
-    console.log('=== Verificando autenticación en index.html ===');
-    console.log('localStorage.getItem("token"):', localStorage.getItem('token'));
-    console.log('localStorage.getItem("userTipo"):', localStorage.getItem('userTipo'));
-    console.log('isAuthenticated():', isAuthenticated());
-
-    if (isAuthenticated()) {
-      const userTipo = localStorage.getItem('userTipo');
-      const token = localStorage.getItem('token');
-      console.log('✅ Usuario autenticado:');
-      console.log('  - Token existe:', !!token);
-      console.log('  - Tipo usuario:', userTipo);
-      
-      if (userTipo) {
-        console.log('📍 Redirigiendo a página de:', userTipo);
-        redirectByUserType(userTipo);
-      } else {
-        console.warn('⚠️ No hay tipo de usuario, limpiando sesión');
-        logout();
+    // Mostrar aviso si ya hay sesión activa (sin redirigir automáticamente para evitar bucles)
+    document.addEventListener('DOMContentLoaded', function () {
+      if (isAuthenticated()) {
+        const userTipo = localStorage.getItem('userTipo');
+        const userEmail = localStorage.getItem('userEmail');
+        if (userTipo) {
+          const feedback = document.getElementById('loginFeedback');
+          feedback.className = 'alert alert-info';
+          feedback.innerHTML =
+            'Ya tienes una sesión activa como <strong>' + userEmail + '</strong>. ' +
+            '<a href="#" id="linkIrAlSistema" class="alert-link">Ir al sistema</a> ' +
+            'o inicia sesión con otra cuenta abajo.';
+          feedback.classList.remove('d-none');
+          document.getElementById('linkIrAlSistema').addEventListener('click', function (e) {
+            e.preventDefault();
+            redirectByUserType(userTipo);
+          });
+        } else {
+          logout();
+        }
       }
-    } else {
-      console.log('❌ No hay autenticación válida, mostrando login');
-    }
+    });
 
     // Manejar el formulario de login
     document.getElementById("userLoginForm").addEventListener("submit", async function (e) {

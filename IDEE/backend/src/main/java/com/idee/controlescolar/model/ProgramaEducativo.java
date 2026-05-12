@@ -1,10 +1,12 @@
 package com.idee.controlescolar.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -19,6 +21,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"alumnos", "asignaturas"})
+@EqualsAndHashCode(exclude = {"alumnos", "asignaturas"})
 @EntityListeners(AuditingEntityListener.class)
 public class ProgramaEducativo {
 
@@ -67,13 +71,13 @@ public class ProgramaEducativo {
     @LastModifiedDate
     private LocalDateTime fechaActualizacion;
 
-    // Relaciones
+    // Relaciones — @JsonIgnore evita N+1 queries durante serialización Jackson (OSIV)
+    @JsonIgnore
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("programa")
     private List<Asignatura> asignaturas = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "programa")
-    @JsonIgnoreProperties({"programa", "calificaciones", "observaciones_list", "documentos", "solicitudes", "usuario"})
     private List<Alumno> alumnos = new ArrayList<>();
 
     // Enums

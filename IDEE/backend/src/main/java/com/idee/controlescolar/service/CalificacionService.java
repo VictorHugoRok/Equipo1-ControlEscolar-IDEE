@@ -10,17 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio de Calificaciones
- * 
- * Gestiona operaciones CRUD de calificaciones de estudiantes.
- * 
- * Permisos:
- * - VER_CALIFICACIONES: ADMIN (solo lectura), SECRETARIA_ACADEMICA (lectura), MAESTRO (propias), ALUMNO (propias)
- * - REGISTRAR_CALIFICACIONES: MAESTRO, SECRETARIA_ACADEMICA
- * - EDITAR_CALIFICACIONES: SECRETARIA_ACADEMICA (solo si no está confirmada)
- * - CONFIRMAR_CALIFICACIONES: SECRETARIA_ACADEMICA
- */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
