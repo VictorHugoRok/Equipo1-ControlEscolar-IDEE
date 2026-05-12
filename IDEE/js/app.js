@@ -81,14 +81,11 @@ function updateNavbarUserName(nombre) {
 
 // Manejar cerrar sesión
 function setupLogoutButtons() {
-    const logoutButtons = document.querySelectorAll('a[href*="index.html"]');
-    logoutButtons.forEach(btn => {
-        if (btn.textContent.includes('Cerrar sesión') || btn.textContent.includes('Salir')) {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                showLogoutConfirmModal(() => logout());
-            });
-        }
+    document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLogoutConfirmModal(() => logout());
+        });
     });
 }
 
@@ -172,14 +169,37 @@ function formatDateShort(dateString) {
     });
 }
 
-// Mostrar mensaje de error
-function showError(message) {
-    alert(`Error: ${message}`);
+// Sistema de notificaciones no bloqueante (reemplaza alert())
+function showToast(message, type = 'success') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position:fixed;top:70px;right:20px;z-index:9999;min-width:300px;max-width:420px;';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible shadow mb-2`;
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-close';
+    closeBtn.addEventListener('click', () => toast.remove());
+    toast.appendChild(msgSpan);
+    toast.appendChild(closeBtn);
+    container.appendChild(toast);
+
+    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
 }
 
-// Mostrar mensaje de éxito
+function showError(message) {
+    showToast(message, 'danger');
+}
+
 function showSuccess(message) {
-    alert(`✓ ${message}`);
+    showToast(message, 'success');
 }
 
 // Mostrar loading

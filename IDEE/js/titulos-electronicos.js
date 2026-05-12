@@ -7,6 +7,7 @@ console.log("✅ titulos-electronicos.js CARGADO - versión debug");
 
 let alumnoSeleccionado = null;
 let titulosCache = [];
+let busquedaAlumnoController = null;
 
 // ==================== INICIALIZACIÓN ====================
 
@@ -67,6 +68,20 @@ function inicializarEventos() {
     if (btnConfirmarCambioEstatus) {
         btnConfirmarCambioEstatus.addEventListener('click', confirmarCambioEstatus);
     }
+
+    // Delegación de eventos en tabla de títulos (evita onclick inline en filas dinámicas)
+    const tablaTitulos = document.getElementById('tablaTitulos');
+    if (tablaTitulos) {
+        tablaTitulos.addEventListener('click', (event) => {
+            const btn = event.target.closest('button[data-action="cambiar-estatus"]');
+            if (!btn) return;
+            const fila = btn.closest('tr[data-titulo-id]');
+            if (!fila) return;
+            const tituloId = parseInt(fila.dataset.tituloId, 10);
+            const titulo = titulosCache.find(t => t.id === tituloId);
+            if (titulo) abrirModalCambioEstatus(titulo.id, titulo.estatus);
+        });
+    }
 }
 
 function configurarFechaActual() {
@@ -80,78 +95,56 @@ function configurarFechaActual() {
 // ==================== BÚSQUEDA DE ALUMNO ====================
 
 async function buscarAlumno() {
-   console.log("✅ buscarAlumno() INICIO");
+    const input = document.getElementById('buscarAlumno');
+    if (!input) return;
 
-  const input = document.getElementById('buscarAlumno');
-  if (!input) {
-    console.error("❌ No existe #buscarAlumno en el DOM");
-    return;
-  }
-
-  const criterio = input.value.trim();
-  console.log("criterio:", criterio);
-
-  if (!criterio) {
-    alert('Por favor ingrese una matrícula o CURP');
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem('token');
-    console.log("API_BASE_URL:", API_BASE_URL);
-    console.log("token existe:", !!token);
-
-    let url = `${API_BASE_URL}/alumnos/matricula/${encodeURIComponent(criterio)}`;
-    console.log("GET:", url);
-
-    let response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log("respuesta matricula status:", response.status);
-
-    // Si no se encuentra por matrícula, intentar por CURP (18 chars)
-    if (!response.ok && criterio.length === 18) {
-      url = `${API_BASE_URL}/alumnos/curp/${encodeURIComponent(criterio)}`;
-      console.log("GET:", url);
-
-      response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log("respuesta curp status:", response.status);
-    }
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log("✅ alumno encontrado:", data);
-
-      alumnoSeleccionado = data;
-      mostrarDatosAlumno(alumnoSeleccionado);
-
-      if (!alumnoSeleccionado.id) {
-        console.warn("⚠️ El JSON del alumno no trae 'id'. Revisa el DTO del backend.");
+    const criterio = input.value.trim();
+    if (!criterio) {
+        showError('Por favor ingrese una matrícula o CURP');
         return;
-      }
-
-      await validarRequisitosAlumno(alumnoSeleccionado.id);
-    } else {
-      let body = "";
-      try { body = await response.text(); } catch (_) {}
-      console.warn("❌ alumno no encontrado / error:", response.status, body);
-      mostrarAlumnoNoEncontrado();
     }
 
-  } catch (error) {
-    console.error('❌ Error en buscarAlumno():', error);
-    mostrarAlumnoNoEncontrado();
-  }
+    // Cancelar búsqueda anterior si sigue en curso
+    if (busquedaAlumnoController) busquedaAlumnoController.abort();
+    busquedaAlumnoController = new AbortController();
+    const { signal } = busquedaAlumnoController;
+
+    const btnBuscar = document.getElementById('btnBuscarAlumno');
+    if (btnBuscar) btnBuscar.disabled = true;
+
+    try {
+        const headers = getHeaders();
+        let url = `${API_URL}/alumnos/matricula/${encodeURIComponent(criterio)}`;
+        let response = await fetch(url, { headers, signal });
+
+        // Si no se encuentra por matrícula, intentar por CURP (18 chars)
+        if (!response.ok && criterio.length === 18) {
+            url = `${API_URL}/alumnos/curp/${encodeURIComponent(criterio)}`;
+            response = await fetch(url, { headers, signal });
+        }
+
+        if (response.ok) {
+            const data = await response.json();
+            alumnoSeleccionado = data;
+            mostrarDatosAlumno(alumnoSeleccionado);
+
+            if (!alumnoSeleccionado.id) {
+                console.warn('El JSON del alumno no trae id. Revisa el DTO del backend.');
+                return;
+            }
+
+            await validarRequisitosAlumno(alumnoSeleccionado.id);
+        } else {
+            mostrarAlumnoNoEncontrado();
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') return;
+        console.error('Error en buscarAlumno():', error);
+        mostrarAlumnoNoEncontrado();
+    } finally {
+        if (btnBuscar) btnBuscar.disabled = false;
+        busquedaAlumnoController = null;
+    }
 }
 
 
@@ -192,7 +185,7 @@ function mostrarAlumnoNoEncontrado() {
 async function validarRequisitosAlumno(alumnoId) {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/titulos-electronicos/validar-requisitos/${alumnoId}`, {
+        const response = await fetch(`${API_URL}/titulos-electronicos/validar-requisitos/${alumnoId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -212,25 +205,19 @@ function mostrarResultadoValidacion(validacion) {
     const contenedor = document.getElementById('requisitosValidacion');
     const btnGenerar = document.getElementById('btnGenerarTitulo');
 
-    if (validacion.cumpleRequisitos) {
-        contenedor.innerHTML = `
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle-fill"></i>
-                <strong>Requisitos cumplidos</strong><br>
-                ${validacion.mensaje}
-            </div>
-        `;
-        btnGenerar.disabled = false;
-    } else {
-        contenedor.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <strong>No cumple requisitos</strong><br>
-                ${validacion.mensaje}
-            </div>
-        `;
-        btnGenerar.disabled = true;
-    }
+    const tipo = validacion.cumpleRequisitos ? 'success' : 'danger';
+    const icono = validacion.cumpleRequisitos ? 'check-circle-fill' : 'exclamation-triangle-fill';
+    const titulo = validacion.cumpleRequisitos ? 'Requisitos cumplidos' : 'No cumple requisitos';
+
+    const alerta = document.createElement('div');
+    alerta.className = `alert alert-${tipo}`;
+    alerta.innerHTML = `<i class="bi bi-${icono}"></i> <strong>${titulo}</strong><br>`;
+    const msg = document.createElement('span');
+    msg.textContent = validacion.mensaje || '';
+    alerta.appendChild(msg);
+    contenedor.replaceChildren(alerta);
+
+    btnGenerar.disabled = !validacion.cumpleRequisitos;
 }
 
 // ==================== GENERACIÓN DE TÍTULO ====================
@@ -271,7 +258,7 @@ async function generarTitulo(event) {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/titulos-electronicos`, {
+        const response = await fetch(`${API_URL}/titulos-electronicos`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -295,23 +282,35 @@ async function generarTitulo(event) {
 }
 
 function mostrarExitoGeneracion(titulo) {
-    const mensaje = `
-        <strong>¡Título generado exitosamente!</strong><br>
-        <strong>Folio de Control:</strong> ${titulo.folioControl}<br>
-        <strong>Estatus:</strong> ${titulo.estatus}<br>
-        <a href="${API_BASE_URL}/titulos-electronicos/${titulo.id}/descargar-xml"
-           class="btn btn-sm btn-primary mt-2" target="_blank">
-            <i class="bi bi-download"></i> Descargar XML
-        </a>
-    `;
+    const alerta = document.getElementById('alertaGeneracion');
+    alerta.className = 'alert alert-success';
+    alerta.innerHTML = '<strong>¡Título generado exitosamente!</strong><br>';
 
-    mostrarAlerta('alertaGeneracion', 'success', mensaje);
+    const folio = document.createElement('span');
+    folio.innerHTML = '<strong>Folio de Control:</strong> ';
+    const folioVal = document.createElement('span');
+    folioVal.textContent = titulo.folioControl || '';
+    folio.appendChild(folioVal);
+    alerta.appendChild(folio);
+    alerta.appendChild(document.createElement('br'));
 
-    // Cambiar a tab de consulta después de 3 segundos
-    setTimeout(() => {
-        const consultarTab = new bootstrap.Tab(document.getElementById('consultar-tab'));
-        consultarTab.show();
-    }, 3000);
+    const estatus = document.createElement('span');
+    estatus.innerHTML = '<strong>Estatus:</strong> ';
+    const estatusVal = document.createElement('span');
+    estatusVal.textContent = titulo.estatus || '';
+    estatus.appendChild(estatusVal);
+    alerta.appendChild(estatus);
+    alerta.appendChild(document.createElement('br'));
+
+    const enlace = document.createElement('a');
+    enlace.href = `${API_URL}/titulos-electronicos/${encodeURIComponent(titulo.id)}/descargar-xml`;
+    enlace.className = 'btn btn-sm btn-primary mt-2';
+    enlace.target = '_blank';
+    enlace.rel = 'noopener';
+    enlace.innerHTML = '<i class="bi bi-download"></i> Descargar XML';
+    alerta.appendChild(enlace);
+
+    alerta.classList.remove('d-none');
 }
 
 function limpiarFormulario() {
@@ -342,7 +341,7 @@ async function buscarTitulos() {
         if (criterio) {
             // Buscar por folio de control
             if (criterio.includes('_')) {
-                const response = await fetch(`${API_BASE_URL}/titulos-electronicos/folio/${criterio}`, {
+                const response = await fetch(`${API_URL}/titulos-electronicos/folio/${criterio}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -355,7 +354,7 @@ async function buscarTitulos() {
                 }
             } else {
                 // Buscar por matrícula - primero obtener alumno
-                const responseAlumno = await fetch(`${API_BASE_URL}/alumnos/matricula/${criterio}`, {
+                const responseAlumno = await fetch(`${API_URL}/alumnos/matricula/${criterio}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -364,7 +363,7 @@ async function buscarTitulos() {
 
                 if (responseAlumno.ok) {
                     const alumno = await responseAlumno.json();
-                    const responseTitulos = await fetch(`${API_BASE_URL}/titulos-electronicos/alumno/${alumno.id}`, {
+                    const responseTitulos = await fetch(`${API_URL}/titulos-electronicos/alumno/${alumno.id}`, {
                         headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
@@ -395,42 +394,68 @@ function mostrarTitulosEnTabla(titulos) {
     const tbody = document.getElementById('tablaTitulos');
 
     if (titulos.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="text-center text-muted">
-                    No se encontraron títulos con los criterios especificados
-                </td>
-            </tr>
-        `;
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No se encontraron títulos con los criterios especificados</td></tr>';
         return;
     }
 
-    tbody.innerHTML = titulos.map(titulo => {
-        const estatusBadge = obtenerBadgeEstatus(titulo.estatus);
+    tbody.replaceChildren();
 
-        return `
-            <tr>
-                <td><strong>${titulo.folioControl}</strong></td>
-                <td>${titulo.alumnoNombre || 'N/A'}</td>
-                <td>${titulo.alumnoMatricula || 'N/A'}</td>
-                <td>${titulo.programaNombre || 'N/A'}</td>
-                <td>${formatearFecha(titulo.fechaExpedicion)}</td>
-                <td>${estatusBadge}</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <a href="${API_BASE_URL}/titulos-electronicos/${titulo.id}/descargar-xml"
-                           class="btn btn-primary" title="Descargar XML" target="_blank">
-                            <i class="bi bi-download"></i>
-                        </a>
-                        <button class="btn btn-warning" onclick="abrirModalCambioEstatus(${titulo.id}, '${titulo.estatus}')"
-                                title="Cambiar estatus">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
+    titulos.forEach(titulo => {
+        const tr = document.createElement('tr');
+        tr.dataset.tituloId = titulo.id;
+
+        const tdFolio = document.createElement('td');
+        const strong = document.createElement('strong');
+        strong.textContent = titulo.folioControl || 'N/A';
+        tdFolio.appendChild(strong);
+
+        const tdNombre = document.createElement('td');
+        tdNombre.textContent = titulo.alumnoNombre || 'N/A';
+
+        const tdMatricula = document.createElement('td');
+        tdMatricula.textContent = titulo.alumnoMatricula || 'N/A';
+
+        const tdPrograma = document.createElement('td');
+        tdPrograma.textContent = titulo.programaNombre || 'N/A';
+
+        const tdFecha = document.createElement('td');
+        tdFecha.textContent = formatearFecha(titulo.fechaExpedicion);
+
+        const tdEstatus = document.createElement('td');
+        tdEstatus.innerHTML = obtenerBadgeEstatus(titulo.estatus);
+
+        const tdAcciones = document.createElement('td');
+        const grupo = document.createElement('div');
+        grupo.className = 'btn-group btn-group-sm';
+        grupo.setAttribute('role', 'group');
+
+        const enlaceXml = document.createElement('a');
+        enlaceXml.href = `${API_URL}/titulos-electronicos/${encodeURIComponent(titulo.id)}/descargar-xml`;
+        enlaceXml.className = 'btn btn-primary';
+        enlaceXml.title = 'Descargar XML';
+        enlaceXml.target = '_blank';
+        enlaceXml.rel = 'noopener';
+        enlaceXml.innerHTML = '<i class="bi bi-download"></i>';
+
+        const btnEstatus = document.createElement('button');
+        btnEstatus.className = 'btn btn-warning';
+        btnEstatus.title = 'Cambiar estatus';
+        btnEstatus.dataset.action = 'cambiar-estatus';
+        btnEstatus.innerHTML = '<i class="bi bi-arrow-repeat"></i>';
+
+        grupo.appendChild(enlaceXml);
+        grupo.appendChild(btnEstatus);
+        tdAcciones.appendChild(grupo);
+
+        tr.appendChild(tdFolio);
+        tr.appendChild(tdNombre);
+        tr.appendChild(tdMatricula);
+        tr.appendChild(tdPrograma);
+        tr.appendChild(tdFecha);
+        tr.appendChild(tdEstatus);
+        tr.appendChild(tdAcciones);
+        tbody.appendChild(tr);
+    });
 }
 
 function obtenerBadgeEstatus(estatus) {
@@ -466,7 +491,7 @@ async function confirmarCambioEstatus() {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/titulos-electronicos/${tituloId}/estatus`, {
+        const response = await fetch(`${API_URL}/titulos-electronicos/${tituloId}/estatus`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -483,7 +508,7 @@ async function confirmarCambioEstatus() {
             // Recargar tabla
             await buscarTitulos();
 
-            alert('Estatus actualizado exitosamente');
+            showSuccess('Estatus actualizado exitosamente');
         } else {
             throw new Error('Error al actualizar estatus');
         }

@@ -3,32 +3,6 @@
 let docentes = [];
 let docenteEditando = null;
 
-function getHeadersDocentes(includeContentType = true) {
-    const headers = {};
-    if (includeContentType) {
-        headers['Content-Type'] = 'application/json';
-    }
-
-    const token = localStorage.getItem('token');
-    if (token && token !== 'null' && token !== 'undefined') {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
-}
-
-function escapeHtmlDocente(value) {
-    if (typeof escapeHtml === 'function') {
-        return escapeHtml(value);
-    }
-
-    return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
 
 function formatGradoAcademico(grado) {
     const labels = {
@@ -50,10 +24,13 @@ async function cargarDocentes() {
     const tbody = document.getElementById('docentesTableBody');
     if (!tbody) return;
 
+    tbody.style.opacity = '0.4';
+    tbody.style.pointerEvents = 'none';
+
     try {
         const response = await fetch(`${API_URL}/maestros`, {
             method: 'GET',
-            headers: getHeadersDocentes()
+            headers: getHeaders()
         });
 
         if (!response.ok) {
@@ -65,6 +42,9 @@ async function cargarDocentes() {
     } catch (error) {
         console.error('Error al cargar docentes:', error);
         mostrarErrorTablaDocentes('Error al cargar la lista de docentes');
+    } finally {
+        tbody.style.opacity = '';
+        tbody.style.pointerEvents = '';
     }
 }
 
@@ -88,11 +68,11 @@ function renderizarTablaDocentes(lista) {
 
         return `
             <tr data-docente-id="${docente.id}">
-                <td><strong>${escapeHtmlDocente(docente.curp || 'N/A')}</strong></td>
-                <td>${escapeHtmlDocente(nombreCompleto || 'N/A')}</td>
-                <td>${escapeHtmlDocente(docente.etiqueta || 'N/A')}</td>
+                <td><strong>${escapeHtml(docente.curp || 'N/A')}</strong></td>
+                <td>${escapeHtml(nombreCompleto || 'N/A')}</td>
+                <td>${escapeHtml(docente.etiqueta || 'N/A')}</td>
                 <td>${formatGradoAcademico(docente.gradoAcademico)}</td>
-                <td>${escapeHtmlDocente(docente.area || 'N/A')}</td>
+                <td>${escapeHtml(docente.area || 'N/A')}</td>
                 <td>${getBadgeActivo(docente.activo)}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-secondary me-1" data-action="edit">Editar</button>
@@ -110,7 +90,7 @@ function mostrarErrorTablaDocentes(mensaje) {
     tbody.innerHTML = `
         <tr>
             <td colspan="7" class="text-center text-danger py-4">
-                ${escapeHtmlDocente(mensaje)}
+                ${escapeHtml(mensaje)}
             </td>
         </tr>
     `;
@@ -242,7 +222,7 @@ async function guardarDocente() {
     try {
         const response = await fetch(url, {
             method,
-            headers: getHeadersDocentes(false),
+            headers: getHeaders(false),
             body: formData
         });
 
@@ -260,10 +240,10 @@ async function guardarDocente() {
 
         limpiarFormularioDocente();
         await cargarDocentes();
-        alert(docenteId ? 'Docente actualizado exitosamente' : 'Docente creado exitosamente');
+        showSuccess(docenteId ? 'Docente actualizado exitosamente' : 'Docente creado exitosamente');
     } catch (error) {
         console.error('Error al guardar docente:', error);
-        alert(error.message || 'Error al guardar docente');
+        showError(error.message || 'Error al guardar docente');
     }
 }
 
@@ -271,7 +251,7 @@ async function eliminarDocente(id) {
     try {
         const response = await fetch(`${API_URL}/maestros/${id}`, {
             method: 'DELETE',
-            headers: getHeadersDocentes()
+            headers: getHeaders()
         });
 
         if (!response.ok) {
@@ -286,10 +266,10 @@ async function eliminarDocente(id) {
         }
 
         await cargarDocentes();
-        alert('Docente eliminado exitosamente');
+        showSuccess('Docente eliminado exitosamente');
     } catch (error) {
         console.error('Error al eliminar docente:', error);
-        alert(error.message || 'Error al eliminar docente');
+        showError(error.message || 'Error al eliminar docente');
     }
 }
 
