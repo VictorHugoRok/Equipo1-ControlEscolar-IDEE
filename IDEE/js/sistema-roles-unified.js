@@ -121,24 +121,15 @@ function actualizarNavbar(permisos) {
  * Controlar la visibilidad de secciones según rol
  */
 function controlarVisibilidadSecciones(permisos) {
-    // Ocultar todas las secciones primero
-    const todasLasSecciones = document.querySelectorAll('.admin-section');
-    todasLasSecciones.forEach(seccion => {
+    // Ocultar todas las secciones
+    document.querySelectorAll('.admin-section').forEach(seccion => {
         seccion.classList.add('d-none');
     });
 
-    // Mostrar solo las permitidas para este rol
-    permisos.secciones.forEach(sectionId => {
-        const seccion = document.getElementById(sectionId);
-        if (seccion) {
-            seccion.classList.remove('d-none');
-        }
-    });
-
-    // Mostrar la primera sección por defecto
+    // Mostrar solo la primera sección permitida por defecto
+    // (el usuario navega al resto con el menú)
     if (permisos.secciones.length > 0) {
-        const primeraSectionId = permisos.secciones[0];
-        const primeraSect = document.getElementById(primeraSectionId);
+        const primeraSect = document.getElementById(permisos.secciones[0]);
         if (primeraSect) {
             primeraSect.classList.remove('d-none');
         }
@@ -399,11 +390,4 @@ async function validarAccesoADashboard() {
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     configurarNavegacionAdmin();
-    
-    // Validar acceso después de un pequeño delay para permitir que initializePage() se ejecute
-    setTimeout(() => {
-        if (window.currentUser) {
-            aplicarPermisosSegunRol();
-        }
-    }, 500);
 });
