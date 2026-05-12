@@ -163,7 +163,7 @@ async function guardarAsignatura() {
     }
 
     if (!programaSeleccionadoId) {
-        alert('Selecciona un programa para registrar la asignatura.');
+        showError('Selecciona un programa para registrar la asignatura.');
         return;
     }
 
@@ -210,10 +210,10 @@ async function guardarAsignatura() {
         }
 
         await cargarAsignaturas(programaSeleccionadoId);
-        alert(asignaturaId ? 'Asignatura actualizada exitosamente' : 'Asignatura creada exitosamente');
+        showSuccess(asignaturaId ? 'Asignatura actualizada exitosamente' : 'Asignatura creada exitosamente');
     } catch (error) {
         console.error('Error al guardar asignatura:', error);
-        alert(error.message || 'Error al guardar asignatura');
+        showError(error.message || 'Error al guardar asignatura');
     }
 }
 
@@ -236,10 +236,10 @@ async function eliminarAsignatura(id) {
         }
 
         await cargarAsignaturas(programaSeleccionadoId);
-        alert('Asignatura eliminada exitosamente');
+        showSuccess('Asignatura eliminada exitosamente');
     } catch (error) {
         console.error('Error al eliminar asignatura:', error);
-        alert(error.message || 'Error al eliminar asignatura');
+        showError(error.message || 'Error al eliminar asignatura');
     }
 }
 

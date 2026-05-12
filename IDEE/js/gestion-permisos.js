@@ -14,88 +14,8 @@ if (typeof ROLES === 'undefined' || typeof PERMISOS_POR_ROL === 'undefined') {
     console.error('Orden correcto: config.js → roles.js → auth.js → ...');
 }
 
-/**
- * Navegación secciones admin (compatible con ambas páginas)
- */
-function configurarNavegacionAdmin() {
-    const adminNavLinks = document.querySelectorAll("[data-admin-section]");
-    adminNavLinks.forEach((link) => {
-        link.addEventListener("click", function (e) {
-            e.preventDefault();
-            const sectionId = this.getAttribute("data-admin-section");
-            activarAdminSection(sectionId);
-
-            document.querySelectorAll("#adminNavbar .nav-link").forEach((nav) => {
-                nav.classList.remove("active");
-            });
-            if (this.classList.contains("dropdown-item")) {
-                const parentLink = this.closest(".dropdown").querySelector(".nav-link");
-                parentLink.classList.add("active");
-            } else {
-                this.classList.add("active");
-            }
-        });
-    });
-}
-
-function activarAdminSection(sectionId) {
-    document
-        .querySelectorAll(".admin-section")
-        .forEach((sec) => sec.classList.add("d-none"));
-    const section = document.getElementById(sectionId);
-    if (section) {
-        section.classList.remove("d-none");
-    }
-}
-
-/**
- * Aplicar permisos según el rol del usuario
- * @param {string} rol - El rol del usuario
- */
-function aplicarPermisosSegúnRol(rol) {
-    if (!rol || !PERMISOS_POR_ROL[rol]) {
-        console.warn(`Rol desconocido: ${rol}`);
-        return;
-    }
-
-    const permisos = PERMISOS_POR_ROL[rol];
-
-    // Mostrar/ocultar secciones según permisos
-    aplicarVisibilidadSecciones(rol, permisos);
-
-    // Aplicar permisos específicos
-    aplicarPermisosCalificaciones(rol, permisos);
-    aplicarPermisosNavegación(rol, permisos);
-    
-    // Configurar navegación
-    configurarNavegacionAdmin();
-}
-
-/**
- * Aplicar visibilidad de secciones
- */
-function aplicarVisibilidadSecciones(rol, permisos) {
-    // Ocultar todas las secciones primero
-    document.querySelectorAll('.admin-section').forEach(section => {
-        section.classList.add('d-none');
-    });
-
-    // Mostrar solo las secciones permitidas para este rol
-    permisos.secciones.forEach(sectionId => {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.classList.remove('d-none');
-        }
-    });
-
-    // Mostrar la primera sección permitida por defecto
-    if (permisos.secciones.length > 0) {
-        const firstSection = document.getElementById(permisos.secciones[0]);
-        if (firstSection) {
-            firstSection.classList.remove('d-none');
-        }
-    }
-}
+// configurarNavegacionAdmin y activarAdminSection están definidas en sistema-roles-unified.js
+// No se redefinen aquí para evitar conflictos de permisos.
 
 /**
  * Aplicar permisos de calificaciones
@@ -155,27 +75,6 @@ function aplicarPermisosCalificaciones(rol, permisos) {
  * Aplicar permisos de navegación
  */
 function aplicarPermisosNavegación(rol, permisos) {
-    // Ocultar elementos de navegación que no correspondan al rol
-    const navItems = document.querySelectorAll('[data-admin-section]');
-    
-    navItems.forEach(item => {
-        const sectionId = item.getAttribute('data-admin-section');
-        const liItem = item.closest('li');
-        
-        // Si la sección no está en la lista de permisos, ocultar el enlace
-        if (!permisos.secciones.includes(sectionId)) {
-            if (liItem) {
-                liItem.style.display = 'none';
-            }
-            item.style.display = 'none';
-        } else {
-            if (liItem) {
-                liItem.style.display = '';
-            }
-            item.style.display = '';
-        }
-    });
-
     // Aplicar estilos CSS para indicar campos deshabilitados
     agregarEstilosDeshabilitados();
 }
