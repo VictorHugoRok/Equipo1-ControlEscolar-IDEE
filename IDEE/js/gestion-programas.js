@@ -68,6 +68,9 @@ async function cargarProgramas() {
     const tbody = document.getElementById('programasTableBody');
     if (!tbody) return;
 
+    tbody.style.opacity = '0.4';
+    tbody.style.pointerEvents = 'none';
+
     try {
         const response = await fetch(`${API_URL}/programas-educativos`, {
             method: 'GET',
@@ -83,6 +86,9 @@ async function cargarProgramas() {
     } catch (error) {
         console.error('Error al cargar programas:', error);
         mostrarErrorTablaProgramas('Error al cargar la lista de programas');
+    } finally {
+        tbody.style.opacity = '';
+        tbody.style.pointerEvents = '';
     }
 }
 
@@ -238,10 +244,10 @@ async function guardarPrograma() {
 
         limpiarFormularioPrograma();
         await cargarProgramas();
-        alert(programaId ? 'Programa actualizado exitosamente' : 'Programa creado exitosamente');
+        showSuccess(programaId ? 'Programa actualizado exitosamente' : 'Programa creado exitosamente');
     } catch (error) {
         console.error('Error al guardar programa:', error);
-        alert(error.message || 'Error al guardar programa');
+        showError(error.message || 'Error al guardar programa');
     }
 }
 
@@ -271,10 +277,10 @@ async function eliminarPrograma(id) {
         }
 
         await cargarProgramas();
-        alert('Programa eliminado exitosamente');
+        showSuccess('Programa eliminado exitosamente');
     } catch (error) {
         console.error('Error al eliminar programa:', error);
-        alert(error.message || 'Error al eliminar programa');
+        showError(error.message || 'Error al eliminar programa');
     }
 }
 
