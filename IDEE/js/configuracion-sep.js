@@ -118,7 +118,7 @@ function inicializarEventosConfiguracion() {
 
 async function cargarConfiguracionInstitucional() {
     try {
-        const response = await fetch(`${API_BASE_URL}/configuracion-institucional`, {
+        const response = await fetch(`${API_URL}/configuracion-institucional`, {
             headers: getHeaders()
         });
 
@@ -166,7 +166,7 @@ async function guardarConfiguracionInstitucional(event) {
     }
 
     try {
-        const url = id ? `${API_BASE_URL}/configuracion-institucional/${id}` : `${API_BASE_URL}/configuracion-institucional`;
+        const url = id ? `${API_URL}/configuracion-institucional/${id}` : `${API_URL}/configuracion-institucional`;
         const method = id ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
@@ -199,7 +199,7 @@ function limpiarFormularioInstitucion() {
 
 async function cargarResponsablesFirma() {
     try {
-        const response = await fetch(`${API_BASE_URL}/responsables-firma`, {
+        const response = await fetch(`${API_URL}/responsables-firma`, {
             headers: getHeaders()
         });
 
@@ -284,7 +284,7 @@ async function guardarResponsable() {
     }
 
     try {
-        const url = id ? `${API_BASE_URL}/responsables-firma/${id}` : `${API_BASE_URL}/responsables-firma`;
+        const url = id ? `${API_URL}/responsables-firma/${id}` : `${API_URL}/responsables-firma`;
         const method = id ? 'PUT' : 'POST';
 
         const response = await fetch(url, {
@@ -314,7 +314,7 @@ async function guardarResponsable() {
 
 async function editarResponsable(id) {
     try {
-        const response = await fetch(`${API_BASE_URL}/responsables-firma`, {
+        const response = await fetch(`${API_URL}/responsables-firma`, {
             headers: getHeaders()
         });
 
@@ -353,7 +353,7 @@ async function eliminarResponsable(id) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/responsables-firma/${id}`, {
+        const response = await fetch(`${API_URL}/responsables-firma/${id}`, {
             method: 'DELETE',
             headers: getHeaders()
         });
@@ -448,7 +448,7 @@ async function guardarCertificados(event) {
             fetchOptions.headers = headers;
         }
 
-        const response = await fetch(`${API_BASE_URL}/configuracion-institucional/certificados`, fetchOptions);
+        const response = await fetch(`${API_URL}/configuracion-institucional/certificados`, fetchOptions);
 
         if (response.ok) {
             const resultado = await response.json();

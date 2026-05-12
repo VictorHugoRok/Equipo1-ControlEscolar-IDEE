@@ -228,7 +228,7 @@ function redirectByUserType(tipoUsuario) {
         'MAESTRO': 'pages/maestro.html',
         'ADMIN': 'pages/dashboard.html',
         'SECRETARIA_ACADEMICA': 'pages/dashboard.html',
-        'SECRETARIA_ADMINISTRATIVA': 'pages/dashboard.html'
+        'SECRETARIO_ADMINISTRATIVO': 'pages/dashboard.html'
     };
 
     const destination = redirects[tipoUsuario];
