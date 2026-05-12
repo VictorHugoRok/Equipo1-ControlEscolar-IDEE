@@ -75,7 +75,7 @@
     <div class="container dashboard-content">
 
       <!-- PROGRAMAS + ASIGNATURAS -->
-      <section id="programasSection" class="admin-section">
+      <section id="programasSection" class="admin-section d-none">
         <h3 class="section-title">Programas educativos</h3>
         <p class="text-muted">
           Alta, modificación y baja de programas (licenciatura, maestría, especialidad, doctorado),
@@ -1193,16 +1193,7 @@
       }
 
       // ✅ TERCERO: Setup botón de logout
-      const btnLogout = document.getElementById('btnLogout');
-      if (btnLogout) {
-        btnLogout.addEventListener('click', function (e) {
-          e.preventDefault();
-          if (confirm('¿Seguro que deseas cerrar sesión?')) {
-            console.log('👋 [Dashboard] Cerrando sesión...');
-            logout();
-          }
-        });
-      }
+      setupLogoutButtons();
     });
 
     // Utilidades globales

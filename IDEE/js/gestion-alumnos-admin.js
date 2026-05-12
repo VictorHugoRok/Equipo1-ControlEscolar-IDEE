@@ -93,21 +93,27 @@ function mostrarErrorTablaAlumnos(mensaje) {
 }
 
 async function cargarProgramasAlumnos() {
+    // Reutilizar datos ya cargados por gestion-programas.js si están disponibles
+    if (typeof programasEducativos !== 'undefined' && programasEducativos.length > 0) {
+        llenarSelectProgramaAlumno(programasEducativos);
+        llenarFiltroProgramaAlumno(programasEducativos);
+        return;
+    }
+
+    // Fallback: cargar si por algún motivo no están disponibles
     try {
         const response = await fetch(`${API_URL}/programas-educativos`, {
             method: 'GET',
-            headers: getHeadersAlumnos()
+            headers: getHeaders()
         });
 
-        if (!response.ok) {
-            return;
-        }
+        if (!response.ok) return;
 
         const programas = await response.json();
         llenarSelectProgramaAlumno(programas);
         llenarFiltroProgramaAlumno(programas);
     } catch (error) {
-        console.error('Error al cargar programas:', error);
+        console.error('Error al cargar programas para selector:', error);
     }
 }
 
