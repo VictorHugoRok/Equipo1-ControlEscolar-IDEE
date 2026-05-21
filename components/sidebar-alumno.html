@@ -1,0 +1,34 @@
+<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+<button type="button" class="sidebar-mobile-toggle" id="sidebarMobileToggle" aria-label="Abrir menú"><i class="bi bi-list"></i></button>
+<aside class="sidebar-ide">
+  <div class="sidebar-resize-handle" id="sidebarResizeHandle" title="Ajustar ancho"></div>
+  <div class="sidebar-header">
+    <a href="alumno.html">
+      <img src="../assets/logo.png" alt="IDEE" class="sidebar-logo" />
+    </a>
+    <div class="sidebar-badge-wrap" id="sidebarRolSwitcherWrap">
+      <span class="sidebar-badge-academico">Portal del estudiante</span>
+    </div>
+  </div>
+  <div class="sidebar-spacer"></div>
+  <nav class="sidebar-nav" id="navbarMenuPrincipal" data-sidebar-type="alumno">
+    <a class="nav-link-ide active" href="alumno.html" data-seccion="alumnoInicioSection" title="Inicio"><i class="bi bi-house-door"></i><span>Inicio</span></a>
+    <a class="nav-link-ide" href="alumno.html?v=horario" data-seccion="alumnoHorarioSection" title="Mi horario"><i class="bi bi-calendar3"></i><span>Horario</span></a>
+    <a class="nav-link-ide" href="calificaciones-alumno.html" title="Mis calificaciones"><i class="bi bi-clipboard2-data"></i><span>Calificaciones</span></a>
+    <a class="nav-link-ide" href="kardex.html" title="Mi kardex académico"><i class="bi bi-journal-text"></i><span>Mi kardex</span></a>
+    <a class="nav-link-ide" href="evaluacion-docente.html" title="Evaluación docente"><i class="bi bi-clipboard2-check"></i><span>Evaluación docente</span></a>
+    <!-- Temporal: Solicitudes oculto para alumnos (módulo en revisión; no borrar) -->
+    <!--
+    <a class="nav-link-ide" href="alumno.html?v=solicitudes" data-seccion="alumnoSolicitudesSection" title="Solicitudes"><i class="bi bi-inbox"></i><span>Solicitudes</span></a>
+    -->
+  </nav>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Contraer menú" aria-label="Contraer menú"><i class="bi bi-chevron-left"></i></button>
+    <div class="sidebar-user-name" id="sidebarUserNombre">—</div>
+    <div class="sidebar-role d-none" id="navbarUserDisplay" aria-hidden="true"></div>
+    <span id="navbarRole" class="d-none"></span>
+    <div class="sidebar-email" id="userEmail">—</div>
+    <a href="javascript:void(0)" class="btn btn-logout-ide" id="btnLogout" title="Cerrar sesión" role="button"><i class="bi bi-box-arrow-right"></i><span class="btn-logout-text">Cerrar sesión</span></a>
+  </div>
+</aside>

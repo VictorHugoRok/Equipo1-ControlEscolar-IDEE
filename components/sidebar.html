@@ -1,0 +1,60 @@
+<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+<button type="button" class="sidebar-mobile-toggle" id="sidebarMobileToggle" aria-label="Abrir menú"><i class="bi bi-list"></i></button>
+<aside class="sidebar-ide">
+  <div class="sidebar-resize-handle" id="sidebarResizeHandle" title="Ajustar ancho"></div>
+  <div class="sidebar-header">
+    <a href="dashboard.html">
+      <img src="../assets/logo.png" alt="IDEE" class="sidebar-logo" />
+    </a>
+    <div class="sidebar-badge-wrap" id="sidebarRolSwitcherWrap">
+      <span class="sidebar-badge-academico">Control académico</span>
+    </div>
+  </div>
+  <div class="sidebar-spacer"></div>
+  <nav class="sidebar-nav" id="navbarMenuPrincipal">
+    <div id="menuProgramas">
+      <a class="nav-link-ide" href="programas-educativos.html" data-admin-section="programasSection" title="Programas educativos"><i class="bi bi-journal-bookmark"></i><span>Programas educativos</span></a>
+    </div>
+    <div id="menuPersonal">
+      <a class="nav-link-ide" href="personal.html" data-admin-section="personalSection" title="Usuarios del sistema"><i class="bi bi-people"></i><span>Usuarios</span></a>
+    </div>
+    <div class="nav-group-label">Control Escolar</div>
+    <ul class="nav-sub">
+      <li id="menuCiclosPeriodos"><a class="nav-link-ide" href="ciclos-periodos-academicos.html" data-admin-section="ciclosPeriodosSection" title="Calendario académico"><i class="bi bi-calendar-range"></i><span>Calendario académico</span></a></li>
+      <li id="menuCohortes"><a class="nav-link-ide" href="cohortes.html" data-admin-section="cohortesSection" title="Cohortes"><i class="bi bi-diagram-3"></i><span>Cohortes</span></a></li>
+      <li id="menuGrupos"><a class="nav-link-ide" href="grupos.html" data-admin-section="gruposSection" title="Grupos"><i class="bi bi-collection"></i><span>Grupos</span></a></li>
+      <li id="menuHorarios"><a class="nav-link-ide" href="horarios.html" data-admin-section="horariosSection" title="Horarios"><i class="bi bi-calendar3"></i><span>Horarios</span></a></li>
+      <li id="menuInscripciones"><a class="nav-link-ide" href="inscripciones.html" data-admin-section="inscripcionesSection" title="Inscripciones"><i class="bi bi-pencil-square"></i><span>Inscripciones</span></a></li>
+    </ul>
+    <div id="menuCalificaciones">
+      <a class="nav-link-ide" href="calificaciones.html" data-admin-section="calificacionesSection" title="Calificaciones"><i class="bi bi-clipboard2-data"></i><span>Calificaciones</span></a>
+    </div>
+    <div id="menuKardex">
+      <a class="nav-link-ide" href="kardex.html" data-admin-section="kardexSection" title="Kardex académico"><i class="bi bi-journal-text"></i><span>Kardex</span></a>
+    </div>
+    <div id="menuConstancias" class="d-none">
+      <a class="nav-link-ide" href="constancias.html" data-admin-section="constanciasSection" title="Constancias"><i class="bi bi-file-text"></i><span>Constancias</span></a>
+    </div>
+    <div id="menuEvaluacionDocente">
+      <a class="nav-link-ide" href="evaluacion-docente.html" data-admin-section="evaluacionDocenteSection" title="Evaluación docente"><i class="bi bi-clipboard2-check"></i><span>Evaluación docente</span></a>
+    </div>
+    <div id="menuTramites" class="d-none">
+      <div class="nav-group-label">Trámites</div>
+      <ul class="nav-sub">
+        <li id="menuCertificados" class="d-none"><a class="nav-link-ide" href="certificados-electronicos.html" title="Certificados"><i class="bi bi-award"></i><span>Certificados</span></a></li>
+        <li id="menuTitulos" class="d-none"><a class="nav-link-ide" href="titulos-electronicos.html" title="Títulos Electrónicos"><i class="bi bi-mortarboard"></i><span>Títulos Electrónicos</span></a></li>
+        <li id="dividerSep" class="d-none"><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.2); margin: 0.4rem 0;"></li>
+        <li id="menuConfigSep" class="d-none"><a class="nav-link-ide" href="configuracion-titulos-sep.html" data-admin-section="configuracionSepSection" title="Config. Institucional"><i class="bi bi-gear"></i><span>Config. Institucional</span></a></li>
+      </ul>
+    </div>
+  </nav>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Contraer menú" aria-label="Contraer menú"><i class="bi bi-chevron-left"></i></button>
+    <div class="sidebar-user-name" id="sidebarUserNombre">—</div>
+    <div class="sidebar-role d-none" id="navbarUserDisplay" aria-hidden="true"></div>
+    <span id="navbarRole" class="d-none"></span>
+    <div class="sidebar-email" id="userEmail">—</div>
+    <a href="javascript:void(0)" class="btn btn-logout-ide" id="btnLogout" title="Cerrar sesión" role="button"><i class="bi bi-box-arrow-right"></i><span class="btn-logout-text">Cerrar sesión</span></a>
+  </div>
+</aside>
