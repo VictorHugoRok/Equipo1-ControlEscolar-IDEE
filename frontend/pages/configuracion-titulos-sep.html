@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configuración Institucional - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content" id="configuracionSepSection">
+      <h3 class="section-title">Configuración Institucional</h3>
+      <p class="text-muted">
+        Configuración institucional, responsables de firma y certificados digitales para la generación de títulos profesionales electrónicos.
+      </p>
+
+      <ul class="nav nav-tabs mb-4" id="configSepTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="institucion-sep-tab" data-bs-toggle="tab" data-bs-target="#institucionSep" type="button" role="tab">
+            Institución
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="responsables-sep-tab" data-bs-toggle="tab" data-bs-target="#responsablesSep" type="button" role="tab">
+            Responsable
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="certificados-sep-tab" data-bs-toggle="tab" data-bs-target="#certificadosSep" type="button" role="tab">
+            FIEL
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="configSepTabsContent">
+        <div class="tab-pane fade show active" id="institucionSep" role="tabpanel">
+          <div class="card mt-4">
+            <div class="card-header bg-soft-primary">
+              <h5 class="mb-0">Registro de plantel</h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">Los planteles se usan como emisores en Documentos oficiales.</p>
+              <form id="plantelForm" class="row g-3 mb-3" onsubmit="return false;" action="javascript:void(0)">
+                <input type="hidden" id="plantelId" />
+                <div class="col-md-3">
+                  <label class="form-label">Clave DGAIR</label>
+                  <input type="text" id="plantelClaveDgair" class="form-control" placeholder="Ej. 12345" maxlength="20" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Clave DGP</label>
+                  <input type="text" id="plantelClaveDgp" class="form-control" placeholder="Ej. 123456" maxlength="50" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Clave CCT</label>
+                  <input type="text" id="plantelClaveCct" class="form-control" placeholder="Ej. 12PSU3456A" maxlength="10" />
+                </div>
+                <div class="col-md-8">
+                  <label class="form-label">Nombre del plantel</label>
+                  <input type="text" id="plantelNombre" class="form-control" placeholder="Ej. Instituto de Especialidades..." maxlength="255" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Nombre corto</label>
+                  <input type="text" id="plantelNombreCorto" class="form-control text-uppercase" placeholder="Ej. IDEE" maxlength="150" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Campus</label>
+                  <input type="text" id="plantelCampus" class="form-control" placeholder="Ej. Mérida" maxlength="150" />
+                </div>
+                <div class="col-md-4">
+                  <input type="hidden" id="plantelIdEntidadFederativa" />
+                  <input type="hidden" id="plantelEntidadFederativa" />
+                  <label class="form-label">Entidad federativa</label>
+                  <select class="form-select" id="plantelEntidadFederativaSelect" aria-label="Entidad federativa del plantel">
+                    <option value="">Seleccione una entidad federativa…</option>
+                  </select>
+                </div>
+                <div class="col-md-12">
+                  <button type="button" id="btnGuardarPlantel" class="btn btn-primary">Guardar</button>
+                  <button type="button" id="btnCancelarPlantel" class="btn btn-outline-secondary d-none">Cancelar</button>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Clave DGAIR</th>
+                      <th>Clave DGP</th>                      
+                      <th>Clave CCT</th>
+                      <th>Entidad federativa</th>
+                      <th>Nombre del plantel</th>
+                      <th class="text-end" style="width: 140px;">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="plantelesTableBody">
+                    <tr><td colspan="6" class="text-center text-muted py-3">Cargando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="responsablesSep" role="tabpanel">
+          <div class="card">
+            <div class="card-header bg-soft-primary d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Responsables de Firma</h5>
+              <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalResponsable">
+                <i class="bi bi-person-plus"></i> Nuevo
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="alertaResponsable" class="alert d-none" role="alert"></div>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th>Orden</th>
+                      <th>Nombre</th>
+                      <th>CURP</th>
+                      <th>Cargo</th>
+                      <th>Abr. Título</th>
+                      <th>Estado</th>
+                      <th class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaResponsables">
+                    <tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="certificadosSep" role="tabpanel">
+          <div class="card">
+            <div class="card-header bg-soft-primary">
+              <h5 class="mb-0">FIEL</h5>
+            </div>
+            <div class="card-body">
+              <div id="alertaCertificados" class="alert d-none" role="alert"></div>
+              <!-- Panel de estado de certificados -->
+              <div id="certificadosStatusPanel" class="certificados-status-panel mb-4">
+                <div id="certificadosStatusContent" class="d-flex align-items-center gap-2 text-muted">
+                  <span class="spinner-border spinner-border-sm" role="status"></span>
+                  <span>Verificando estado...</span>
+                </div>
+              </div>
+              <form id="formCertificados" onsubmit="return false;" action="javascript:void(0)">
+                <div class="mb-3">
+                  <label for="certificadoFile" class="form-label">Archivo .cer (certificado)</label>
+                  <input type="file" class="form-control" id="certificadoFile" accept=".cer" />
+                  <div id="certificadoStatus" class="mt-2"></div>
+                </div>
+                <div class="mb-3">
+                  <label for="llavePrivadaFile" class="form-label">Archivo .key (llave privada)</label>
+                  <input type="file" class="form-control" id="llavePrivadaFile" accept=".key" />
+                  <div id="llaveStatus" class="mt-2"></div>
+                </div>
+                <div class="mb-3">
+                  <label for="passwordLlave" class="form-label">Contraseña de la llave privada</label>
+                  <input type="password" class="form-control" id="passwordLlave" placeholder="Contraseña" />
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Subir certificados</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <!-- Modal Responsable de Firma -->
+  <div class="modal fade" id="modalResponsable" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content modal-responsable-firma">
+        <div class="modal-header modal-responsable-header">
+          <h5 class="modal-title" id="modalResponsableTitle"><i class="bi bi-person-badge me-2"></i>Nuevo Responsable de Firma</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body modal-responsable-body">
+          <form id="formResponsable" onsubmit="return false;" action="javascript:void(0)">
+            <input type="hidden" id="responsableId" />
+            <div class="responsable-form-section">
+              <h6 class="responsable-section-title"><i class="bi bi-person me-2"></i>Datos personales</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <label for="responsableNombre" class="form-label">Nombre(s)</label>
+                  <input type="text" class="form-control" id="responsableNombre" placeholder="Ej. Juan Carlos" required />
+                </div>
+                <div class="col-12 col-md-4">
+                  <label for="responsablePrimerApellido" class="form-label">Apellido paterno</label>
+                  <input type="text" class="form-control" id="responsablePrimerApellido" placeholder="Ej. Pérez" required />
+                </div>
+                <div class="col-12 col-md-4">
+                  <label for="responsableSegundoApellido" class="form-label">Apellido materno</label>
+                  <input type="text" class="form-control" id="responsableSegundoApellido" placeholder="Ej. López" required />
+                </div>
+              </div>
+            </div>
+            <div class="responsable-form-section">
+              <h6 class="responsable-section-title"><i class="bi bi-card-text me-2"></i>Identificación y título</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label for="responsableCurp" class="form-label">CURP <span class="text-muted">(18 caracteres)</span></label>
+                  <input type="text" class="form-control text-uppercase" id="responsableCurp" maxlength="18" placeholder="Ej. XXXX000000HDFXXX00" required />
+                </div>
+                <div class="col-12 col-md-3">
+                  <label for="responsableAbrTitulo" class="form-label">Abreviatura título</label>
+                  <input type="text" class="form-control" id="responsableAbrTitulo" placeholder="Dr., Mtro., Lic." />
+                </div>
+                <div class="col-12 col-md-3">
+                  <label for="responsableOrdenFirma" class="form-label">Orden de firma</label>
+                  <input type="number" class="form-control" id="responsableOrdenFirma" value="1" min="1" max="99" />
+                </div>
+              </div>
+            </div>
+            <div class="responsable-form-section">
+              <h6 class="responsable-section-title"><i class="bi bi-briefcase me-2"></i>Cargo</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label for="responsableIdCargo" class="form-label">Cargo</label>
+                  <select class="form-select" id="responsableIdCargo">
+                    <option value="">Seleccione un cargo...</option>
+                    <option value="0|SECRETARIO DE EDUCACIÓN PÚBLICA">Secretario de Educación Pública</option>
+                    <option value="1|DIRECTOR">Director</option>
+                    <option value="2|SUBDIRECTOR">Subdirector</option>
+                    <option value="3|RECTOR">Rector</option>
+                    <option value="4|VICERRECTOR">Vicerrector</option>
+                    <option value="5|RESPONSABLE DE EXPEDICIÓN">Responsable de Expedición</option>
+                    <option value="6|SECRETARIO GENERAL">Secretario General</option>
+                    <option value="7|AUTORIDAD LOCAL">Autoridad Local</option>
+                    <option value="8|AUTORIDAD FEDERAL">Autoridad Federal</option>
+                    <option value="9|DIRECTOR GENERAL">Director General</option>
+                    <option value="10|RECTOR GENERAL">Rector General</option>
+                  </select>
+                  <small class="text-muted">ID del cargo: <span id="responsableIdCargoDisplay">—</span></small>
+                </div>
+                <!-- Mantener el texto del cargo para edición/compatibilidad, pero sin duplicar el campo visible -->
+                <input type="hidden" id="responsableCargo" />
+              </div>
+            </div>
+            <div class="responsable-form-section">
+              <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input" id="responsableActivo" checked />
+                <label class="form-check-label" for="responsableActivo">Responsable activo</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer modal-responsable-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary btn-ide" id="btnGuardarResponsable"><i class="bi bi-check-lg me-1"></i> Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/configuracion-sep.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        window.currentUser = { email: localStorage.getItem('userEmail') || '', tipoUsuario: localStorage.getItem('userTipo'), rol: localStorage.getItem('userTipo') };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'configuracionSepSection' });
+    });
+  </script>
+</body>
+</html>

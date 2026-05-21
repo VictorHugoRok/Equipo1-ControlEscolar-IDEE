@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <title>Limpiar Datos - IDEE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 1.5rem;
+        }
+        .btn-clean {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            font-weight: bold;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-clean:hover { background-color: #c82333; color: white; }
+        .btn-clean-server {
+            background-color: #d97706;
+            color: white;
+            padding: 12px 30px;
+            font-weight: bold;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-clean-server:hover { background-color: #b45309; color: white; }
+        .success-message { display: none; margin-top: 20px; }
+        .icon { font-size: 48px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Limpiar datos del servidor (para pasar a producción) -->
+                <div class="card">
+                    <div class="card-body p-5">
+                        <div class="icon text-warning">🗑️</div>
+                        <h2 class="card-title mb-3">Limpiar datos de prueba del servidor</h2>
+                        <p class="text-muted mb-3">
+                            Elimina <strong>todo</strong> el contenido de la base de datos (incluye programas, cohortes, asignaturas,
+                            alumnos, maestros, usuarios, calificaciones, grupos, horarios, certificados, títulos, evaluaciones, etc.).
+                        </p>
+                        <p class="small text-muted">Use esto antes de hostear la app para uso productivo. Requiere sesión activa.</p>
+                        <div class="alert alert-danger">
+                            <strong>⚠️ Irreversible:</strong> Todos los datos académicos se perderán.
+                        </div>
+                        <button onclick="limpiarDatosServidor()" class="btn btn-clean-server w-100 mb-2" id="btnLimpiarServidor">
+                            Reset total de la base de datos
+                        </button>
+                        <div class="success-message alert alert-success mt-2" id="successServer"></div>
+                    </div>
+                </div>
+
+                <!-- Limpiar datos locales (token, sesión) -->
+                <div class="card">
+                    <div class="card-body p-5">
+                        <div class="icon">🧹</div>
+                        <h2 class="card-title mb-3">Limpiar datos locales (navegador)</h2>
+                        <p class="text-muted mb-3">
+                            Elimina token, email y rol del navegador. Serás redirigido al login.
+                        </p>
+                        <button onclick="limpiarDatos()" class="btn btn-clean w-100 mb-2">
+                            Limpiar datos locales
+                        </button>
+                        <div class="success-message alert alert-success mt-2" id="successMsg">
+                            ✅ Datos locales limpios. Redirigiendo...
+                        </div>
+                        <div id="dataInfo" class="mt-4 p-3 bg-light rounded">
+                            <h5>Datos en navegador:</h5>
+                            <pre id="dataContent" style="text-align: left; font-size: 12px;"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <a href="index.html" class="btn btn-outline-light">← Volver al Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function mostrarDatos() {
+            const datos = {
+                token: localStorage.getItem('token') ? 'Presente' : 'No hay token',
+                email: localStorage.getItem('userEmail') || 'No hay email',
+                rol: localStorage.getItem('userTipo') || 'No hay rol'
+            };
+            const el = document.getElementById('dataContent');
+            if (el) el.textContent = JSON.stringify(datos, null, 2);
+        }
+
+        async function limpiarDatosServidor() {
+            const token = typeof getToken === 'function' ? getToken() : localStorage.getItem('token');
+            if (!token) {
+                alert('Debe iniciar sesión para ejecutar la limpieza del servidor.');
+                return;
+            }
+            if (!confirm('¿RESET TOTAL? Se eliminarán TODOS los datos de la base (incluye usuarios).\n\nEsta acción NO se puede deshacer.\n\nDespués deberás volver a iniciar sesión (el sistema recreará el admin inicial al reiniciar el backend).')) {
+                return;
+            }
+            const btn = document.getElementById('btnLimpiarServidor');
+            const msg = document.getElementById('successServer');
+            btn.disabled = true;
+            msg.style.display = 'none';
+            try {
+                const res = await fetch(API_URL + '/limpieza-datos/reset-total', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) {
+                    msg.className = 'alert alert-success mt-2';
+                    msg.textContent = '✅ ' + (data.mensaje || 'Limpieza completada.');
+                    msg.style.display = 'block';
+                } else {
+                    msg.className = 'alert alert-danger mt-2';
+                    msg.textContent = '❌ ' + (data.error || data.mensaje || 'Error al limpiar');
+                    msg.style.display = 'block';
+                }
+            } catch (e) {
+                msg.className = 'alert alert-danger mt-2';
+                msg.textContent = '❌ Error de conexión: ' + e.message;
+                msg.style.display = 'block';
+            }
+            btn.disabled = false;
+        }
+
+        function limpiarDatos() {
+            if (!confirm('¿Limpiar los datos del navegador (sesión)?')) return;
+            localStorage.removeItem('token');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userTipo');
+            localStorage.removeItem('refreshToken');
+            sessionStorage.clear();
+            document.getElementById('successMsg').style.display = 'block';
+            document.querySelector('.btn-clean').disabled = true;
+            setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+        }
+
+        window.addEventListener('load', mostrarDatos);
+    </script>
+</body>
+</html>

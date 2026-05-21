@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="assets/favicon.png" type="image/png" />
+    <title>Código de Selects para Catálogos SEP</title>
+</head>
+<body>
+
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+SELECTS HTML PARA CATÁLOGOS SEP - COPIAR Y PEGAR
+═══════════════════════════════════════════════════════════════════════════════
+-->
+
+<!-- ==================== 1. CARGO DEL FIRMANTE ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="responsableIdCargo" class="form-label">
+        Cargo del Firmante <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="responsableIdCargo" required>
+        <option value="">Seleccione...</option>
+        <option value="0|SECRETARIO DE EDUCACIÓN PÚBLICA">SECRETARIO DE EDUCACIÓN PÚBLICA</option>
+        <option value="1|DIRECTOR">DIRECTOR</option>
+        <option value="2|SUBDIRECTOR">SUBDIRECTOR</option>
+        <option value="3|RECTOR">RECTOR</option>
+        <option value="4|VICERRECTOR">VICERRECTOR</option>
+        <option value="5|RESPONSABLE DE EXPEDICIÓN">RESPONSABLE DE EXPEDICIÓN</option>
+        <option value="6|SECRETARIO GENERAL">SECRETARIO GENERAL</option>
+        <option value="7|AUTORIDAD LOCAL">AUTORIDAD LOCAL</option>
+        <option value="8|AUTORIDAD FEDERAL">AUTORIDAD FEDERAL</option>
+        <option value="9|DIRECTOR GENERAL">DIRECTOR GENERAL</option>
+        <option value="10|RECTOR GENERAL">RECTOR GENERAL</option>
+        <option value="11|TITULAR DE LA AUTORIDAD EDUCATIVA FEDERAL EN LA CIUDAD DE MÉXICO">TITULAR DE LA AUTORIDAD EDUCATIVA FEDERAL EN LA CIUDAD DE MÉXICO</option>
+    </select>
+    <input type="hidden" id="responsableIdCargoValue">
+    <input type="hidden" id="responsableCargoTexto">
+</div>
+
+<!-- ==================== 2. AUTORIZACIÓN/RECONOCIMIENTO ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="autorizacionReconocimiento" class="form-label">
+        Autorización/Reconocimiento <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="autorizacionReconocimiento" required>
+        <option value="">Seleccione...</option>
+        <option value="1|RVOE FEDERAL" selected>RVOE FEDERAL</option>
+        <option value="2|RVOE ESTATAL">RVOE ESTATAL</option>
+        <option value="3|AUTORIZACIÓN FEDERAL">AUTORIZACIÓN FEDERAL</option>
+        <option value="4|AUTORIZACIÓN ESTATAL">AUTORIZACIÓN ESTATAL</option>
+        <option value="5|ACTA DE SESIÓN">ACTA DE SESIÓN</option>
+        <option value="6|ACUERDO DE INCORPORACIÓN">ACUERDO DE INCORPORACIÓN</option>
+        <option value="7|ACUERDO SECRETARIAL SEP">ACUERDO SECRETARIAL SEP</option>
+        <option value="8|DECRETO DE CREACIÓN">DECRETO DE CREACIÓN</option>
+        <option value="9|OTRO">OTRO</option>
+    </select>
+    <input type="hidden" id="idAutorizacionReconocimiento">
+    <input type="hidden" id="autorizacionReconocimientoTexto">
+</div>
+
+<!-- ==================== 3. FUNDAMENTO LEGAL SERVICIO SOCIAL ==================== -->
+<div class="col-md-12 mb-3">
+    <label for="fundamentoLegalServicioSocial" class="form-label">
+        Fundamento Legal del Servicio Social <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="fundamentoLegalServicioSocial" required>
+        <option value="">Seleccione...</option>
+        <option value="1|ART. 52 LRART. 5 CONST">ART. 52 LRART. 5 CONST</option>
+        <option value="2|ART. 55 LRART. 5 CONST" selected>ART. 55 LRART. 5 CONST</option>
+        <option value="3|ART. 91 RLRART. 5 CONST">ART. 91 RLRART. 5 CONST</option>
+        <option value="4|ART. 10 REGLAMENTO PARA LA PRESTACIÓN DEL SERVICIO SOCIAL DE LOS ESTUDIANTES DE LAS INSTITUCIONES DE EDUCACIÓN SUPERIOR EN LA REPÚBLICA MEXICANA">ART. 10 REGLAMENTO PARA LA PRESTACIÓN DEL SERVICIO SOCIAL</option>
+        <option value="5|NO APLICA">NO APLICA</option>
+    </select>
+    <input type="hidden" id="idFundamentoLegalServicioSocial">
+    <input type="hidden" id="fundamentoLegalServicioSocialTexto">
+</div>
+
+<!-- ==================== 4. MODALIDAD DE TITULACIÓN ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="modalidadTitulacion" class="form-label">
+        Modalidad de Titulación <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="modalidadTitulacion" required>
+        <option value="">Seleccione...</option>
+        <option value="1|POR TESIS" selected>POR TESIS</option>
+        <option value="2|POR PROMEDIO">POR PROMEDIO</option>
+        <option value="3|POR ESTUDIOS DE POSGRADOS">POR ESTUDIOS DE POSGRADOS</option>
+        <option value="4|POR EXPERIENCIA LABORAL">POR EXPERIENCIA LABORAL</option>
+        <option value="5|POR CENEVAL">POR CENEVAL</option>
+        <option value="6|OTRO">OTRO</option>
+    </select>
+    <input type="hidden" id="idModalidadTitulacion">
+    <input type="hidden" id="modalidadTitulacionTexto">
+    <small class="text-muted">ID 1 = Acta de Examen | ID 2-6 = Constancia de Exención</small>
+</div>
+
+<!-- ==================== 5. ENTIDAD FEDERATIVA (EXPEDICIÓN) ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="entidadFederativa" class="form-label">
+        Entidad Federativa (Expedición) <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="entidadFederativa" required>
+        <option value="">Seleccione...</option>
+        <option value="01|AGUASCALIENTES">AGUASCALIENTES</option>
+        <option value="02|BAJA CALIFORNIA">BAJA CALIFORNIA</option>
+        <option value="03|BAJA CALIFORNIA SUR">BAJA CALIFORNIA SUR</option>
+        <option value="04|CAMPECHE">CAMPECHE</option>
+        <option value="05|COAHUILA DE ZARAGOZA">COAHUILA DE ZARAGOZA</option>
+        <option value="06|COLIMA">COLIMA</option>
+        <option value="07|CHIAPAS">CHIAPAS</option>
+        <option value="08|CHIHUAHUA">CHIHUAHUA</option>
+        <option value="09|CIUDAD DE MÉXICO" selected>CIUDAD DE MÉXICO</option>
+        <option value="10|DURANGO">DURANGO</option>
+        <option value="11|GUANAJUATO">GUANAJUATO</option>
+        <option value="12|GUERRERO">GUERRERO</option>
+        <option value="13|HIDALGO">HIDALGO</option>
+        <option value="14|JALISCO">JALISCO</option>
+        <option value="15|MÉXICO">MÉXICO</option>
+        <option value="16|MICHOACÁN DE OCAMPO">MICHOACÁN DE OCAMPO</option>
+        <option value="17|MORELOS">MORELOS</option>
+        <option value="18|NAYARIT">NAYARIT</option>
+        <option value="19|NUEVO LEÓN">NUEVO LEÓN</option>
+        <option value="20|OAXACA">OAXACA</option>
+        <option value="21|PUEBLA">PUEBLA</option>
+        <option value="22|QUERÉTARO">QUERÉTARO</option>
+        <option value="23|QUINTANA ROO">QUINTANA ROO</option>
+        <option value="24|SAN LUIS POTOSÍ">SAN LUIS POTOSÍ</option>
+        <option value="25|SINALOA">SINALOA</option>
+        <option value="26|SONORA">SONORA</option>
+        <option value="27|TABASCO">TABASCO</option>
+        <option value="28|TAMAULIPAS">TAMAULIPAS</option>
+        <option value="29|TLAXCALA">TLAXCALA</option>
+        <option value="30|VERACRUZ DE IGNACIO DE LA LLAVE">VERACRUZ DE IGNACIO DE LA LLAVE</option>
+        <option value="31|YUCATÁN">YUCATÁN</option>
+        <option value="32|ZACATECAS">ZACATECAS</option>
+    </select>
+    <input type="hidden" id="idEntidadFederativa">
+    <input type="hidden" id="entidadFederativaTexto">
+</div>
+
+<!-- ==================== 6. TIPO DE ESTUDIO ANTECEDENTE ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="tipoEstudioAntecedente" class="form-label">
+        Tipo de Estudio Antecedente <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="tipoEstudioAntecedente" required>
+        <option value="">Seleccione...</option>
+        <option value="1|MAESTRÍA">MAESTRÍA</option>
+        <option value="2|LICENCIATURA" selected>LICENCIATURA</option>
+        <option value="3|TÉCNICO SUPERIOR UNIVERSITARIO">TÉCNICO SUPERIOR UNIVERSITARIO</option>
+        <option value="4|BACHILLERATO">BACHILLERATO</option>
+        <option value="5|EQUIVALENTE A BACHILLERATO">EQUIVALENTE A BACHILLERATO</option>
+        <option value="6|SECUNDARIA">SECUNDARIA</option>
+    </select>
+    <input type="hidden" id="idTipoEstudioAntecedente">
+    <input type="hidden" id="tipoEstudioAntecedenteTexto">
+    <small class="text-muted">Para especialidades: Licenciatura (ID=2)</small>
+</div>
+
+<!-- ==================== 7. ENTIDAD FEDERATIVA (ANTECEDENTE) ==================== -->
+<div class="col-md-6 mb-3">
+    <label for="entidadFederativaAntecedente" class="form-label">
+        Entidad Federativa (Antecedente) <span class="text-danger">*</span>
+    </label>
+    <select class="form-select" id="entidadFederativaAntecedente" required>
+        <option value="">Seleccione...</option>
+        <option value="01|AGUASCALIENTES">AGUASCALIENTES</option>
+        <option value="02|BAJA CALIFORNIA">BAJA CALIFORNIA</option>
+        <option value="03|BAJA CALIFORNIA SUR">BAJA CALIFORNIA SUR</option>
+        <option value="04|CAMPECHE">CAMPECHE</option>
+        <option value="05|COAHUILA DE ZARAGOZA">COAHUILA DE ZARAGOZA</option>
+        <option value="06|COLIMA">COLIMA</option>
+        <option value="07|CHIAPAS">CHIAPAS</option>
+        <option value="08|CHIHUAHUA">CHIHUAHUA</option>
+        <option value="09|CIUDAD DE MÉXICO" selected>CIUDAD DE MÉXICO</option>
+        <option value="10|DURANGO">DURANGO</option>
+        <option value="11|GUANAJUATO">GUANAJUATO</option>
+        <option value="12|GUERRERO">GUERRERO</option>
+        <option value="13|HIDALGO">HIDALGO</option>
+        <option value="14|JALISCO">JALISCO</option>
+        <option value="15|MÉXICO">MÉXICO</option>
+        <option value="16|MICHOACÁN DE OCAMPO">MICHOACÁN DE OCAMPO</option>
+        <option value="17|MORELOS">MORELOS</option>
+        <option value="18|NAYARIT">NAYARIT</option>
+        <option value="19|NUEVO LEÓN">NUEVO LEÓN</option>
+        <option value="20|OAXACA">OAXACA</option>
+        <option value="21|PUEBLA">PUEBLA</option>
+        <option value="22|QUERÉTARO">QUERÉTARO</option>
+        <option value="23|QUINTANA ROO">QUINTANA ROO</option>
+        <option value="24|SAN LUIS POTOSÍ">SAN LUIS POTOSÍ</option>
+        <option value="25|SINALOA">SINALOA</option>
+        <option value="26|SONORA">SONORA</option>
+        <option value="27|TABASCO">TABASCO</option>
+        <option value="28|TAMAULIPAS">TAMAULIPAS</option>
+        <option value="29|TLAXCALA">TLAXCALA</option>
+        <option value="30|VERACRUZ DE IGNACIO DE LA LLAVE">VERACRUZ DE IGNACIO DE LA LLAVE</option>
+        <option value="31|YUCATÁN">YUCATÁN</option>
+        <option value="32|ZACATECAS">ZACATECAS</option>
+        <option value="33|EXTRANJERO">EXTRANJERO</option>
+    </select>
+    <input type="hidden" id="idEntidadFederativaAntecedente">
+    <input type="hidden" id="entidadFederativaAntecedenteTexto">
+    <small class="text-muted">Incluye opción 33 = EXTRANJERO</small>
+</div>
+
+
+<!--
+═══════════════════════════════════════════════════════════════════════════════
+JAVASCRIPT PARA SINCRONIZAR SELECTS
+═══════════════════════════════════════════════════════════════════════════════
+-->
+
+<script>
+/**
+ * Función genérica para sincronizar selects con hidden inputs
+ * @param {string} selectId - ID del select
+ * @param {string} idHiddenId - ID del input hidden para el ID
+ * @param {string} textoHiddenId - ID del input hidden para el texto
+ */
+function sincronizarSelect(selectId, idHiddenId, textoHiddenId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    select.addEventListener('change', function() {
+        const valor = this.value;
+        if (valor) {
+            const [id, texto] = valor.split('|');
+            document.getElementById(idHiddenId).value = id;
+            document.getElementById(textoHiddenId).value = texto;
+        } else {
+            document.getElementById(idHiddenId).value = '';
+            document.getElementById(textoHiddenId).value = '';
+        }
+    });
+
+    // Trigger inicial si hay valor seleccionado
+    if (select.value) {
+        select.dispatchEvent(new Event('change'));
+    }
+}
+
+// Inicializar todos los selects al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Cargo del firmante
+    sincronizarSelect('responsableIdCargo', 'responsableIdCargoValue', 'responsableCargoTexto');
+
+    // 2. Autorización/Reconocimiento
+    sincronizarSelect('autorizacionReconocimiento', 'idAutorizacionReconocimiento', 'autorizacionReconocimientoTexto');
+
+    // 3. Fundamento Legal Servicio Social
+    sincronizarSelect('fundamentoLegalServicioSocial', 'idFundamentoLegalServicioSocial', 'fundamentoLegalServicioSocialTexto');
+
+    // 4. Modalidad de Titulación
+    sincronizarSelect('modalidadTitulacion', 'idModalidadTitulacion', 'modalidadTitulacionTexto');
+
+    // 5. Entidad Federativa (Expedición)
+    sincronizarSelect('entidadFederativa', 'idEntidadFederativa', 'entidadFederativaTexto');
+
+    // 6. Tipo de Estudio Antecedente
+    sincronizarSelect('tipoEstudioAntecedente', 'idTipoEstudioAntecedente', 'tipoEstudioAntecedenteTexto');
+
+    // 7. Entidad Federativa (Antecedente)
+    sincronizarSelect('entidadFederativaAntecedente', 'idEntidadFederativaAntecedente', 'entidadFederativaAntecedenteTexto');
+});
+
+
+/**
+ * EJEMPLO DE USO EN EL FORMULARIO DE GENERACIÓN DE TÍTULO
+ */
+async function generarTitulo(event) {
+    event.preventDefault();
+
+    const datos = {
+        alumnoId: parseInt(document.getElementById('alumnoId').value),
+        programaId: parseInt(document.getElementById('programaId').value),
+        fechaExpedicion: document.getElementById('fechaExpedicion').value,
+
+        // Usar los valores hidden (ID y Texto separados)
+        idModalidadTitulacion: document.getElementById('idModalidadTitulacion').value,
+        modalidadTitulacion: document.getElementById('modalidadTitulacionTexto').value,
+
+        fechaExamenProfesional: document.getElementById('fechaExamenProfesional').value,
+        cumplioServicioSocial: document.getElementById('cumplioServicioSocial').checked,
+
+        idFundamentoLegalServicioSocial: document.getElementById('idFundamentoLegalServicioSocial').value,
+        fundamentoLegalServicioSocial: document.getElementById('fundamentoLegalServicioSocialTexto').value,
+
+        institucionProcedencia: document.getElementById('institucionProcedencia').value,
+
+        idTipoEstudioAntecedente: document.getElementById('idTipoEstudioAntecedente').value,
+        tipoEstudioAntecedente: document.getElementById('tipoEstudioAntecedenteTexto').value,
+
+        idEntidadFederativaAntecedente: document.getElementById('idEntidadFederativaAntecedente').value,
+        entidadFederativaAntecedente: document.getElementById('entidadFederativaAntecedenteTexto').value,
+
+        fechaTerminacionAntecedente: document.getElementById('fechaTerminacionAntecedente').value
+    };
+
+    // Enviar al backend
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/titulos-electronicos`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (response.ok) {
+            const resultado = await response.json();
+            console.log('Título generado:', resultado);
+            alert('¡Título generado exitosamente!');
+        } else {
+            throw new Error('Error al generar título');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al generar título: ' + error.message);
+    }
+}
+
+
+/**
+ * EJEMPLO PARA RESPONSABLES DE FIRMA (configuracion-titulos-sep.html)
+ */
+async function guardarResponsable() {
+    const id = document.getElementById('responsableId').value;
+
+    const datos = {
+        nombre: document.getElementById('responsableNombre').value.trim(),
+        primerApellido: document.getElementById('responsablePrimerApellido').value.trim(),
+        segundoApellido: document.getElementById('responsableSegundoApellido').value.trim() || null,
+        curp: document.getElementById('responsableCurp').value.trim().toUpperCase(),
+
+        // Usar los valores del select sincronizado
+        idCargo: document.getElementById('responsableIdCargoValue').value,
+        cargo: document.getElementById('responsableCargoTexto').value,
+
+        abrTitulo: document.getElementById('responsableAbrTitulo').value.trim() || null,
+        ordenFirma: parseInt(document.getElementById('responsableOrdenFirma').value),
+        activo: document.getElementById('responsableActivo').checked
+    };
+
+    // Validar CURP
+    if (datos.curp.length !== 18) {
+        alert('El CURP debe tener 18 caracteres');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('token');
+        const url = id ? `${API_BASE_URL}/responsables-firma/${id}` : `${API_BASE_URL}/responsables-firma`;
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(datos)
+        });
+
+        if (response.ok) {
+            alert('Responsable guardado exitosamente');
+            // Recargar tabla o cerrar modal
+        } else {
+            throw new Error('Error al guardar responsable');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar el responsable: ' + error.message);
+    }
+}
+</script>
+
+</body>
+</html>

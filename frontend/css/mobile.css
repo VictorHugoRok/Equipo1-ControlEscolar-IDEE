@@ -1,0 +1,113 @@
+/**
+ * Estilos específicos para móvil.
+ * Se aplican en viewports pequeños (teléfonos).
+ */
+
+@media (max-width: 767px) {
+  .sidebar-ide {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease, width 0.2s ease;
+    width: min(280px, calc(100vw - 1.5rem)) !important;
+    height: 100dvh;
+    max-height: -webkit-fill-available;
+  }
+
+  .sidebar-ide .sidebar-nav {
+    min-height: 0;
+  }
+
+  .sidebar-ide .sidebar-footer {
+    padding: 0.75rem 0.65rem max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-ide .btn-logout-ide {
+    flex-shrink: 0;
+  }
+
+  .sidebar-ide .sidebar-email {
+    max-height: 3.2em;
+    line-height: 1.2;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-ide.sidebar-ide--open {
+    transform: translateX(0);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-ide.sidebar-ide--collapsed {
+    width: 64px !important;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-ide.sidebar-ide--collapsed.sidebar-ide--open {
+    transform: translateX(0);
+  }
+
+  .dashboard-main {
+    margin-left: 0 !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .dashboard-wrapper {
+    position: relative;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  /* Overlay cuando el menú está abierto */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1029;
+  }
+
+  .sidebar-overlay.sidebar-overlay--visible {
+    display: block;
+  }
+
+  /* Botón hamburguesa para abrir menú en móvil */
+  .sidebar-mobile-toggle {
+    display: flex !important;
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 1028;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    background: var(--ide-primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 1.35rem;
+  }
+
+  .sidebar-resize-handle {
+    display: none;
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
+/* En desktop/tablet no mostrar el botón hamburguesa */
+@media (min-width: 768px) {
+  .sidebar-mobile-toggle {
+    display: none !important;
+  }
+}

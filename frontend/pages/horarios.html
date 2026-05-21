@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Horarios - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container-fluid dashboard-content">
+      <h3 class="section-title">Horarios</h3>
+      <p class="text-muted">
+        Horarios por grupo. Consulta horarios existentes o crea nuevos.
+      </p>
+
+      <ul class="nav nav-tabs mb-4" id="horariosVisualTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-consultar-horario" data-bs-toggle="tab" data-bs-target="#paneConsultarHorario" type="button" role="tab">
+            <i class="bi bi-list-ul me-1"></i>Lista de horarios
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-crear-horario" data-bs-toggle="tab" data-bs-target="#paneCrearHorario" type="button" role="tab">
+            <i class="bi bi-plus-circle me-1"></i>Crear horario
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="horariosVisualTabContent">
+        <!-- Tab 1: Lista de horarios -->
+        <div class="tab-pane fade show active" id="paneConsultarHorario" role="tabpanel">
+          <div class="card mb-4">
+            <div class="card-header bg-soft-primary d-flex justify-content-between align-items-center">
+              <span>Horarios creados</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" id="hvBtnVerTodos">
+                <i class="bi bi-list-ul"></i> Ver todos
+              </button>
+            </div>
+            <div class="card-body">
+              <p class="text-muted small mb-3">Los horarios son <strong>por grupo</strong> (un calendario por grupo). Filtra por programa, por <strong>nivel del plan</strong> (el mismo número que en Grupos) o por grupo concreto.</p>
+              <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                  <label class="form-label">Programa</label>
+                  <select class="form-select form-select-sm" id="hvConsultaPrograma">
+                    <option value="">Todos los programas</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Periodo del plan <span class="text-muted fw-normal">(nivel)</span></label>
+                  <select class="form-select form-select-sm" id="hvConsultaPeriodoPlan" disabled title="Elige un programa para filtrar por nivel">
+                    <option value="">Todos los niveles</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Grupo</label>
+                  <select class="form-select form-select-sm" id="hvConsultaGrupo">
+                    <option value="">Todos los grupos</option>
+                  </select>
+                </div>
+                <div class="col-auto align-self-end">
+                  <button type="button" class="btn btn-primary btn-sm" id="hvBtnConsultar">
+                    <i class="bi bi-funnel"></i> Filtrar
+                  </button>
+                </div>
+              </div>
+              <div id="hvListaHorariosGraficos">
+                <div class="text-center text-muted py-4">Cargando horarios…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Crear horario -->
+        <div class="tab-pane fade" id="paneCrearHorario" role="tabpanel">
+      <!-- Formulario inicial: Programa → Grupo (el número de periodo viene del grupo) -->
+      <div id="hvFormularioInicial" class="card mb-3">
+        <div class="card-body">
+          <p class="text-muted small mb-3">Elige <strong>programa</strong> y <strong>grupo</strong> (cada grupo ya tiene su nivel del plan en <em>Grupos</em>). Las materias del horario corresponden a ese periodo.</p>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label for="hvPrograma" class="form-label">Programa</label>
+              <select id="hvPrograma" class="form-select">
+                <option value="">Selecciona programa...</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="hvGrupo" class="form-label">Grupo</label>
+              <select id="hvGrupo" class="form-select" disabled>
+                <option value="">Selecciona programa primero…</option>
+              </select>
+            </div>
+            <div class="col-auto">
+              <button type="button" id="hvBtnAsignarMaestros" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Asignar maestros
+              </button>
+              <button type="button" id="hvBtnEdit" class="btn btn-outline-secondary d-none">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de programa / periodo / grupo (visible junto a la tabla y al volver desde bloques) -->
+      <div id="hvResumenContainer" class="d-none mb-3">
+        <div class="card border-primary">
+          <div class="card-body py-2">
+            <small id="hvResumenSeleccion" class="text-muted"></small>
+            <button type="button" id="hvBtnEditTop" class="btn btn-sm btn-outline-secondary float-end">
+              <i class="bi bi-pencil"></i> Edit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paso 2: Asignar asignatura → maestro -->
+      <div id="hvAsignarMaestros" class="card mb-4 d-none">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-person-plus me-1"></i>Asignar maestro a cada asignatura</span>
+          <button type="button" id="hvBtnVolverAsignar" class="btn btn-sm btn-outline-secondary">Volver</button>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-3">Asigna el docente que impartirá cada asignatura (opcional). Puedes crear el horario aunque queden materias sin docente y asignarlo después desde <strong>Materias pendientes</strong>.</p>
+          <div id="hvAsignaturasMaestrosLista" class="row g-3">
+            <!-- Se llena dinámicamente -->
+          </div>
+          <div class="mt-3">
+            <button type="button" id="hvBtnCreate" class="btn btn-primary">
+              <i class="bi bi-table"></i> Crear horario
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vista tabla: layout 3 columnas -->
+      <div id="hvVistaTabla" class="d-none">
+        <div class="row g-3">
+          <!-- Panel izquierdo: materias pendientes -->
+          <div class="col-12 col-lg-2">
+            <div class="card h-100">
+              <div class="card-header py-2">
+                <small class="fw-semibold">Materias pendientes</small>
+              </div>
+              <div class="card-body overflow-auto" id="hvMateriasPendientes" style="max-height: 60vh;">
+                <p class="text-muted small mb-0">Selecciona programa y grupo.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Panel central: horario (más amplio) -->
+          <div class="col-12 col-lg-8">
+            <div class="card h-100" id="hvHorarioCard">
+              <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <small class="fw-semibold">Horario</small>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="hvBtnVolverPasoAnterior" title="Volver al paso anterior">
+                    <i class="bi bi-arrow-left"></i> Volver
+                  </button>
+                  <button type="button" class="btn btn-sm btn-ide" id="hvBtnGuardarHorario" title="Guardar horario en el sistema">
+                    <i class="bi bi-check-lg"></i> Guardar horario
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" id="hvBtnFullscreen" title="Pantalla completa">
+                    <i class="bi bi-fullscreen"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body overflow-auto p-2" id="hvCalendarioContenido" style="max-height: 70vh;">
+                <p class="text-muted small mb-0 text-center py-4">Presiona Crear horario para generar el calendario.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Panel derecho: notificaciones -->
+          <div class="col-12 col-lg-2">
+            <div class="card h-100">
+              <div class="card-header py-2">
+                <small class="fw-semibold">Notificaciones</small>
+              </div>
+              <div class="card-body overflow-auto" id="hvNotificaciones" style="max-height: 60vh;">
+                <p class="text-muted small mb-0">Sin conflictos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <!-- Modal asignar aula -->
+  <div class="modal fade" id="hvModalAula" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title">Asignar aula</h6>
+          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body py-2">
+          <input type="text" id="hvInputAula" class="form-control form-control-sm" placeholder="Ej: Aula 301, Lab 1" />
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="hvBtnGuardarAula" class="btn btn-sm btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal asignar docente (materias pendientes) -->
+  <div class="modal fade" id="hvModalDocente" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title">Asignar docente</h6>
+          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body py-2">
+          <input type="hidden" id="hvModalDocenteAsignaturaId" />
+          <div class="mb-2">
+            <small class="text-muted d-block">Asignatura</small>
+            <div class="fw-semibold small" id="hvModalDocenteAsignaturaNombre">—</div>
+          </div>
+          <label class="form-label small mb-1" for="hvModalDocenteSelect">Docente</label>
+          <select class="form-select form-select-sm" id="hvModalDocenteSelect">
+            <option value="">Sin docente asignado</option>
+          </select>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="hvBtnGuardarDocente" class="btn btn-sm btn-primary">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui-toast.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/horarios.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        window.currentUser = { email: localStorage.getItem('userEmail') || '', tipoUsuario: localStorage.getItem('userTipo'), rol: localStorage.getItem('userTipo') };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'horariosSection' });
+      if (typeof initHorariosVisual === 'function') initHorariosVisual();
+    });
+  </script>
+</body>
+</html>
