@@ -26,28 +26,16 @@ public class PermisosValidator {
     private static Map<Usuario.TipoUsuario, Set<String>> inicializarPermisos() {
         Map<Usuario.TipoUsuario, Set<String>> permisos = new HashMap<>();
 
-        // ADMIN: Solo lectura de calificaciones
+        // ADMIN: Acceso total del sistema (gestión completa + generación de documentos)
         permisos.put(Usuario.TipoUsuario.ADMIN, new HashSet<>(Arrays.asList(
             "VER_PROGRAMAS",
             "VER_DOCENTES",
             "VER_ALUMNOS",
-            "VER_CALIFICACIONES",          // ✓ Lectura solamente
-            "VER_HORARIOS",
-            "ACTUALIZAR_PROGRAMAS",
-            "ACTUALIZAR_DOCENTES",
-            "ACTUALIZAR_ALUMNOS",
-            "ACTUALIZAR_HORARIOS"
-            // NOTA: NO incluye EDITAR_CALIFICACIONES, CONFIRMAR_CALIFICACIONES
-        )));
-
-        // SECRETARIA_ACADEMICA: Acceso completo
-        permisos.put(Usuario.TipoUsuario.SECRETARIA_ACADEMICA, new HashSet<>(Arrays.asList(
-            "VER_PROGRAMAS",
-            "VER_DOCENTES",
-            "VER_ALUMNOS",
+            "VER_GRUPOS",
             "VER_CALIFICACIONES",
-            "EDITAR_CALIFICACIONES",       // ✓ Edición completa
-            "CONFIRMAR_CALIFICACIONES",    // ✓ Confirmación
+            "REGISTRAR_CALIFICACIONES",
+            "EDITAR_CALIFICACIONES",
+            "CONFIRMAR_CALIFICACIONES",
             "VER_HORARIOS",
             "VER_CERTIFICADOS",
             "GENERAR_CERTIFICADOS",
@@ -61,19 +49,74 @@ public class PermisosValidator {
             "ACTUALIZAR_DOCENTES",
             "ACTUALIZAR_ALUMNOS",
             "ACTUALIZAR_HORARIOS",
-            "FIRMAR_TITULOS"
+            "ACTUALIZAR_GRUPOS",
+            "FIRMAR_TITULOS",
+            "GESTIONAR_CICLOS_Y_PERIODOS",
+            "GESTIONAR_EVALUACION_DOCENTE",
+            "APLICAR_EVALUACION_ACADEMICA",
+            "EJECUTAR_LIMPIEZA_TOTAL"
         )));
 
-        // SECRETARIA_ADMINISTRATIVA: Gestión básica
+        // SECRETARIA_ACADEMICA: Acceso completo a calificaciones (única que puede modificar y confirmar)
+        permisos.put(Usuario.TipoUsuario.SECRETARIA_ACADEMICA, new HashSet<>(Arrays.asList(
+            "VER_PROGRAMAS",
+            "VER_DOCENTES",
+            "VER_ALUMNOS",
+            "VER_GRUPOS",
+            "VER_CALIFICACIONES",
+            "REGISTRAR_CALIFICACIONES",    // ✓ Crear si es necesario
+            "EDITAR_CALIFICACIONES",       // ✓ ÚNICA que puede modificar calificaciones
+            "CONFIRMAR_CALIFICACIONES",    // ✓ Verifica y confirma (define estatus final)
+            "VER_HORARIOS",
+            "VER_CERTIFICADOS",
+            "GENERAR_CERTIFICADOS",
+            "VER_CONSTANCIAS",
+            "GENERAR_CONSTANCIAS",
+            "VER_TITULOS_ELECTRONICOS",
+            "GENERAR_TITULOS_ELECTRONICOS",
+            "VER_CONFIG_SEP",
+            "ACTUALIZAR_CONFIG_SEP",
+            "ACTUALIZAR_PROGRAMAS",
+            "ACTUALIZAR_DOCENTES",
+            "ACTUALIZAR_ALUMNOS",
+            "ACTUALIZAR_HORARIOS",
+            "ACTUALIZAR_GRUPOS",
+            "FIRMAR_TITULOS",
+            "GESTIONAR_CICLOS_Y_PERIODOS",
+            "GESTIONAR_EVALUACION_DOCENTE",
+            "APLICAR_EVALUACION_ACADEMICA"
+        )));
+
+        // COORDINADOR_ACADEMICO: gestión académica solo sobre programas asignados (usuario_programa_asignado).
+        // No alta de programas/asignaturas; no generación de certificados/constancias/títulos; no config. institucional SEP;
+        // sin gestión de personal/docentes ni ciclos globales. Los controladores filtran por ProgramaAccesoService.
+        permisos.put(Usuario.TipoUsuario.COORDINADOR_ACADEMICO, new HashSet<>(Arrays.asList(
+            "VER_PROGRAMAS",
+            "VER_ALUMNOS",
+            "VER_GRUPOS",
+            "VER_CALIFICACIONES",
+            "REGISTRAR_CALIFICACIONES",
+            "EDITAR_CALIFICACIONES",
+            "CONFIRMAR_CALIFICACIONES",
+            "VER_HORARIOS",
+            "ACTUALIZAR_ALUMNOS",
+            "ACTUALIZAR_HORARIOS",
+            "ACTUALIZAR_GRUPOS",
+            "APLICAR_EVALUACION_ACADEMICA"
+        )));
+
+        // SECRETARIA_ADMINISTRATIVA: trámites y expediente de estudiantes/personal (carga de documentos en nombre del alumno).
         permisos.put(Usuario.TipoUsuario.SECRETARIA_ADMINISTRATIVA, new HashSet<>(Arrays.asList(
             "VER_PROGRAMAS",
             "VER_DOCENTES",
+            "ACTUALIZAR_DOCENTES",
+            "VER_ALUMNOS",
+            "ACTUALIZAR_ALUMNOS",
             "VER_HORARIOS",
             "VER_CERTIFICADOS",
             "VER_CONSTANCIAS",
             "GENERAR_CERTIFICADOS",
             "GENERAR_CONSTANCIAS"
-            // NOTA: NO acceso a calificaciones ni títulos
         )));
 
         // MAESTRO: Solo ver sus calificaciones y registrar
@@ -81,7 +124,9 @@ public class PermisosValidator {
             "VER_CALIFICACIONES_PROPIAS",
             "REGISTRAR_CALIFICACIONES",
             "VER_ALUMNOS_GRUPOS",
-            "VER_HORARIO"
+            "VER_HORARIO",
+            "VER_RESULTADOS_EVALUACION_DOCENTE",
+            "RESPONDER_AUTOEVALUACION"
         )));
 
         // ALUMNO: Ver su información
@@ -89,8 +134,12 @@ public class PermisosValidator {
             "VER_PERFIL",
             "VER_CALIFICACIONES_PROPIAS",
             "VER_HORARIO",
-            "VER_DOCUMENTO_ACADEMICO"
+            "VER_DOCUMENTO_ACADEMICO",
+            "VER_KARDEX_PROPIO",
+            "RESPONDER_EVALUACION_DOCENTE"
         )));
+
+        permisos.put(Usuario.TipoUsuario.SIN_ROL, new HashSet<>());
 
         return permisos;
     }
@@ -103,12 +152,16 @@ public class PermisosValidator {
      * @return true si tiene permiso, false si no
      */
     public boolean tienePermiso(Usuario usuario, String permiso) {
-        if (usuario == null || usuario.getTipoUsuario() == null) {
+        if (usuario == null || permiso == null) {
             return false;
         }
-
-        Set<String> permisosRol = PERMISOS_POR_ROL.get(usuario.getTipoUsuario());
-        return permisosRol != null && permisosRol.contains(permiso);
+        for (Usuario.TipoUsuario rol : usuario.getRolesEfectivos()) {
+            Set<String> permisosRol = PERMISOS_POR_ROL.get(rol);
+            if (permisosRol != null && permisosRol.contains(permiso)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -186,11 +239,17 @@ public class PermisosValidator {
      * Obtener todos los permisos de un usuario
      */
     public Set<String> obtenerPermisos(Usuario usuario) {
-        if (usuario == null || usuario.getTipoUsuario() == null) {
+        if (usuario == null) {
             return new HashSet<>();
         }
-        Set<String> permisos = PERMISOS_POR_ROL.get(usuario.getTipoUsuario());
-        return permisos != null ? new HashSet<>(permisos) : new HashSet<>();
+        Set<String> union = new HashSet<>();
+        for (Usuario.TipoUsuario rol : usuario.getRolesEfectivos()) {
+            Set<String> permisos = PERMISOS_POR_ROL.get(rol);
+            if (permisos != null) {
+                union.addAll(permisos);
+            }
+        }
+        return union;
     }
 
     /**
@@ -224,6 +283,8 @@ public class PermisosValidator {
                 return tienePermiso(usuario, "VER_ALUMNOS");
             case "HORARIOS":
                 return tienePermiso(usuario, "VER_HORARIOS");
+            case "GRUPOS":
+                return tienePermiso(usuario, "VER_PROGRAMAS"); // Grupos comparten permiso con programas
             default:
                 return false;
         }
