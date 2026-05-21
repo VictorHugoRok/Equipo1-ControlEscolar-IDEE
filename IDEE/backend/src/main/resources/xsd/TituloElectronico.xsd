@@ -152,9 +152,7 @@
  </xs:annotation>
  </xs:attribute>
  <xs:attribute name="primerApellido" type="xs:string" use="required">
- <xs:annotation>
- <xs:documentation>Atributo requerido que contiene el primer apellido del profesionista.</xs:documentation>
- </xs:annotation>
+ <xs:annotation><xs:documentation>Atributo requerido que contiene el primer apellido del profesionista.</xs:documentation> </xs:annotation>
  </xs:attribute>
  <xs:attribute name="segundoApellido" type="xs:string" use="optional">
  <xs:annotation>
