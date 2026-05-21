@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Usuarios del sistema - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content">
+      <h3 class="section-title">Usuarios del sistema</h3>
+      <p class="text-muted">
+        Consulta, alta  y edición de usuarios, con gestión de roles y expedientes.
+      </p>
+
+      <ul class="nav nav-tabs mb-3" id="staffSubTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-consulta-staff" data-bs-toggle="tab" data-bs-target="#paneConsultaStaff" type="button" role="tab">
+            <i class="bi bi-list-ul me-1"></i>Lista de usuarios
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-registrar-staff" data-bs-toggle="tab" data-bs-target="#paneRegistrarStaff" type="button" role="tab">
+            <i class="bi bi-person-plus me-1"></i>Registrar usuario
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="staffTabContent">
+        <div class="tab-pane fade show active" id="paneConsultaStaff" role="tabpanel">
+          <div class="card mb-4 card-filtros-alumnos">
+            <div class="card-body p-4">
+              <div class="alumno-filtros-busqueda">
+                <div class="alumno-search-wrapper">
+                  <i class="bi bi-search alumno-search-icon"></i>
+                  <input type="text" id="buscarStaffInput" class="form-control alumno-search-input" placeholder="Nombre, correo o CURP..." autocomplete="off" />
+                  <button type="button" id="btnBuscarStaff" class="btn alumno-search-btn"><i class="bi bi-search"></i></button>
+                </div>
+              </div>
+              <div class="alumno-filtros-secundarios mt-3">
+                <div class="row g-2 align-items-center">
+                  <div class="col-auto"><span class="text-muted small fw-medium">Filtros:</span></div>
+                  <div class="col-auto">
+                    <select id="staffFiltroActivo" class="form-select form-select-sm">
+                      <option value="">Estatus</option>
+                      <option value="true">Activos</option>
+                      <option value="false">Inactivos</option>
+                    </select>
+                  </div>
+                  <div class="col-auto">
+                    <select id="staffFiltroRol" class="form-select form-select-sm" aria-label="Filtrar por rol">
+                      <option value="">Rol</option>
+                    </select>
+                  </div>
+                  <div class="col-auto">
+                    <select id="staffFiltroPrograma" class="form-select form-select-sm" aria-label="Filtrar por programa académico">
+                      <option value="">Programa académico</option>
+                    </select>
+                  </div>
+                  <div class="col-auto ms-auto">
+                    <button type="button" id="btnLimpiarFiltrosStaff" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-circle me-1"></i>Limpiar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="excel-actions-buttons mb-3">
+            <button type="button" id="btnDescargarExcelStaff" class="btn btn-excel-action btn-excel-download">
+              <i class="bi bi-file-earmark-excel"></i><span class="btn-excel-text">Exportar Excel</span>
+            </button>
+            <button type="button" id="btnImportarExcelStaff" class="btn btn-excel-action btn-excel-upload ms-2">
+              <i class="bi bi-upload"></i><span class="btn-excel-text">Importar Excel</span>
+            </button>
+            <button type="button" id="btnEliminarSeleccionadosStaff" class="btn btn-excel-action btn-excel-danger ms-2" disabled>
+              <i class="bi bi-trash"></i><span class="btn-excel-text">Eliminar seleccionados</span>
+            </button>
+            <input type="file" id="staffImportExcelFile" class="d-none" accept=".xlsx,.xls" />
+          </div>
+
+          <!-- Modal: Carga masiva de usuarios -->
+          <div class="modal fade" id="modalCargaMasivaStaff" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header bg-soft-primary">
+                  <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Carga masiva de usuarios</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="text-muted small mb-3">
+                    Sube un archivo Excel (.xlsx) con el mismo formato que se descarga desde el botón “Exportar Excel”.
+                  </p>
+                  <div class="mb-3">
+                    <label for="staffCargaMasivaArchivo" class="form-label">Archivo Excel</label>
+                    <input type="file" class="form-control" id="staffCargaMasivaArchivo" accept=".xlsx,.xls" />
+                  </div>
+                  <div id="staffCargaMasivaResultado" class="alert d-none" role="alert"></div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  <button type="button" class="btn btn-primary" id="btnEjecutarCargaMasivaStaff">
+                    <i class="bi bi-upload me-1"></i>Procesar archivo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header bg-soft-primary d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <span>Usuarios registrados</span>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 40px;" class="text-center">
+                        <input type="checkbox" id="staffSelectAllChk" class="form-check-input" aria-label="Seleccionar todos" />
+                      </th>
+                      <th class="text-nowrap">
+                        <button type="button" id="btnOrdenarStaffNombre" class="btn btn-link p-0 text-decoration-none fw-semibold" style="color:inherit;font-size:inherit;line-height:inherit;">
+                          Nombre <i class="bi bi-arrow-down-up ms-1" id="iconOrdenarStaffNombre" aria-hidden="true"></i>
+                        </button>
+                      </th>
+                      <th>Correo</th>
+                      <th>Roles</th>
+                      <th>Estatus</th>
+                      <th class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="staffTableBody">
+                    <tr><td colspan="6" class="text-center text-muted py-4">Cargando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2 border-top bg-white">
+                <div class="text-muted small" id="staffPaginacionInfo">—</div>
+                <nav aria-label="Paginación usuarios">
+                  <ul class="pagination pagination-sm mb-0" id="staffPaginacion"></ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="paneRegistrarStaff" role="tabpanel">
+          <div class="card card-form-registro mb-4">
+            <div class="card-header bg-soft-primary d-flex align-items-center">
+              <i class="bi bi-person-lines-fill me-2"></i>Registro de usuario (identificación y contacto)
+            </div>
+            <div class="card-body">
+              <form id="staffForm" class="form-registro-seccionado" onsubmit="return false;">
+                <input type="hidden" id="staffPersonalId" />
+                <input type="hidden" id="staffLegacyMaestroId" />
+
+                <div class="form-section form-section-personal" id="staffSeccionBasica">
+                  <div class="form-section-header"><i class="bi bi-person-vcard"></i><span>Datos de registro</span></div>
+                  <div class="row g-3">
+                    <div class="col-md-3">
+                      <label class="form-label">CURP</label>
+                      <input type="text" id="staffCurp" class="form-control" maxlength="18" required />
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Nombre(s)</label>
+                      <input type="text" id="staffNombre" class="form-control" required />
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label" for="staffApellidoPaterno">Apellido Paterno</label>
+                      <input type="text" id="staffApellidoPaterno" class="form-control" required />
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label" for="staffApellidoMaterno">Apellido Materno</label>
+                      <input type="text" id="staffApellidoMaterno" class="form-control" required autocomplete="family-name" aria-required="true" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" for="staffGenero">Género</label>
+                      <select id="staffGenero" class="form-select" required>
+                        <option value="">Selecciona...</option>
+                        <option value="MASCULINO">Masculino</option>
+                        <option value="FEMENINO">Femenino</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label" for="staffFechaNacimiento">Fecha de nacimiento</label>
+                      <input type="date" id="staffFechaNacimiento" class="form-control" required autocomplete="bday" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Teléfono</label>
+                      <div class="phone-input-wrapper">
+                        <input type="text" id="staffTelefono" class="form-control" maxlength="10" inputmode="numeric" required />
+                        <span class="phone-char-counter" id="staffTelefonoCounter">0/10</span>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Correo institucional</label>
+                      <input type="email" id="staffCorreoInstitucional" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Correo personal</label>
+                      <input type="email" id="staffCorreoPersonal" class="form-control" />
+                    </div>
+                    <div class="col-md-4" id="staffPasswordWrap">
+                      <label class="form-label">Contraseña de acceso</label>
+                      <input type="password" id="staffPassword" class="form-control" autocomplete="new-password" minlength="6" placeholder="Mín. 6 caracteres o vacío para idee1234" />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Contacto de emergencia</label>
+                      <input type="text" id="staffContactoNombre" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Número de emergencia</label>
+                      <div class="phone-input-wrapper">
+                        <input type="text" id="staffContactoTelefono" class="form-control" maxlength="10" inputmode="numeric" />
+                        <span class="phone-char-counter" id="staffContactoTelefonoCounter">0/10</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div id="staffExtendedSectionsHostInForm">
+                <div id="staffExtendedSectionsWrapper">
+                <div class="form-section form-section-institucional pt-3 mt-2" id="staffSeccionExtendida" style="display:none;">
+                  <div class="form-section-header"><i class="bi bi-sliders"></i><span>Datos administrativos</span></div>
+                  <p class="small text-muted mb-3">Información complementaria para el área administrativa o de gestión institucional.</p>
+
+                  <div id="staffBloqueComplementarios" class="mb-4">
+                    <div class="fw-semibold mb-2 text-secondary small">Identificación y laboral general</div>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Etiqueta</label>
+                        <div class="row g-2">
+                          <div class="col-7">
+                            <select class="form-select" id="staffEtiquetaSelect">
+                              <option value="">Selecciona...</option>
+                              <option>Dr.</option><option>Dra.</option><option>Mtro.</option><option>Mtra.</option><option>Lic.</option>
+                              <option>CDEO</option><option>CDEE</option><option>CDEP</option><option>LOEO</option>
+                              <option value="otro">Otro</option>
+                            </select>
+                          </div>
+                          <div class="col-5 d-none" id="staffCampoEtiquetaOtro">
+                            <input type="text" id="staffEtiquetaOtro" class="form-control" placeholder="Especificar" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Departamento</label>
+                        <select id="staffDepartamento" class="form-select">
+                          <option value="">Selecciona...</option>
+                          <option value="Secretaría Administrativa">Secretaría Administrativa</option>
+                          <option value="Secretaría Academica">Secretaría Academica</option>
+                          <option value="Dirección">Dirección</option>
+                          <option value="Coordinación">Coordinación</option>
+                          <option value="Sistemas">Sistemas</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Estatus</label>
+                        <select id="staffActivo" class="form-select">
+                          <option value="true">Activo</option>
+                          <option value="false">Inactivo</option>
+                        </select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label">Observaciones</label>
+                        <textarea id="staffObservaciones" class="form-control" rows="2"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section form-section-documentos mb-0" id="seccionDocenciaStaff" style="display:none;">
+                  <div class="form-section-header"><i class="bi bi-mortarboard"></i><span>Datos de docencia</span></div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">Área académica</label>
+                      <select id="staffArea" class="form-select">
+                        <option value="">Selecciona...</option>
+                        <option>Ciencias de la salud</option><option>Ciencias sociales</option><option>Humanidades</option><option>Ingenierías</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Tipo de docente</label>
+                      <select id="staffTipoMaestro" class="form-select">
+                        <option value="">Selecciona...</option>
+                        <option value="TIEMPO_COMPLETO">Tiempo completo</option>
+                        <option value="MEDIO_TIEMPO">Medio tiempo</option>
+                        <option value="POR_HORAS">Por horas</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Grado académico</label>
+                      <select id="staffGrado" class="form-select">
+                        <option value="">Selecciona...</option>
+                        <option value="LICENCIATURA">Licenciatura</option>
+                        <option value="ESPECIALIDAD">Especialidad</option>
+                        <option value="MAESTRIA">Maestría</option>
+                        <option value="DOCTORADO">Doctorado</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section form-section-institucional mt-3" id="seccionAlumnoStaff" style="display:none;">
+                  <div class="form-section-header"><i class="bi bi-person-vcard"></i><span>Datos de estudiante</span></div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label" for="staffAlumnoMatricula">Matrícula</label>
+                      <input type="text" id="staffAlumnoMatricula" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="col-12">
+                      <div class="d-flex align-items-center justify-content-between gap-2">
+                        <label class="form-label mb-0">Programas educativos</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnStaffAlumnoAgregarPrograma">
+                          <i class="bi bi-plus-circle me-1"></i>Agregar programa
+                        </button>
+                      </div>
+                      <div class="mt-2" id="staffAlumnoProgramasContainer"></div>
+                    </div>
+                    <!-- Periodo de ingreso se selecciona por programa en cada fila -->
+                  </div>
+
+                  <hr class="my-3" />
+                  <div class="fw-semibold mb-2 text-secondary small">Documentos del estudiante</div>
+                  <input type="hidden" id="staffAlumnoIdHidden" value="" />
+                  <div class="row g-2" id="staffAlumnoDocsBlock">
+                    <div class="col-md-6">
+                      <label class="form-label small">CURP</label>
+                      <div id="staffAluDocCurpWrap">
+                        <input type="file" class="form-control form-control-sm" id="staffAluDocCurp" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small">INE</label>
+                      <div id="staffAluDocIneWrap">
+                        <input type="file" class="form-control form-control-sm" id="staffAluDocIne" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small">Constancia de situación fiscal</label>
+                      <div id="staffAluDocConstanciaFiscalWrap">
+                        <input type="file" class="form-control form-control-sm" id="staffAluDocConstanciaFiscal" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small">Acta de nacimiento</label>
+                      <div id="staffAluDocActaWrap">
+                        <input type="file" class="form-control form-control-sm" id="staffAluDocActa" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label small">Certificado de estudios</label>
+                      <div id="staffAluDocCertEstudiosWrap">
+                        <input type="file" class="form-control form-control-sm" id="staffAluDocCertEstudios" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label small">Título / Cédula (hasta 4)</label>
+                      <div id="staffAluTitulosCedulaContainer" class="d-flex flex-column gap-2"></div>
+                      <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="staffAluBtnAddTituloCedula"><i class="bi bi-plus-lg me-1"></i>Añadir otro</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section form-section-institucional mt-3" id="staffBloqueFiscal" style="display:none;">
+                  <div class="form-section-header"><i class="bi bi-building"></i><span>Datos fiscales</span></div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label">RFC</label>
+                      <input type="text" id="staffRfc" class="form-control" maxlength="13" autocomplete="off" title="12 o 13 caracteres si aplica; opcional" />
+                    </div>
+                    <div class="col-md-8">
+                      <label class="form-label">Régimen fiscal</label>
+                      <select id="staffRegimen" class="form-select">
+                        <option value="">Selecciona...</option>
+                        <option>Sueldos y Salarios e Ingresos Asimilados a Salarios</option>
+                        <option>Régimen Simplificado de Confianza (RESICO PF)</option>
+                        <option>Actividades Empresariales y Profesionales</option>
+                        <option>Régimen de Arrendamiento</option>
+                        <option>Ingresos por Intereses</option>
+                        <option>Ingresos por Obtención de Premios</option>
+                        <option>Enajenación de Bienes</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section form-section-documentos mt-3" id="staffSeccionDocsRegistro">
+                  <div class="form-section-header"><i class="bi bi-file-earmark-arrow-up"></i><span>Documentación del expediente</span></div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Foto de perfil</label>
+                      <div id="staffFotoPerfilWrap">
+                        <input type="file" id="staffFotoPerfil" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">CURP</label>
+                      <div id="staffDocCurpWrap">
+                        <input type="file" id="staffDocCurp" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">INE</label>
+                      <div id="staffDocIneWrap">
+                        <input type="file" id="staffDocIne" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Constancia de situación fiscal (CSF)</label>
+                      <div id="staffDocCsfWrap">
+                        <input type="file" id="staffDocCsf" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png" />
+                      </div>
+                    </div>
+                    <div class="col-12 mt-2" id="staffCedulasExpedienteBlock" style="display:none;">
+                      <div class="fw-semibold mb-2 text-secondary small">Cédulas profesionales</div>
+                      <div id="staffCedulasContainer" class="d-flex flex-column gap-2 mb-2"></div>
+                      <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddCedulaStaff"><i class="bi bi-plus-lg me-1"></i>Añadir otra cédula</button>
+                    </div>
+                  </div>
+                </div>
+                </div>
+                </div>
+
+                <div class="form-actions d-flex flex-wrap gap-2">
+                  <button type="button" id="btnGuardarStaff" class="btn btn-guardar-registro"><i class="bi bi-check2-circle me-1"></i>Guardar</button>
+                  <button type="button" id="btnLimpiarStaff" class="btn btn-outline-secondary">Limpiar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <div class="modal fade" id="modalStaffRoles" tabindex="-1" aria-labelledby="modalStaffRolesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable" id="modalStaffRolesDialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalStaffRolesLabel">Roles del usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalStaffRolesPaso1">
+            <p class="small text-muted">Puede marcar varios perfiles. El acceso y los permisos serán la unión de todos ellos. «Sin rol asignado» deja la cuenta sin permisos operativos.</p>
+            <input type="hidden" id="modalStaffRolesPersonalId" />
+            <input type="hidden" id="modalStaffRolesUsuarioSoloAlumnoId" value="" />
+            <div class="row g-2">
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="SIN_ROL" id="modalRolSinRol" /><label class="form-check-label" for="modalRolSinRol">Sin rol asignado</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="ADMIN" id="modalRolAdmin" /><label class="form-check-label" for="modalRolAdmin">Administrador</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="SECRETARIA_ACADEMICA" id="modalRolSecAc" /><label class="form-check-label" for="modalRolSecAc">Secretaría académica</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="SECRETARIA_ADMINISTRATIVA" id="modalRolSecAd" /><label class="form-check-label" for="modalRolSecAd">Secretaría administrativa</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="COORDINADOR_ACADEMICO" id="modalRolCoord" /><label class="form-check-label" for="modalRolCoord">Coordinador académico</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="MAESTRO" id="modalRolMaestro" /><label class="form-check-label" for="modalRolMaestro">Docente</label></div></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input modal-staff-rol-chk" type="checkbox" value="ALUMNO" id="modalRolAlumno" /><label class="form-check-label" for="modalRolAlumno">Estudiante</label></div></div>
+            </div>
+          </div>
+          <div id="modalStaffRolesPaso2" class="d-none">
+            <p class="small text-muted mb-3" id="modalStaffRolesPaso2Intro">Complete la información del expediente institucional según corresponda: administración, docencia o estudiante.</p>
+            <div id="modalStaffExpedienteResumen" class="border rounded bg-light px-3 py-2 mb-3 d-none"></div>
+            <div id="modalStaffExpedienteHost" class="border rounded p-2 bg-body-secondary bg-opacity-25"></div>
+            <div id="modalStaffRolesPaso2SinOperativo" class="d-none alert alert-light border mb-0">
+              <p class="small mb-2">Con el perfil actual no hay información adicional de expediente que completar aquí.</p>
+              <p class="small text-muted mb-0">Si más adelante se asignan perfiles con expediente (administrativo, docente o estudiante), podrá completarlos desde este mismo modal o desde la ficha del usuario.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer flex-wrap gap-2" id="modalStaffRolesFooterPaso1">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarModalStaffRoles">Continuar al expediente</button>
+        </div>
+        <div class="modal-footer flex-wrap gap-2 d-none" id="modalStaffRolesFooterPaso2">
+          <button type="button" class="btn btn-outline-secondary" id="btnVolverModalStaffRolesPaso1">
+            <i class="bi bi-arrow-left me-1"></i>Volver a roles
+          </button>
+          <button type="button" class="btn btn-outline-secondary d-none" id="btnCerrarModalStaffRolesSoloSinOp" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarModalStaffExpediente">
+            <i class="bi bi-check2-circle me-1"></i>Guardar expediente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Foto de perfil (vista previa) -->
+  <div class="modal fade" id="modalFotoPerfil" tabindex="-1" aria-labelledby="modalFotoPerfilLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-foto-perfil-dialog">
+      <div class="modal-content modal-foto-perfil-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title" id="modalFotoPerfilLabel">Foto de perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body modal-foto-perfil-body text-center">
+          <img id="modalFotoPerfilImg" alt="Foto de perfil" class="modal-foto-perfil-img rounded" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Programa académico al asignar rol Coordinador académico -->
+  <div class="modal fade" id="modalDatosCoordinadorRol" tabindex="-1" aria-labelledby="modalDatosCoordinadorRolLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDatosCoordinadorRolLabel">Programa a coordinar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted mb-3">Seleccione el programa educativo que coordinará. El usuario solo podrá operar la información de ese programa.</p>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="modalCoordRolPrograma">Programa educativo</label>
+              <select id="modalCoordRolPrograma" class="form-select" required>
+                <option value="">Cargando…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarModalDatosCoordRol">Guardar y asignar rol</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalExpedienteAlumno" tabindex="-1" aria-labelledby="modalExpedienteAlumnoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalExpedienteAlumnoLabel">Expediente de estudiante</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="expedienteAlumnoId" value="" />
+          <div class="border rounded bg-light overflow-hidden mb-3">
+            <div class="row g-0 align-items-stretch">
+              <div class="col-12 col-md-4 col-lg-3 border-end border-light-subtle bg-white p-3 text-center d-flex flex-column align-items-center justify-content-center">
+                <div class="text-muted small mb-2 w-100">Foto de perfil</div>
+                <div id="expedienteAlumnoFotoWrap" class="rounded border bg-light overflow-hidden d-flex align-items-center justify-content-center" style="width: 112px; height: 112px;">
+                  <span class="text-muted small" id="expedienteAlumnoFotoPh"><i class="bi bi-person" style="font-size:2.5rem;"></i></span>
+                  <img id="expedienteAlumnoFotoImg" src="" alt="" class="w-100 h-100 object-fit-cover d-none" />
+                </div>
+              </div>
+              <div class="col-12 col-md-8 col-lg-9 p-3">
+                <div class="fw-semibold fs-6 mb-2" id="expedienteAlumnoNombre">—</div>
+                <div class="row row-cols-1 g-2 small">
+                  <div class="col">
+                    <span class="text-muted">Matrícula</span>
+                    <div class="fw-medium"><span id="expedienteAlumnoMatricula">—</span></div>
+                  </div>
+                  <div class="col">
+                    <span class="text-muted">CURP</span>
+                    <div class="fw-medium text-break"><span id="expedienteAlumnoCurp">—</span></div>
+                  </div>
+                  <div class="col">
+                    <span class="text-muted">Correo institucional</span>
+                    <div class="fw-medium text-break"><span id="expedienteAlumnoCorreo">—</span></div>
+                  </div>
+                  <div class="col">
+                    <span class="text-muted">Programas</span>
+                    <div class="fw-medium" id="expedienteAlumnoProgramas">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fw-semibold small text-secondary mb-2">Documentación del expediente</div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label small">CURP</label>
+              <div id="expDocCurpWrap">
+                <input type="file" class="form-control form-control-sm expediente-doc-inp" id="expDocCurp" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">INE</label>
+              <div id="expDocIneWrap">
+                <input type="file" class="form-control form-control-sm expediente-doc-inp" id="expDocIne" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">Constancia de situación fiscal</label>
+              <div id="expDocConstanciaFiscalWrap">
+                <input type="file" class="form-control form-control-sm expediente-doc-inp" id="expDocConstanciaFiscal" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">Acta de nacimiento</label>
+              <div id="expDocActaWrap">
+                <input type="file" class="form-control form-control-sm expediente-doc-inp" id="expDocActa" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small">Certificado de estudios</label>
+              <div id="expDocCertEstudiosWrap">
+                <input type="file" class="form-control form-control-sm expediente-doc-inp" id="expDocCertEstudios" accept=".pdf,.jpg,.jpeg,.png" />
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label small">Título / Cédula (hasta 4)</label>
+              <p class="small text-muted mb-2">Etiqueta, número de cédula si aplica y PDF por cada registro.</p>
+              <div id="expedienteTitulosCedulaContainer" class="d-flex flex-column gap-2"></div>
+              <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="expedienteBtnAddTituloCedula"><i class="bi bi-plus-lg me-1"></i>Añadir otro</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarExpedienteAlumno">Guardar documentos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui-toast.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/gestion-staff-unificado.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        var rl = [];
+        try {
+          var jr = localStorage.getItem('userRoles');
+          if (jr) rl = JSON.parse(jr);
+        } catch (x) {}
+        if (!rl || !rl.length) rl = [localStorage.getItem('userTipo')];
+        window.currentUser = {
+          email: localStorage.getItem('userEmail') || '',
+          tipoUsuario: localStorage.getItem('userTipo'),
+          roles: rl
+        };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'personalSection' });
+    });
+  </script>
+</body>
+</html>

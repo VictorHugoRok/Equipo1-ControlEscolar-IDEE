@@ -1,0 +1,31 @@
+<div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+<button type="button" class="sidebar-mobile-toggle" id="sidebarMobileToggle" aria-label="Abrir menú"><i class="bi bi-list"></i></button>
+<aside class="sidebar-ide">
+  <div class="sidebar-resize-handle" id="sidebarResizeHandle" title="Ajustar ancho"></div>
+  <div class="sidebar-header">
+    <a href="maestro.html">
+      <img src="../assets/logo.png" alt="IDEE" class="sidebar-logo" />
+    </a>
+    <div class="sidebar-badge-wrap" id="sidebarRolSwitcherWrap">
+      <span class="sidebar-badge-academico">Portal docente</span>
+    </div>
+  </div>
+  <div class="sidebar-spacer"></div>
+  <nav class="sidebar-nav" id="navbarMenuPrincipal" data-sidebar-type="maestro">
+    <a class="nav-link-ide active" href="maestro.html" data-seccion="maestroGruposSection" title="Mis grupos"><i class="bi bi-collection"></i><span>Mis grupos</span></a>
+    <a class="nav-link-ide" href="maestro.html?v=horario" data-seccion="maestroHorarioSection" title="Horario semanal"><i class="bi bi-calendar3"></i><span>Horario</span></a>
+    <a class="nav-link-ide" href="calificaciones.html" title="Calificaciones (captura)"><i class="bi bi-clipboard2-data"></i><span>Calificaciones</span></a>
+    <a class="nav-link-ide" href="maestro.html?v=criterios" data-seccion="maestroCriteriosSection" title="Criterios de evaluación"><i class="bi bi-sliders"></i><span>Criterios</span></a>
+    <a class="nav-link-ide" href="evaluacion-docente.html" title="Evaluación docente"><i class="bi bi-clipboard2-check"></i><span>Evaluación docente<span class="ed-nav-badge-informe d-none" title="Informes nuevos por leer" aria-hidden="true"></span></span></a>
+    <a class="nav-link-ide" href="maestro-mi-informacion.html" title="Mi información (foto y documentos)"><i class="bi bi-person-vcard"></i><span>Mi información</span></a>
+  </nav>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-footer">
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Contraer menú" aria-label="Contraer menú"><i class="bi bi-chevron-left"></i></button>
+    <div class="sidebar-user-name" id="sidebarUserNombre">—</div>
+    <div class="sidebar-role d-none" id="navbarUserDisplay" aria-hidden="true"></div>
+    <span id="navbarRole" class="d-none"></span>
+    <div class="sidebar-email" id="userEmail">—</div>
+    <a href="javascript:void(0)" class="btn btn-logout-ide" id="btnLogout" title="Cerrar sesión" role="button"><i class="bi bi-box-arrow-right"></i><span class="btn-logout-text">Cerrar sesión</span></a>
+  </div>
+</aside>

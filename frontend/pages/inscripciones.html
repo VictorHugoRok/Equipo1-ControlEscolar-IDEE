@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inscripciones - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content">
+      <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+        <div>
+          <h3 class="section-title mb-1">Inscripciones</h3>
+          <p class="text-muted mb-0 small">
+            Gestiona altas por <strong>cohorte</strong> (con exclusiones puntuales) o por <strong>lista de alumnos</strong>.
+            El grupo debe corresponder al nivel que cursa cada alumno; no se permite repetir materias ya aprobadas.
+          </p>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4 inscripcion-flujo-card">
+        <div class="card-header bg-soft-primary d-flex flex-wrap align-items-center justify-content-between gap-2 py-3">
+          <span class="fw-semibold"><i class="bi bi-ui-checks-grid me-2"></i>Flujo de inscripción</span>
+          <span class="badge bg-white text-primary border border-primary-subtle" id="inscripcionResumenPaso">Inscripciones · Cohorte · Paso 1 de 3</span>
+        </div>
+        <div class="card-body p-0">
+          <div class="insc-stepper-track px-4 pt-4 pb-2 border-bottom bg-white">
+            <div class="insc-stepper-steps">
+              <div class="insc-stepper-item"><span class="insc-step-dot active" data-step="1">1</span><span class="insc-stepper-label">Ajustes</span></div>
+              <div class="insc-stepper-line" aria-hidden="true"></div>
+              <div class="insc-stepper-item"><span class="insc-step-dot" data-step="2">2</span><span class="insc-stepper-label">Alumnos y grupo</span></div>
+              <div class="insc-stepper-line" aria-hidden="true"></div>
+              <div class="insc-stepper-item"><span class="insc-step-dot" data-step="3">3</span><span class="insc-stepper-label">Confirmación</span></div>
+            </div>
+          </div>
+
+          <!-- Paso 1: solo selecciones de contexto -->
+          <div id="inscStepPanel1" class="insc-step-panel p-4 border-bottom">
+            <p class="text-secondary small mb-3">Primero elija el <strong>programa</strong>: el sistema toma el <strong>periodo académico Activo</strong> del tipo de calendario de ese programa (semestre, cuatrimestre, etc.). Solo podrá inscribir en <strong>grupos de ese programa</strong> para ese periodo. El nivel en el plan de cada alumno se determina automáticamente y debe coincidir con el <strong>grupo</strong> del paso 2.</p>
+            <div class="inscripcion-flujo-pasos">
+              <div class="inscripcion-paso inscripcion-paso--campos" id="wrapProgramaInscripcion">
+                <div class="inscripcion-paso-encabezado">
+                  <span class="inscripcion-paso-badge" aria-hidden="true">1</span>
+                  <span class="inscripcion-paso-titulo" id="lblPasoProgramaTexto">Programa educativo</span>
+                </div>
+                <div class="inscripcion-paso-cuerpo">
+                  <select class="form-select" id="inscripcionPrograma" required aria-labelledby="lblPasoProgramaTexto">
+                    <option value="">Selecciona programa…</option>
+                  </select>
+                  <small class="text-muted d-block mt-1">Las cohortes y los grupos se filtran por este programa. Debe existir un periodo <strong>Activo</strong> para el tipo de calendario del programa.</small>
+                </div>
+              </div>
+              <div class="inscripcion-paso inscripcion-paso--toggle">
+                <div class="inscripcion-paso-encabezado">
+                  <span class="inscripcion-paso-badge" aria-hidden="true">2</span>
+                  <span class="inscripcion-paso-titulo" id="lblPasoModo">Modo de selección</span>
+                </div>
+                <div class="inscripcion-paso-cuerpo">
+                  <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="inscripcionModo" id="modoCohorte" value="cohorte" autocomplete="off" checked />
+                    <label class="btn btn-outline-secondary" for="modoCohorte"><i class="bi bi-diagram-3 me-1"></i>Por cohorte</label>
+                    <input type="radio" class="btn-check" name="inscripcionModo" id="modoAlumnos" value="alumnos" autocomplete="off" />
+                    <label class="btn btn-outline-secondary" for="modoAlumnos"><i class="bi bi-people me-1"></i>Lista de alumnos</label>
+                  </div>
+                </div>
+              </div>
+              <div class="inscripcion-paso inscripcion-paso--campos" id="wrapPeriodoAcademico">
+                <div class="inscripcion-paso-encabezado">
+                  <span class="inscripcion-paso-badge" aria-hidden="true">3</span>
+                  <span class="inscripcion-paso-titulo" id="lblPasoPeriodoActivo">Periodo académico activo</span>
+                </div>
+                <div class="inscripcion-paso-cuerpo">
+                  <input type="hidden" id="inscripcionPeriodoActivoId" value="" autocomplete="off" />
+                  <div id="inscripcionPeriodoActivoMensaje" class="mb-0 small">
+                    <span class="text-muted">Seleccione un programa para cargar el periodo Activo de su calendario.</span>
+                  </div>
+                  <small class="text-muted d-block mt-1" id="inscPeriodoAyuda">Las inscripciones usan siempre este periodo; los grupos deben estar dados de alta para el mismo.</small>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <button type="button" class="btn btn-primary px-4" id="btnInscPaso1Siguiente">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
+            </div>
+          </div>
+
+          <!-- Paso 2: alumnos + grupo -->
+          <div id="inscStepPanel2" class="insc-step-panel p-4 border-bottom d-none">
+            <div class="inscripcion-seccion-header mb-3">
+              <div>
+                <p class="inscripcion-seccion-titulo-texto mb-1">Alumnos y grupo destino</p>
+                <p class="inscripcion-seccion-subtitulo mb-0">Selecciona participantes y el grupo destino.</p>
+              </div>
+            </div>
+
+            <div id="panelCohorte" class="inscripcion-panel-modulo inscripcion-panel-modulo--herramientas">
+              <div class="d-flex flex-wrap align-items-end gap-2 mb-3">
+                <div class="flex-grow-1" style="min-width: 200px">
+                  <label class="form-label mb-1 fw-semibold text-secondary small text-uppercase">Cohorte</label>
+                  <select class="form-select" id="inscripcionCohorte">
+                    <option value="">Selecciona cohorte…</option>
+                  </select>
+                </div>
+                <button type="button" class="btn btn-outline-primary" id="btnCargarMiembrosCohorte">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Cargar miembros
+                </button>
+              </div>
+              <div class="mb-3">
+                <label class="form-label mb-1 fw-semibold text-secondary small text-uppercase">Buscar en la tabla</label>
+                <div class="inscripcion-buscador-wrap">
+                  <i class="bi bi-search inscripcion-buscador-icono" aria-hidden="true"></i>
+                  <input type="search" class="form-control" id="filtroCohorteMiembros" placeholder="Matrícula, nombre completo o programa…" autocomplete="off" />
+                  <button type="button" class="btn btn-sm btn-outline-secondary btn-limpiar-busqueda d-none" id="btnLimpiarBusquedaCohorte" title="Limpiar búsqueda">×</button>
+                </div>
+                <div class="inscripcion-filtro-meta mt-1" id="filtroCohorteMeta"></div>
+              </div>
+              <div class="table-responsive border rounded bg-white shadow-sm inscripcion-cohorte-scroll">
+                <table class="table table-sm table-hover align-middle mb-0 inscripcion-cohorte-table">
+                  <thead class="table-light sticky-top">
+                    <tr>
+                      <th class="inscripcion-cohorte-th-excluir" style="min-width: 108px">
+                        <span class="d-block small text-muted text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.02em">Excluir</span>
+                        <div class="form-check mb-0">
+                          <input class="form-check-input" type="checkbox" id="cohorteTodosElegibles" disabled title="Activo = todos los elegibles con Excluir marcado; inactivo = ninguno excluido (solo filas elegibles)" />
+                          <label class="form-check-label small text-nowrap" for="cohorteTodosElegibles">Todos</label>
+                        </div>
+                      </th>
+                      <th>Elegible</th>
+                      <th>Matrícula</th>
+                      <th>Nombre</th>
+                      <th>Programa</th>
+                      <th>Ingreso</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaMiembrosCohorte">
+                    <tr><td colspan="6" class="text-center text-muted py-5">Selecciona cohorte y pulsa «Cargar miembros».</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-muted small mt-2 mb-0" id="cohorteContadorResumen"></p>
+            </div>
+
+            <div id="panelAlumnos" class="inscripcion-panel-modulo inscripcion-panel-modulo--herramientas d-none">
+              <div class="mb-3">
+                <label class="form-label mb-1 fw-semibold text-secondary small text-uppercase">Buscar alumnos</label>
+                <div class="inscripcion-buscador-wrap">
+                  <i class="bi bi-search inscripcion-buscador-icono" aria-hidden="true"></i>
+                  <input type="search" class="form-control" id="filtroListaAlumnos" placeholder="Matrícula o nombre completo (varias palabras)…" autocomplete="off" />
+                  <button type="button" class="btn btn-sm btn-outline-secondary btn-limpiar-busqueda d-none" id="btnLimpiarBusquedaLista" title="Limpiar búsqueda">×</button>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-1">
+                  <span class="inscripcion-filtro-meta mb-0" id="filtroListaAlumnosMeta"></span>
+                  <span class="text-muted small">Usa el filtro para localizar alumnos y marca o desmarca según corresponda (bajas, casos puntuales).</span>
+                </div>
+              </div>
+              <div class="inscripcion-lista-alumnos">
+                <div class="inscripcion-lista-header">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="inscripcionSeleccionarTodos" />
+                    <label class="form-check-label fw-medium" for="inscripcionSeleccionarTodos">Seleccionar todos los visibles</label>
+                  </div>
+                  <span class="text-muted small" id="inscripcionContadorSeleccionados">0 seleccionados</span>
+                </div>
+                <div class="inscripcion-lista-body" id="inscripcionListaAlumnos">
+                  <div class="text-center text-muted py-5" id="inscripcionListaPlaceholder">
+                    Completa el paso 1 y pulsa «Siguiente» para cargar alumnos del programa.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-top">
+              <label class="form-label fw-semibold" for="inscripcionGrupo" id="lblPasoGrupoTexto">Grupo destino</label>
+              <select class="form-select" id="inscripcionGrupo" disabled aria-labelledby="lblPasoGrupoTexto">
+                <option value="">Indica alumnos a incluir o completa el paso anterior…</option>
+              </select>
+              
+            </div>
+            <div id="inscAlertNivelGrupo" class="alert alert-warning d-none small mt-3 mb-0" role="alert"></div>
+            <div class="d-flex flex-wrap gap-2 justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary" id="btnInscPaso2Atras"><i class="bi bi-arrow-left me-1"></i>Atrás</button>
+              <button type="button" class="btn btn-primary px-4" id="btnInscPaso2Siguiente">Siguiente <i class="bi bi-arrow-right ms-1"></i></button>
+            </div>
+          </div>
+
+          <!-- Paso 3: confirmación (grupo izquierda, alumnos derecha) -->
+          <div id="inscStepPanel3" class="insc-step-panel p-4 bg-light d-none">
+            <p class="inscripcion-seccion-titulo-texto mb-1">Confirmación</p>
+            <p class="text-muted small mb-3">Revisa los datos antes de ejecutar.</p>
+            <p class="fw-semibold mb-3" id="inscConfirmPrograma"></p>
+            <div class="row g-3 align-items-stretch">
+              <div class="col-md-5 order-md-1">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-header bg-white border-bottom py-2 small text-uppercase text-secondary fw-semibold">Grupo destino</div>
+                  <div class="card-body" id="inscConfirmGrupo"></div>
+                </div>
+              </div>
+              <div class="col-md-7 order-md-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-header bg-white border-bottom py-2 small text-uppercase text-secondary fw-semibold">Alumnos seleccionados</div>
+                  <div class="card-body" style="max-height: 320px; overflow-y: auto">
+                    <ul class="list-unstyled small mb-0" id="inscConfirmAlumnos"></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary" id="btnInscPaso3Atras"><i class="bi bi-arrow-left me-1"></i>Atrás</button>
+              <button type="button" class="btn btn-ide btn-lg px-4" id="btnEjecutarInscripcion" disabled>
+                <i class="bi bi-check2-circle me-2"></i>Ejecutar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-soft-primary">Grupos inscritos</div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Filtrar por programa</label>
+              <select class="form-select" id="filtroPrograma" title="Filtrar por programa">
+                <option value="">Todos los programas</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Filtrar por asignatura</label>
+              <select class="form-select" id="filtroAsignatura" title="Filtrar por asignatura">
+                <option value="">Todas las asignaturas</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Filtrar por periodo</label>
+              <select class="form-select" id="filtroCicloEscolar" title="Filtrar por periodo académico">
+                <option value="">Todos los periodos</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive table-grupos-inscritos-wrap border rounded">
+            <table class="table table-striped table-hover table-sm mb-0 align-middle table-grupos-inscritos">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="col-grupo-insc">Grupo</th>
+                  <th scope="col" class="col-plan-insc">Periodo del plan</th>
+                  <th scope="col" class="col-prog-insc">Programa</th>
+                  <th scope="col" class="col-est-insc">Estatus</th>
+                  <th scope="col" class="col-alu-insc">Alumnos</th>
+                  <th scope="col" class="col-act-insc">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="gruposTableBody">
+                <tr><td colspan="6" class="text-center text-muted py-4">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalResultadoInscripcion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>Resultado de la operación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-2 mb-3 small" id="modalInscripcionStats"></div>
+          <div class="table-responsive" style="max-height: 320px">
+            <table class="table table-sm table-bordered mb-0">
+              <thead class="table-light"><tr><th>Matrícula</th><th>Estado</th><th>Mensaje</th></tr></thead>
+              <tbody id="modalInscripcionDetalle"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalAlumnosGrupo" tabindex="-1" aria-labelledby="modalAlumnosGrupoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content modal-alumnos-grupo">
+        <div class="modal-header modal-alumnos-grupo-header">
+          <h5 class="modal-title" id="modalAlumnosGrupoLabel">
+            <i class="bi bi-people me-2"></i>Alumnos del grupo <span id="modalAlumnosGrupoNombre"></span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body modal-alumnos-grupo-body">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Matrícula</th>
+                  <th>Nombre completo</th>
+                  <th>Correo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="modalAlumnosGrupoBody">
+                <tr><td colspan="4" class="text-center text-muted py-4">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer modal-alumnos-grupo-footer">
+          <button type="button" class="btn btn-outline-success" id="btnDescargarExcelAlumnosGrupo">
+            <i class="bi bi-download me-1"></i>Descargar lista
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/gestion-grupos.js"></script>
+  <script>
+    function getApiBase() {
+      return (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+    }
+
+    async function apiFetch(path, options) {
+      const base = getApiBase();
+      const url = (path.indexOf('/') === 0) ? base + path : base + '/' + path;
+      const headers = options && options.headers ? { ...options.headers } : {};
+      if (!headers['Content-Type'] && options && options.body && !(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+      const token = localStorage.getItem('token');
+      if (token && token !== 'null') headers['Authorization'] = 'Bearer ' + token;
+      return fetch(url, { ...options, headers });
+    }
+
+    var alumnosDisponiblesCache = [];
+    var inscripcionStepActual = 1;
+    var programasInscripcionCache = [];
+    var cohortesInscripcionCache = [];
+    var miembrosCohorteRows = [];
+    var inscripcionListaFiltroTimer = null;
+    var cohorteFiltroTimer = null;
+    var gruposInscripcionRequestSeq = 0;
+
+    function normalizarTextoBusqueda(s) {
+      if (s == null || s === '') return '';
+      return String(s).toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function construirCadenaBusquedaAlumno(a) {
+      var partes = [a.matricula, a.nombre, a.programaNombre, a.nombreCompleto, a.periodoIngreso];
+      return normalizarTextoBusqueda(partes.filter(Boolean).join(' '));
+    }
+
+    function cadenaCoincideTokens(cadenaNormalizada, query) {
+      var q = normalizarTextoBusqueda(query);
+      if (!q) return true;
+      var toks = q.split(' ').filter(Boolean);
+      if (toks.length === 0) return true;
+      return toks.every(function (t) { return cadenaNormalizada.indexOf(t) >= 0; });
+    }
+
+    function getTipoSeleccionado() {
+      // Modo unificado: el backend determina si es nuevo ingreso o reingreso.
+      return 'AUTO';
+    }
+
+    function getModoSeleccionado() {
+      var el = document.querySelector('input[name="inscripcionModo"]:checked');
+      return el ? el.value : 'cohorte';
+    }
+
+    function formatearPeriodoDisplay(num, tipoPeriodo) {
+      var n = parseInt(num, 10);
+      if (isNaN(n) || n < 1) return '';
+      var ordinal = (n === 1) ? '1er' : (n === 2) ? '2do' : (n === 3) ? '3er' : (n === 4) ? '4to' : (n === 5) ? '5to' : (n === 6) ? '6to' : (n === 7) ? '7mo' : (n === 8) ? '8vo' : (n === 9) ? '9no' : (n + '°');
+      var tipo = 'Semestre';
+      if (tipoPeriodo === 'CUATRIMESTRE' || tipoPeriodo === 'TETRAMESTRE') tipo = 'Cuatrimestre';
+      else if (tipoPeriodo === 'TRIMESTRE') tipo = 'Trimestre';
+      return ordinal + ' ' + tipo;
+    }
+
+    function textoPeriodosCompletados(cantidad, tipoPeriodoPrograma) {
+      var n = parseInt(cantidad, 10);
+      if (isNaN(n) || n <= 0) return '';
+      var tp = tipoPeriodoPrograma || 'SEMESTRE';
+      var partes = [];
+      for (var i = 1; i <= n; i++) {
+        partes.push(formatearPeriodoDisplay(i, tp));
+      }
+      if (partes.length === 1) return 'Nivel completo: ' + partes[0];
+      return 'Niveles completos: ' + partes.join(', ');
+    }
+
+    function getProgramaSeleccionado() {
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      if (!progId) return null;
+      return programasInscripcionCache.find(function (p) { return String(p.id) === String(progId); }) || null;
+    }
+
+    function setStepperStep(n) {
+      inscripcionStepActual = n;
+      var p1 = document.getElementById('inscStepPanel1');
+      var p2 = document.getElementById('inscStepPanel2');
+      var p3 = document.getElementById('inscStepPanel3');
+      if (p1) p1.classList.toggle('d-none', n !== 1);
+      if (p2) p2.classList.toggle('d-none', n !== 2);
+      if (p3) p3.classList.toggle('d-none', n !== 3);
+      document.querySelectorAll('.insc-step-dot').forEach(function (dot) {
+        var sn = parseInt(dot.getAttribute('data-step'), 10);
+        dot.classList.toggle('active', sn === n);
+        dot.classList.toggle('done', sn < n);
+      });
+      var hdr = document.getElementById('inscripcionResumenPaso');
+      if (hdr) {
+        var tlab = 'Inscripciones';
+        var mlab = getModoSeleccionado() === 'cohorte' ? 'Cohorte' : 'Lista';
+        hdr.textContent = tlab + ' · ' + mlab + ' · Paso ' + n + ' de 3';
+      }
+      actualizarEstadoEjecutar();
+      if (n === 2) {
+        refrescarAlertaNivelGrupo();
+      }
+    }
+
+    function actualizarEstadoEjecutar() {
+      var btn = document.getElementById('btnEjecutarInscripcion');
+      if (!btn) return;
+      btn.disabled = inscripcionStepActual !== 3;
+    }
+
+    function validarPaso1() {
+      if (!document.getElementById('inscripcionPrograma')?.value) {
+        alert('Selecciona el programa educativo.');
+        return false;
+      }
+      return true;
+    }
+
+    async function prepararPaso2() {
+      await cargarAlumnosDisponibles();
+      if (getModoSeleccionado() === 'cohorte' && document.getElementById('inscripcionCohorte')?.value) {
+        await cargarMiembrosCohorte();
+      }
+      await cargarGruposParaInscripcion();
+    }
+
+    function validarNivelGrupoVsSeleccion() {
+      var sel = document.getElementById('inscripcionGrupo');
+      var opt = sel && sel.options[sel.selectedIndex];
+      if (!sel || !sel.value) {
+        return { ok: false, mensaje: 'Selecciona un grupo destino.' };
+      }
+      var raw = opt && opt.getAttribute('data-numero-periodo');
+      if (raw === null || raw === '' || isNaN(parseInt(raw, 10))) {
+        return { ok: false, mensaje: 'El grupo no tiene número de periodo del plan definido; elija otro grupo o actualice el catálogo de grupos.' };
+      }
+      var nGrupo = parseInt(raw, 10);
+      var modo = getModoSeleccionado();
+      var errores = [];
+      function checkPeriodoAlumno(ref, periodoVal) {
+        var n = parseInt(periodoVal, 10);
+        if (isNaN(n)) {
+          errores.push(ref + ': no se pudo determinar el periodo del plan a cursar.');
+          return;
+        }
+        if (n !== nGrupo) {
+          errores.push(ref + ': debe cursar el periodo ' + n + ' del plan; el grupo es del periodo ' + nGrupo + '.');
+        }
+      }
+      if (modo === 'alumnos') {
+        document.querySelectorAll('.inscripcion-alumno-check:checked').forEach(function (cb) {
+          var ref = cb.value;
+          var row = cb.closest('.inscripcion-alumno-fila');
+          var lab = row && row.querySelector('label');
+          if (lab && lab.textContent) ref = lab.textContent.trim().slice(0, 80);
+          checkPeriodoAlumno(ref, cb.getAttribute('data-periodo'));
+        });
+      } else {
+        var cacheById = {};
+        (alumnosDisponiblesCache || []).forEach(function (a) { cacheById[String(a.id)] = a; });
+        document.querySelectorAll('.cohorte-excluir-check').forEach(function (cb) {
+          if (cb.checked || cb.getAttribute('data-elegible') !== '1') return;
+          var id = cb.getAttribute('data-alumno-id');
+          var al = cacheById[id];
+          var ref = (al && al.matricula) ? al.matricula : ('ID ' + id);
+          var p = al && al.periodoQueCursara != null ? al.periodoQueCursara : '';
+          checkPeriodoAlumno(ref, p);
+        });
+      }
+      if (errores.length > 0) {
+        return { ok: false, mensaje: errores.join(' ') };
+      }
+      return { ok: true };
+    }
+
+    function refrescarAlertaNivelGrupo() {
+      var el = document.getElementById('inscAlertNivelGrupo');
+      if (!el) return;
+      if (inscripcionStepActual !== 2) {
+        el.classList.add('d-none');
+        el.textContent = '';
+        return;
+      }
+      var v = validarNivelGrupoVsSeleccion();
+      if (v.ok) {
+        el.classList.add('d-none');
+        el.textContent = '';
+      } else {
+        el.classList.remove('d-none');
+        el.textContent = v.mensaje;
+      }
+    }
+
+    function validarPaso2Completo() {
+      var modo = getModoSeleccionado();
+      if (modo === 'cohorte') {
+        if (!document.getElementById('inscripcionCohorte')?.value) {
+          alert('Selecciona una cohorte.');
+          return false;
+        }
+        if (contarCohorteIncluidos() === 0) {
+          alert('Incluye al menos un alumno elegible (revisa exclusiones).');
+          return false;
+        }
+      } else if (document.querySelectorAll('.inscripcion-alumno-check:checked').length === 0) {
+        alert('Selecciona al menos un alumno.');
+        return false;
+      }
+      var v = validarNivelGrupoVsSeleccion();
+      if (!v.ok) {
+        alert(v.mensaje);
+        return false;
+      }
+      return true;
+    }
+
+    function rellenarPasoConfirmacion() {
+      var prog = getProgramaSeleccionado();
+      var elProg = document.getElementById('inscConfirmPrograma');
+      var res = document.getElementById('inscripcionPeriodoActivoId')?.getAttribute('data-resumen') || '';
+      if (elProg) {
+        var linea = prog ? ('Programa: ' + (prog.nombre || prog.clave || '')) : '';
+        if (res) linea += (linea ? ' · ' : '') + 'Periodo activo: ' + res;
+        elProg.textContent = linea;
+      }
+      var sel = document.getElementById('inscripcionGrupo');
+      var opt = sel && sel.options[sel.selectedIndex];
+      var nper = opt && opt.getAttribute('data-numero-periodo');
+      var textoGrupo = opt ? opt.textContent : '';
+      var boxG = document.getElementById('inscConfirmGrupo');
+      if (boxG) {
+        boxG.textContent = '';
+        var t = document.createElement('div');
+        t.className = 'fw-semibold';
+        t.textContent = textoGrupo;
+        boxG.appendChild(t);
+        if (nper) {
+          var p = document.createElement('p');
+          p.className = 'small text-muted mb-0 mt-2';
+          p.textContent = 'Periodo del plan del grupo: ' + nper;
+          boxG.appendChild(p);
+        }
+      }
+      var ul = document.getElementById('inscConfirmAlumnos');
+      if (!ul) return;
+      ul.innerHTML = '';
+      if (getModoSeleccionado() === 'alumnos') {
+        document.querySelectorAll('.inscripcion-alumno-check:checked').forEach(function (cb) {
+          var label = cb.closest('.inscripcion-alumno-fila')?.querySelector('label');
+          var li = document.createElement('li');
+          li.className = 'py-1 border-bottom';
+          li.textContent = label ? label.textContent.trim() : ('ID ' + cb.value);
+          ul.appendChild(li);
+        });
+      } else {
+        var cacheById = {};
+        (alumnosDisponiblesCache || []).forEach(function (a) { cacheById[String(a.id)] = a; });
+        document.querySelectorAll('.cohorte-excluir-check').forEach(function (cb) {
+          if (cb.checked || cb.getAttribute('data-elegible') !== '1') return;
+          var id = cb.getAttribute('data-alumno-id');
+          var al = cacheById[id];
+          var li = document.createElement('li');
+          li.className = 'py-1 border-bottom';
+          li.textContent = (al && al.matricula) ? (al.matricula + ' — ' + (al.nombre || '')) : ('Alumno #' + id);
+          ul.appendChild(li);
+        });
+      }
+    }
+
+    function syncCohortTodosElegiblesCheckbox() {
+      var master = document.getElementById('cohorteTodosElegibles');
+      if (!master) return;
+      var elegibles = document.querySelectorAll('#tablaMiembrosCohorte tr .cohorte-excluir-check[data-elegible="1"]');
+      if (elegibles.length === 0) {
+        master.checked = false;
+        master.indeterminate = false;
+        master.disabled = true;
+        return;
+      }
+      master.disabled = false;
+      var excluded = 0;
+      elegibles.forEach(function (cb) { if (cb.checked) excluded++; });
+      master.checked = excluded === elegibles.length;
+      master.indeterminate = excluded > 0 && excluded < elegibles.length;
+    }
+
+    function onCohorteExcluirRowChange() {
+      cargarGruposParaInscripcion();
+    }
+
+    function onCohortTodosElegiblesMasterChange() {
+      var master = document.getElementById('cohorteTodosElegibles');
+      if (!master || master.disabled) return;
+      master.indeterminate = false;
+      var marcarTodos = master.checked;
+      document.querySelectorAll('#tablaMiembrosCohorte tr .cohorte-excluir-check[data-elegible="1"]').forEach(function (cb) {
+        cb.checked = marcarTodos;
+      });
+      cargarGruposParaInscripcion();
+    }
+
+    function actualizarContadorSeleccionados() {
+      var modo = getModoSeleccionado();
+      if (modo === 'alumnos') {
+        var checks = document.querySelectorAll('.inscripcion-alumno-check:checked');
+        var total = document.querySelectorAll('.inscripcion-alumno-check').length;
+        var sel = document.getElementById('inscripcionContadorSeleccionados');
+        if (sel) sel.textContent = checks.length + ' de ' + total + ' seleccionados';
+        onAlumnosSeleccionadosChange();
+      } else {
+        var n = contarCohorteIncluidos();
+        var cr = document.getElementById('cohorteContadorResumen');
+        if (cr) cr.textContent = n > 0 ? ('Se incluirán ' + n + ' alumno(s) en la operación.') : '';
+        syncCohortTodosElegiblesCheckbox();
+      }
+      refrescarAlertaNivelGrupo();
+      actualizarEstadoEjecutar();
+    }
+
+    function contarCohorteIncluidos() {
+      var n = 0;
+      document.querySelectorAll('.cohorte-excluir-check').forEach(function (cb) {
+        if (!cb.checked && cb.getAttribute('data-elegible') === '1') n++;
+      });
+      return n;
+    }
+
+    function onAlumnosSeleccionadosChange() {
+      if (inscripcionStepActual >= 2) {
+        cargarGruposParaInscripcion();
+      }
+    }
+
+    async function cargarAlumnosDisponibles() {
+      var cont = document.getElementById('inscripcionListaAlumnos');
+      var tipo = getTipoSeleccionado();
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      var chkAll = document.getElementById('inscripcionSeleccionarTodos');
+      if (chkAll) chkAll.checked = false;
+      if (!tipo || !progId) {
+        if (cont) cont.innerHTML = '<div class="text-center text-muted py-5" id="inscripcionListaPlaceholder">Selecciona programa en el paso 1 y continúa para cargar alumnos.</div>';
+        alumnosDisponiblesCache = [];
+        actualizarContadorSeleccionados();
+        return;
+      }
+      if (cont) cont.innerHTML = '<div class="text-center text-muted py-5">Cargando…</div>';
+      try {
+        var query = buildQueryAlumnosDisponibles(progId);
+        var r = await apiFetch('/inscripciones/alumnos-disponibles' + query);
+        if (!r.ok) throw new Error('Error al cargar alumnos');
+        var list = await r.json();
+        alumnosDisponiblesCache = Array.isArray(list) ? list : [];
+        renderListaAlumnos(alumnosDisponiblesCache);
+        actualizarContadorSeleccionados();
+      } catch (e) {
+        console.error(e);
+        if (cont) cont.innerHTML = '<div class="text-center text-danger py-4">Error al cargar alumnos</div>';
+        aplicarFiltroListaAlumnos();
+        actualizarContadorSeleccionados();
+      }
+    }
+
+    function renderListaAlumnos(list) {
+      var cont = document.getElementById('inscripcionListaAlumnos');
+      if (!cont) return;
+      cont.innerHTML = '';
+      if (!list.length) {
+        cont.innerHTML = '<div class="text-center text-muted py-5">No hay alumnos disponibles</div>';
+        aplicarFiltroListaAlumnos();
+        return;
+      }
+      var prog = getProgramaSeleccionado();
+      var tipoPeriodoFallback = (prog && prog.tipoPeriodo) ? prog.tipoPeriodo : 'SEMESTRE';
+      list.forEach(function (a) {
+        var div = document.createElement('div');
+        div.className = 'form-check inscripcion-alumno-fila';
+        div.setAttribute('data-busqueda', construirCadenaBusquedaAlumno(a));
+        var tipoProg = a.tipoPeriodoPrograma || tipoPeriodoFallback;
+        var completados = typeof a.periodosCompletados === 'number' ? a.periodosCompletados : 0;
+        var labelText = (a.matricula || '') + ' — ' + (a.nombre || '');
+        if (a.programaNombre) {
+          labelText += ' <span class="text-primary">[' + a.programaNombre + ']</span>';
+        }
+        if (a.periodoIngreso) {
+          labelText += ' <span class="text-secondary small">Ingreso: ' + a.periodoIngreso + '</span>';
+        }
+        if (a.esReingreso === true) {
+          labelText += ' <span class="badge bg-secondary-subtle text-secondary align-middle ms-1">Reingreso</span>';
+        } else {
+          labelText += ' <span class="badge bg-success-subtle text-success align-middle ms-1">Nuevo ingreso</span>';
+        }
+        var textoCompletados = textoPeriodosCompletados(completados, tipoProg);
+        if (textoCompletados) {
+          labelText += ' <span class="text-muted">(' + textoCompletados + ')</span>';
+        }
+        div.innerHTML = '<input class="form-check-input inscripcion-alumno-check" type="checkbox" id="alumno_' + a.id + '" value="' + a.id + '" data-programa-id="' + (a.programaId || '') + '" data-periodo="' + (a.periodoQueCursara || '') + '" data-tipo-periodo-prog="' + (tipoProg || '') + '" data-periodo-acad="' + (a.periodoAcademicoSiguiente || '') + '" data-grupos="' + encodeURIComponent(JSON.stringify(a.gruposActuales || [])) + '">' +
+          '<label class="form-check-label" for="alumno_' + a.id + '">' + labelText + '</label>';
+        cont.appendChild(div);
+      });
+      cont.querySelectorAll('.inscripcion-alumno-check').forEach(function (cb) {
+        cb.addEventListener('change', actualizarContadorSeleccionados);
+      });
+      aplicarFiltroListaAlumnos();
+    }
+
+    function aplicarFiltroListaAlumnos() {
+      var inp = document.getElementById('filtroListaAlumnos');
+      var q = inp ? inp.value : '';
+      var rows = document.querySelectorAll('#inscripcionListaAlumnos .inscripcion-alumno-fila');
+      var total = rows.length;
+      var vis = 0;
+      rows.forEach(function (row) {
+        var cad = row.getAttribute('data-busqueda') || normalizarTextoBusqueda(row.textContent);
+        var ok = cadenaCoincideTokens(cad, q);
+        row.style.display = ok ? '' : 'none';
+        if (ok) vis++;
+      });
+      var meta = document.getElementById('filtroListaAlumnosMeta');
+      if (meta) {
+        if (!total) meta.textContent = '';
+        else meta.textContent = normalizarTextoBusqueda(q) ? ('Mostrando ' + vis + ' de ' + total) : (total + ' en lista');
+      }
+      var btnLim = document.getElementById('btnLimpiarBusquedaLista');
+      if (btnLim) btnLim.classList.toggle('d-none', !String(q).trim());
+    }
+
+    function aplicarFiltroCohorteMiembros() {
+      var inp = document.getElementById('filtroCohorteMiembros');
+      var q = inp ? inp.value : '';
+      var tbody = document.getElementById('tablaMiembrosCohorte');
+      if (!tbody) return;
+      var rows = tbody.querySelectorAll('tr[data-busqueda-cohorte]');
+      var total = rows.length;
+      var vis = 0;
+      rows.forEach(function (tr) {
+        var cad = tr.getAttribute('data-busqueda-cohorte') || '';
+        var ok = cadenaCoincideTokens(cad, q);
+        tr.style.display = ok ? '' : 'none';
+        if (ok) vis++;
+      });
+      var meta = document.getElementById('filtroCohorteMeta');
+      if (meta) {
+        if (!total) meta.textContent = '';
+        else meta.textContent = normalizarTextoBusqueda(q) ? ('Filas visibles: ' + vis + ' de ' + total) : (total + ' en cohorte');
+      }
+      var btnLim = document.getElementById('btnLimpiarBusquedaCohorte');
+      if (btnLim) btnLim.classList.toggle('d-none', !String(q).trim());
+    }
+
+    async function cargarCohortesInscripcion() {
+      try {
+        var r = await apiFetch('/cohortes');
+        if (!r.ok) return;
+        var list = await r.json();
+        cohortesInscripcionCache = Array.isArray(list) ? list : [];
+        refillCohortesPorPrograma();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    function idsDisponiblesSet() {
+      var s = new Set();
+      alumnosDisponiblesCache.forEach(function (a) { s.add(String(a.id)); });
+      return s;
+    }
+
+    async function cargarMiembrosCohorte() {
+      var sel = document.getElementById('inscripcionCohorte');
+      var tbody = document.getElementById('tablaMiembrosCohorte');
+      var cohorteId = sel && sel.value;
+      if (!cohorteId) {
+        alert('Selecciona una cohorte.');
+        return;
+      }
+      var tipo = getTipoSeleccionado();
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      if (!progId) {
+        alert('Selecciona el programa educativo en el paso 1 (o vuelve atrás).');
+        return;
+      }
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Cargando…</td></tr>';
+      try {
+        if (getModoSeleccionado() === 'cohorte') {
+          await cargarAlumnosDisponiblesParaCohorte();
+        }
+        var r = await apiFetch('/cohortes/' + encodeURIComponent(cohorteId) + '/miembros');
+        if (!r.ok) throw new Error('No se pudieron cargar los miembros');
+        var miembros = await r.json();
+        miembrosCohorteRows = Array.isArray(miembros) ? miembros : [];
+        var disp = idsDisponiblesSet();
+        var fc = document.getElementById('filtroCohorteMiembros');
+        if (fc) fc.value = '';
+        tbody.innerHTML = '';
+        if (miembrosCohorteRows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">La cohorte no tiene miembros.</td></tr>';
+          syncCohortTodosElegiblesCheckbox();
+          actualizarContadorSeleccionados();
+          cargarGruposParaInscripcion();
+          return;
+        }
+        var cacheByIdCohorte = {};
+        (alumnosDisponiblesCache || []).forEach(function (a) { cacheByIdCohorte[String(a.id)] = a; });
+        miembrosCohorteRows.forEach(function (m) {
+          var elegible = disp.has(String(m.id));
+          if (progId && String(m.programaId) !== String(progId)) {
+            elegible = false;
+          }
+          var alInfo = cacheByIdCohorte[String(m.id)];
+          var ping = (alInfo && alInfo.periodoIngreso) ? alInfo.periodoIngreso : '—';
+          var tr = document.createElement('tr');
+          if (!elegible) tr.classList.add('table-secondary', 'text-muted');
+          var claveBusq = [
+            normalizarTextoBusqueda(m.matricula || ''),
+            normalizarTextoBusqueda(m.nombre || ''),
+            normalizarTextoBusqueda(m.programaNombre || ''),
+            normalizarTextoBusqueda(ping)
+          ].filter(Boolean).join(' ');
+          tr.setAttribute('data-busqueda-cohorte', claveBusq);
+          var tituloNoEleg = 'No elegible: revisa programa, periodo de ingreso (paso 1) o tipo de operación';
+          var attrsExcluir = 'class="form-check-input cohorte-excluir-check" data-alumno-id="' + m.id + '" data-elegible="' + (elegible ? '1' : '0') + '" title="' + (elegible ? 'Excluir de esta operación' : tituloNoEleg) + '"';
+          if (!elegible) attrsExcluir += ' disabled';
+          tr.innerHTML =
+            '<td><input type="checkbox" ' + attrsExcluir + ' /></td>' +
+            '<td>' + (elegible ? '<span class="badge bg-success-subtle text-success border border-success-subtle">Sí</span>' : '<span class="badge bg-secondary-subtle text-secondary border">No</span>') + '</td>' +
+            '<td>' + (m.matricula || '') + '</td>' +
+            '<td>' + (m.nombre || '') + '</td>' +
+            '<td><small>' + (m.programaNombre || '—') + '</small></td>' +
+            '<td><small class="text-nowrap">' + ping + '</small></td>';
+          tbody.appendChild(tr);
+        });
+        tbody.querySelectorAll('.cohorte-excluir-check').forEach(function (cb) {
+          cb.addEventListener('change', onCohorteExcluirRowChange);
+        });
+        aplicarFiltroCohorteMiembros();
+        syncCohortTodosElegiblesCheckbox();
+        actualizarContadorSeleccionados();
+        cargarGruposParaInscripcion();
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">' + (e.message || 'Error') + '</td></tr>';
+        syncCohortTodosElegiblesCheckbox();
+        actualizarContadorSeleccionados();
+      }
+    }
+
+    async function cargarAlumnosDisponiblesParaCohorte() {
+      var tipo = getTipoSeleccionado();
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      if (!tipo || !progId) {
+        alumnosDisponiblesCache = [];
+        return;
+      }
+      var query = buildQueryAlumnosDisponibles(progId);
+      var r = await apiFetch('/inscripciones/alumnos-disponibles' + query);
+      if (!r.ok) {
+        alumnosDisponiblesCache = [];
+        return;
+      }
+      alumnosDisponiblesCache = await r.json();
+    }
+
+    async function cargarProgramas() {
+      try {
+        var r = await apiFetch('/programas-educativos');
+        if (!r.ok) throw new Error('Error al cargar programas');
+        var list = await r.json();
+        programasInscripcionCache = Array.isArray(list) ? list : [];
+        var opts = '<option value="">Selecciona programa…</option>' + list.map(function (p) {
+          return '<option value="' + p.id + '">' + (p.nombre || p.clave) + '</option>';
+        }).join('');
+        var selInsc = document.getElementById('inscripcionPrograma');
+        if (selInsc) selInsc.innerHTML = opts;
+        var filtroProg = document.getElementById('filtroPrograma');
+        if (filtroProg) filtroProg.innerHTML = '<option value="">Todos los programas</option>' + list.map(function (p) {
+          return '<option value="' + p.id + '">' + (p.nombre || p.clave) + '</option>';
+        }).join('');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function buildQueryAlumnosDisponibles(progId) {
+      var tipo = getTipoSeleccionado();
+      var query = '?programaId=' + encodeURIComponent(progId) + '&tipo=' + encodeURIComponent(tipo);
+      return query;
+    }
+
+    async function cargarCiclos() {
+      try {
+        var r = await apiFetch('/periodos-academicos');
+        if (!r.ok) return;
+        var list = await r.json();
+        var opts = (list || []).map(function (c) {
+          return '<option value="' + c.id + '">' + (c.codigo || c.nombre || '') + '</option>';
+        }).join('');
+        var selIngF = document.getElementById('inscripcionCicloIngresoFiltro');
+        if (selIngF) selIngF.innerHTML = '<option value="">Todos — sin filtrar por ingreso</option>' + opts;
+        var filtroCiclo = document.getElementById('filtroCicloEscolar');
+        if (filtroCiclo) {
+          var nombresUnicos = [];
+          var vistos = {};
+          (list || []).forEach(function (c) {
+            var n = (c.codigo || c.nombre) || '';
+            if (n && !vistos[n]) { vistos[n] = true; nombresUnicos.push(n); }
+          });
+          nombresUnicos.sort();
+          filtroCiclo.innerHTML = '<option value="">Todos los periodos</option>' + nombresUnicos.map(function (n) {
+            return '<option value="' + n + '">' + n + '</option>';
+          }).join('');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function sincronizarPeriodoActivoDesdePrograma() {
+      var hid = document.getElementById('inscripcionPeriodoActivoId');
+      var msg = document.getElementById('inscripcionPeriodoActivoMensaje');
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      if (hid) {
+        hid.value = '';
+        hid.removeAttribute('data-resumen');
+      }
+      actualizarEstadoEjecutar();
+      if (!progId) {
+        if (msg) msg.innerHTML = '<span class="text-muted">Seleccione un programa para cargar el periodo Activo de su calendario.</span>';
+        return;
+      }
+      if (msg) msg.innerHTML = '<span class="text-muted"><span class="spinner-border spinner-border-sm me-1" role="status"></span>Consultando periodo activo…</span>';
+      try {
+        var r = await apiFetch('/periodos-academicos/activo-por-programa/' + encodeURIComponent(progId));
+        var data = await r.json().catch(function () { return {}; });
+        if (!r.ok) {
+          if (msg) msg.innerHTML = '<div class="alert alert-warning mb-0 py-2 small">' + (data.error || 'No se pudo obtener el periodo activo.') + '</div>';
+          return;
+        }
+        if (data.id != null && hid) {
+          hid.value = String(data.id);
+          var cod = data.codigo || '';
+          var nom = data.nombre || '';
+          hid.setAttribute('data-resumen', (cod || '—') + (nom ? ' — ' + nom : ''));
+        }
+        if (msg) {
+          var cod2 = data.codigo || '';
+          var nom2 = data.nombre || '';
+          msg.innerHTML = '<div class="alert alert-success mb-0 py-2 small"><strong>Periodo Activo:</strong> ' +
+            (cod2 || '—') + (nom2 ? ' — ' + nom2 : '') + '</div>';
+        }
+      } catch (e) {
+        console.error(e);
+        if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0 py-2 small">Error de red al consultar el periodo activo.</div>';
+      }
+      actualizarEstadoEjecutar();
+      if (inscripcionStepActual >= 2) {
+        if (getModoSeleccionado() === 'alumnos') await cargarAlumnosDisponibles();
+        await cargarGruposParaInscripcion();
+      }
+    }
+
+    function refillCohortesPorPrograma() {
+      var progId = document.getElementById('inscripcionPrograma')?.value;
+      var sel = document.getElementById('inscripcionCohorte');
+      if (!sel) return;
+      var prev = sel.value;
+      var list = !progId ? [] : cohortesInscripcionCache.filter(function (c) {
+        return c.programaId != null && String(c.programaId) === String(progId);
+      });
+      sel.innerHTML = '<option value="">Selecciona cohorte…</option>' +
+        list.map(function (c) {
+          var label = (c.nombre || c.idCohorte || ('Cohorte ' + c.id));
+          if (c.tamano != null) label += ' (' + c.tamano + ')';
+          return '<option value="' + c.id + '">' + label + '</option>';
+        }).join('');
+      if (prev && list.some(function (c) { return String(c.id) === String(prev); })) {
+        sel.value = prev;
+      } else {
+        sel.value = '';
+        miembrosCohorteRows = [];
+        var tbody = document.getElementById('tablaMiembrosCohorte');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Selecciona cohorte y pulsa «Cargar miembros».</td></tr>';
+        syncCohortTodosElegiblesCheckbox();
+      }
+    }
+
+    function getAlumnosSeleccionados() {
+      var checks = document.querySelectorAll('.inscripcion-alumno-check:checked');
+      return Array.from(checks).map(function (cb) {
+        return { id: cb.value, programaId: cb.getAttribute('data-programa-id') || '' };
+      });
+    }
+
+    /**
+     * Número de periodo del plan (1, 2, …) para filtrar grupos. INSCRIPCION → 1.
+     * REINSCRIPCION: nivel que cursarán los alumnos incluidos (mismo para todos).
+     */
+    function resolverPeriodoNumeroParaGrupos() {
+      var modo = getModoSeleccionado();
+      if (modo === 'alumnos') {
+        var checks = Array.from(document.querySelectorAll('.inscripcion-alumno-check:checked'));
+        var nums = new Set();
+        checks.forEach(function (cb) {
+          var p = cb.getAttribute('data-periodo');
+          if (p !== null && p !== '' && !isNaN(parseInt(p, 10))) nums.add(parseInt(p, 10));
+        });
+        if (nums.size > 1) return 'mixed';
+        if (nums.size === 0) return null;
+        return Array.from(nums)[0];
+      }
+      if (modo === 'cohorte') {
+        var cacheById = {};
+        (alumnosDisponiblesCache || []).forEach(function (a) { cacheById[String(a.id)] = a; });
+        var numsC = new Set();
+        document.querySelectorAll('#tablaMiembrosCohorte tr .cohorte-excluir-check').forEach(function (cb) {
+          if (cb.checked) return;
+          if (cb.getAttribute('data-elegible') !== '1') return;
+          var id = cb.getAttribute('data-alumno-id');
+          var al = cacheById[id];
+          if (al && al.periodoQueCursara != null) numsC.add(Number(al.periodoQueCursara));
+        });
+        if (numsC.size > 1) return 'mixed';
+        if (numsC.size === 0) return null;
+        return Array.from(numsC)[0];
+      }
+      return null;
+    }
+
+    async function cargarGruposParaInscripcion() {
+      var requestSeq = ++gruposInscripcionRequestSeq;
+      var sel = document.getElementById('inscripcionGrupo');
+      if (!sel) return;
+      var prevSel = sel.value || '';
+      var modo = getModoSeleccionado();
+      var programaId = document.getElementById('inscripcionPrograma')?.value || '';
+      if (!programaId) {
+        sel.innerHTML = '<option value="">Selecciona programa en el paso 1…</option>';
+        sel.disabled = true;
+        refrescarAlertaNivelGrupo();
+        return;
+      }
+      if (modo === 'cohorte' && miembrosCohorteRows.length === 0) {
+        sel.innerHTML = '<option value="">Carga miembros de la cohorte…</option>';
+        sel.disabled = true;
+        refrescarAlertaNivelGrupo();
+        return;
+      }
+      var periodoNum = resolverPeriodoNumeroParaGrupos();
+      if (periodoNum === 'mixed') {
+        sel.innerHTML = '<option value="">Varios periodos del plan entre alumnos a incluir</option>';
+        sel.disabled = true;
+        refrescarAlertaNivelGrupo();
+        return;
+      }
+      if (periodoNum == null || isNaN(periodoNum)) {
+        sel.innerHTML = '<option value="">Indica alumnos a incluir (mismo periodo del plan)</option>';
+        sel.disabled = true;
+        refrescarAlertaNivelGrupo();
+        return;
+      }
+      var pn = (periodoNum != null && !isNaN(periodoNum)) ? periodoNum : 1;
+      sel.disabled = false;
+      sel.innerHTML = '<option value="">Cargando grupos…</option>';
+      try {
+        var url = '/grupos?programaId=' + encodeURIComponent(programaId) + '&periodoNumero=' + encodeURIComponent(pn);
+        var r = await apiFetch(url);
+        if (!r.ok) throw new Error('Error al cargar grupos');
+        var list = await r.json();
+        if (requestSeq !== gruposInscripcionRequestSeq) return;
+        var grupos = Array.isArray(list) ? list : [];
+        sel.innerHTML = '<option value="">Selecciona grupo…</option>' +
+          grupos.map(function (g) {
+            var prog = (g.asignatura && g.asignatura.programa) ? g.asignatura.programa.nombre : (g.programa ? g.programa.nombre : '');
+            var asigNombre = g.asignatura ? g.asignatura.nombre : '';
+            var cicloG = (g.periodoAcademico && (g.periodoAcademico.codigo || g.periodoAcademico.nombre)) ? (' · ' + (g.periodoAcademico.codigo || g.periodoAcademico.nombre)) : '';
+            var label = (g.nombre || '') + (asigNombre ? ' — ' + asigNombre : '') + (prog ? ' (' + prog + ')' : '') + cicloG;
+            var np = (g.numeroPeriodo != null && g.numeroPeriodo !== '') ? String(g.numeroPeriodo) : '';
+            if (!np && g.asignatura && g.asignatura.periodo && g.asignatura.periodo.numero != null) {
+              np = String(g.asignatura.periodo.numero);
+            }
+            return '<option value="' + g.id + '" data-numero-periodo="' + np + '">' + label + '</option>';
+          }).join('');
+        if (grupos.length === 0) {
+          sel.innerHTML = '<option value="">No hay grupos para este programa y periodo del plan</option>';
+        }
+        if (prevSel && grupos.some(function (g) { return String(g.id) === String(prevSel); })) {
+          sel.value = String(prevSel);
+        }
+      } catch (e) {
+        if (requestSeq !== gruposInscripcionRequestSeq) return;
+        console.error(e);
+        sel.innerHTML = '<option value="">Error al cargar grupos</option>';
+      }
+    }
+
+    function toggleModoUI() {
+      var modo = getModoSeleccionado();
+      var pc = document.getElementById('panelCohorte');
+      var pa = document.getElementById('panelAlumnos');
+      if (modo === 'cohorte') {
+        if (pc) pc.classList.remove('d-none');
+        if (pa) pa.classList.add('d-none');
+        aplicarFiltroCohorteMiembros();
+      } else {
+        if (pc) pc.classList.add('d-none');
+        if (pa) pa.classList.remove('d-none');
+        aplicarFiltroListaAlumnos();
+      }
+      if (inscripcionStepActual >= 2) {
+        prepararPaso2();
+      }
+      actualizarContadorSeleccionados();
+    }
+
+    function toggleTipoUI() {
+      // Modo unificado: no hay toggle de tipo.
+    }
+
+    function mostrarModalResultado(data) {
+      var stats = document.getElementById('modalInscripcionStats');
+      var tb = document.getElementById('modalInscripcionDetalle');
+      if (stats) {
+        stats.innerHTML =
+          '<div class="col-6 col-md-3"><div class="border rounded p-2 text-center bg-white"><div class="fw-bold text-success">' + (data.agregadosAlGrupo || 0) + '</div><div class="text-muted">Nuevos en grupo</div></div></div>' +
+          '<div class="col-6 col-md-3"><div class="border rounded p-2 text-center bg-white"><div class="fw-bold text-primary">' + (data.yaEnGrupo || 0) + '</div><div class="text-muted">Ya en grupo</div></div></div>' +
+          '<div class="col-6 col-md-3"><div class="border rounded p-2 text-center bg-white"><div class="fw-bold text-warning">' + (data.omitidos || 0) + '</div><div class="text-muted">Omitidos</div></div></div>' +
+          '<div class="col-6 col-md-3"><div class="border rounded p-2 text-center bg-white"><div class="fw-bold text-danger">' + (data.errores || 0) + '</div><div class="text-muted">Errores</div></div></div>';
+      }
+      if (tb) {
+        var rows = (data.detalle || []).map(function (d) {
+          return '<tr><td>' + (d.matricula || d.alumnoId || '') + '</td><td>' + (d.estado || '') + '</td><td><small>' + (d.mensaje || '') + '</small></td></tr>';
+        }).join('');
+        tb.innerHTML = rows || '<tr><td colspan="3" class="text-muted">Sin detalle</td></tr>';
+      }
+      var elModal = document.getElementById('modalResultadoInscripcion');
+      if (typeof bootstrap !== 'undefined' && bootstrap.Modal && elModal) {
+        new bootstrap.Modal(elModal).show();
+      } else {
+        alert('Resumen: nuevos en grupo ' + (data.agregadosAlGrupo || 0) + ', ya en grupo ' + (data.yaEnGrupo || 0) + ', omitidos ' + (data.omitidos || 0) + ', errores ' + (data.errores || 0) + '.');
+      }
+    }
+
+    async function ejecutarOperacion() {
+      var tipo = getTipoSeleccionado();
+      var modo = getModoSeleccionado();
+      var grupoId = document.getElementById('inscripcionGrupo')?.value;
+      if (!grupoId) {
+        alert('Selecciona un grupo destino.');
+        return;
+      }
+      var hidPa = document.getElementById('inscripcionPeriodoActivoId');
+      var periodoAcademicoId = (hidPa && hidPa.value) ? parseInt(hidPa.value, 10) : null;
+      var body = { tipo: tipo, grupoId: parseInt(grupoId, 10) };
+      if (periodoAcademicoId != null && !isNaN(periodoAcademicoId)) {
+        body.periodoAcademicoId = periodoAcademicoId;
+      }
+      if (modo === 'cohorte') {
+        var cid = document.getElementById('inscripcionCohorte')?.value;
+        if (!cid) {
+          alert('Selecciona cohorte.');
+          return;
+        }
+        var incluidos = [];
+        document.querySelectorAll('.cohorte-excluir-check').forEach(function (cb) {
+          if (cb.checked) return;
+          if (cb.getAttribute('data-elegible') !== '1') return;
+          incluidos.push(parseInt(cb.getAttribute('data-alumno-id'), 10));
+        });
+        if (incluidos.length === 0) {
+          alert('No hay alumnos elegibles para incluir (revisa exclusiones o la elegibilidad por tipo).');
+          return;
+        }
+        body.cohorteId = parseInt(cid, 10);
+        body.alumnoIds = incluidos;
+      } else {
+        var sel = getAlumnosSeleccionados().map(function (x) { return parseInt(x.id, 10); });
+        if (!sel.length) {
+          alert('Selecciona al menos un alumno.');
+          return;
+        }
+        body.alumnoIds = sel;
+      }
+      try {
+        var r = await apiFetch('/inscripciones/ejecutar', { method: 'POST', body: JSON.stringify(body) });
+        var data = await r.json().catch(function () { return {}; });
+        if (!r.ok) {
+          alert(data.error || data.message || 'No se pudo completar la operación.');
+          return;
+        }
+        mostrarModalResultado(data);
+        if (typeof cargarGrupos === 'function') cargarGrupos();
+        if (modo === 'alumnos') {
+          document.getElementById('inscripcionSeleccionarTodos').checked = false;
+          document.querySelectorAll('.inscripcion-alumno-check').forEach(function (cb) { cb.checked = false; });
+        }
+        if (modo === 'cohorte' && document.getElementById('inscripcionCohorte')?.value) {
+          cargarMiembrosCohorte();
+        }
+        cargarAlumnosDisponibles();
+        actualizarContadorSeleccionados();
+        setStepperStep(1);
+      } catch (err) {
+        alert('Error: ' + (err.message || ''));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        window.currentUser = { email: localStorage.getItem('userEmail') || '', tipoUsuario: localStorage.getItem('userTipo'), rol: localStorage.getItem('userTipo') };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'inscripcionesSection' });
+
+      await Promise.all([cargarProgramas(), cargarCiclos(), cargarCohortesInscripcion()]);
+      toggleModoUI();
+      document.querySelectorAll('input[name="inscripcionModo"]').forEach(function (r) {
+        r.addEventListener('change', toggleModoUI);
+      });
+      var selProg = document.getElementById('inscripcionPrograma');
+      var selGrupo = document.getElementById('inscripcionGrupo');
+      if (selProg) selProg.addEventListener('change', async function () {
+        await sincronizarPeriodoActivoDesdePrograma();
+        refillCohortesPorPrograma();
+        if (inscripcionStepActual >= 2) {
+          await prepararPaso2();
+        }
+      });
+      if (selGrupo) selGrupo.addEventListener('change', function () {
+        // Evitar recargar la lista de grupos y perder la selección.
+        refrescarAlertaNivelGrupo();
+        actualizarEstadoEjecutar();
+      });
+      document.getElementById('btnInscPaso1Siguiente')?.addEventListener('click', async function () {
+        if (!validarPaso1()) return;
+        await prepararPaso2();
+        setStepperStep(2);
+      });
+      document.getElementById('btnInscPaso2Atras')?.addEventListener('click', function () {
+        setStepperStep(1);
+      });
+      document.getElementById('btnInscPaso2Siguiente')?.addEventListener('click', function () {
+        if (!validarPaso2Completo()) return;
+        rellenarPasoConfirmacion();
+        setStepperStep(3);
+      });
+      document.getElementById('btnInscPaso3Atras')?.addEventListener('click', function () {
+        setStepperStep(2);
+      });
+      var chkAll = document.getElementById('inscripcionSeleccionarTodos');
+      if (chkAll) chkAll.addEventListener('change', function () {
+        var on = chkAll.checked;
+        document.querySelectorAll('.inscripcion-alumno-fila').forEach(function (row) {
+          if (row.style.display === 'none') return;
+          var cb = row.querySelector('.inscripcion-alumno-check');
+          if (cb) cb.checked = on;
+        });
+        actualizarContadorSeleccionados();
+      });
+      var filtro = document.getElementById('filtroListaAlumnos');
+      if (filtro) {
+        filtro.addEventListener('input', function () {
+          clearTimeout(inscripcionListaFiltroTimer);
+          inscripcionListaFiltroTimer = setTimeout(aplicarFiltroListaAlumnos, 180);
+        });
+      }
+      document.getElementById('btnLimpiarBusquedaLista')?.addEventListener('click', function () {
+        var el = document.getElementById('filtroListaAlumnos');
+        if (el) el.value = '';
+        aplicarFiltroListaAlumnos();
+      });
+      var filtroCoh = document.getElementById('filtroCohorteMiembros');
+      if (filtroCoh) {
+        filtroCoh.addEventListener('input', function () {
+          clearTimeout(cohorteFiltroTimer);
+          cohorteFiltroTimer = setTimeout(aplicarFiltroCohorteMiembros, 180);
+        });
+      }
+      document.getElementById('btnLimpiarBusquedaCohorte')?.addEventListener('click', function () {
+        var el = document.getElementById('filtroCohorteMiembros');
+        if (el) el.value = '';
+        aplicarFiltroCohorteMiembros();
+      });
+      document.getElementById('btnCargarMiembrosCohorte')?.addEventListener('click', cargarMiembrosCohorte);
+      document.getElementById('cohorteTodosElegibles')?.addEventListener('change', onCohortTodosElegiblesMasterChange);
+      document.getElementById('btnEjecutarInscripcion')?.addEventListener('click', ejecutarOperacion);
+
+      if (typeof cargarGrupos === 'function') cargarGrupos();
+    });
+  </script>
+</body>
+</html>
