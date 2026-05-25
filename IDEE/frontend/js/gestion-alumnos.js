@@ -1,7 +1,23 @@
 // Variables globales
 let alumnos = [];
-let programasEducativosAlumnos = [];
+let programasEducativos = [];
 let alumnoEditando = null;
+
+// Función para obtener headers con autenticación opcional
+function getHeaders(includeContentType = true) {
+    const headers = {};
+
+    if (includeContentType) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const token = localStorage.getItem('token');
+    if (token && token !== 'null' && token !== 'undefined') {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
 
 // ==================== CARGAR DATOS ====================
 
@@ -23,7 +39,7 @@ async function cargarAlumnos() {
  */
 async function cargarProgramasEducativos() {
     try {
-        programasEducativosAlumnos = await authFetch('/programas-educativos');
+        programasEducativos = await authFetch('/programas-educativos');
         llenarSelectProgramas();
     } catch (error) {
         console.error('Error al cargar programas:', error);
@@ -39,7 +55,7 @@ function llenarSelectProgramas() {
 
     select.innerHTML = '<option value="">Seleccionar...</option>';
 
-    programasEducativosAlumnos.forEach(programa => {
+    programasEducativos.forEach(programa => {
         const option = document.createElement('option');
         option.value = programa.id;
         option.textContent = `${programa.nombre} (${programa.tipoPrograma || ''})`;
@@ -94,7 +110,6 @@ function renderizarTablaAlumnos(lista) {
 function getBadgeEstatus(estatus) {
     const badges = {
         'ACTIVA': '<span class="badge bg-success">Activa</span>',
-        'INACTIVA': '<span class="badge bg-secondary">Inactiva</span>',
         'BAJA_TEMPORAL': '<span class="badge bg-warning">Baja Temporal</span>',
         'BAJA_DEFINITIVA': '<span class="badge bg-danger">Baja Definitiva</span>',
         'EGRESADO': '<span class="badge bg-info">Egresado</span>'

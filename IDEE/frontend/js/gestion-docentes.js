@@ -2,6 +2,74 @@
 
 let docentes = [];
 let docenteEditando = null;
+/** Evita doble envío si hay varios listeners o doble clic muy rápido. */
+let guardarDocenteEnCurso = false;
+
+function normalizarNombreTituloDocenteLive(raw) {
+    const s = String(raw == null ? '' : raw);
+    if (!s) return '';
+    let out = '';
+    let startWord = true;
+    for (let i = 0; i < s.length; i++) {
+        const ch = s.charAt(i);
+        if (ch === ' ') {
+            out += ch;
+            startWord = true;
+            continue;
+        }
+        if (startWord) {
+            out += ch.toUpperCase();
+            startWord = false;
+        } else {
+            out += ch.toLowerCase();
+        }
+    }
+    return out;
+}
+
+function normalizarNombreTituloDocenteFinal(raw) {
+    return normalizarNombreTituloDocenteLive(raw).trim().replace(/\s+/g, ' ');
+}
+
+function normalizarRfcUpperDocente(raw) {
+    const s = String(raw == null ? '' : raw).trim();
+    return s ? s.toUpperCase() : '';
+}
+
+function normalizarCurpUpperAlnumDocente(raw) {
+    let s = String(raw == null ? '' : raw).toUpperCase();
+    s = s.replace(/[^A-Z0-9]/g, '');
+    if (s.length > 18) s = s.slice(0, 18);
+    return s;
+}
+
+function normalizarTelefono10Docente(raw) {
+    const s = String(raw == null ? '' : raw);
+    return s.replace(/\D/g, '').slice(0, 10);
+}
+
+function actualizarContadorTelefonoDocente(inputId, counterId) {
+    const inp = document.getElementById(inputId);
+    const counter = document.getElementById(counterId);
+    if (!inp || !counter) return;
+    const n = (inp.value || '').length;
+    counter.textContent = n + '/10';
+}
+
+function setupPhoneInput10Docente(inputId, counterId) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+
+    function sync() {
+        const norm = normalizarTelefono10Docente(inp.value);
+        if (inp.value !== norm) inp.value = norm;
+        if (counterId) actualizarContadorTelefonoDocente(inputId, counterId);
+    }
+
+    inp.addEventListener('input', sync);
+    inp.addEventListener('paste', function () { setTimeout(sync, 0); });
+    sync();
+}
 
 function getHeadersDocentes(includeContentType = true) {
     const headers = {};
@@ -40,6 +108,101 @@ function formatGradoAcademico(grado) {
     return labels[grado] || 'N/A';
 }
 
+function formatTipoMaestroExcel(tipo) {
+    const labels = {
+        TIEMPO_COMPLETO: 'Tiempo completo',
+        MEDIO_TIEMPO: 'Medio tiempo',
+        POR_HORAS: 'Por horas'
+    };
+    return labels[tipo] || (tipo || '—');
+}
+
+async function descargarExcelDocentes() {
+    if (typeof XLSX === 'undefined') {
+        alert('No se pudo cargar la librería de Excel. Recarga la página e intenta de nuevo.');
+        return;
+    }
+
+    const btn = document.getElementById('btnDescargarExcelDocentes');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generando...';
+    }
+
+    try {
+        let lista = docentes && docentes.length > 0 ? docentes : [];
+        if (lista.length === 0) {
+            const res = await fetch(`${API_URL}/maestros`, { method: 'GET', headers: getHeadersDocentes(false) });
+            if (res.ok) lista = await res.json();
+        }
+
+        const headers = [
+            'CURP', 'Nombre', 'Apellido paterno', 'Apellido materno', 'Etiqueta',
+            'Correo institucional', 'Correo personal', 'Teléfono', 'Código postal',
+            'Grado académico', 'Cédula profesional', 'Área',
+            'RFC', 'Régimen fiscal',
+            'Tipo de maestro', 'Fecha de alta', 'Estatus',
+            'Contacto emergencia', 'Tel. emergencia',
+            'Observaciones'
+        ];
+        const filas = [headers];
+
+        lista.forEach(d => {
+            const fechaAlta = d.fechaAlta ? (typeof d.fechaAlta === 'string' ? d.fechaAlta.substring(0, 10) : d.fechaAlta) : '—';
+            const obs = (d.observaciones || '').toString();
+            const obsCorta = obs.length > 200 ? obs.substring(0, 200) + '…' : obs || '—';
+            filas.push([
+                d.curp || '—',
+                d.nombre || '—',
+                d.apellidoPaterno || '—',
+                d.apellidoMaterno || '—',
+                d.etiqueta || '—',
+                d.correoInstitucional || '—',
+                d.correoPersonal || '—',
+                d.telefono || '—',
+                d.codigoPostal || '—',
+                formatGradoAcademico(d.gradoAcademico) || '—',
+                d.cedulaProfesional || '—',
+                d.area || '—',
+                d.rfc || '—',
+                d.regimenFiscal || '—',
+                formatTipoMaestroExcel(d.tipoMaestro),
+                fechaAlta,
+                d.activo ? 'Activo' : 'Inactivo',
+                d.nombreContactoEmergencia || '—',
+                d.telefonoContactoEmergencia || '—',
+                obsCorta
+            ]);
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(filas);
+        ws['!cols'] = [
+            { wch: 20 }, { wch: 18 }, { wch: 16 }, { wch: 16 }, { wch: 8 },
+            { wch: 28 }, { wch: 28 }, { wch: 14 }, { wch: 10 },
+            { wch: 14 }, { wch: 12 }, { wch: 18 },
+            { wch: 14 }, { wch: 40 },
+            { wch: 16 }, { wch: 12 }, { wch: 10 },
+            { wch: 22 }, { wch: 14 },
+            { wch: 35 }
+        ];
+        ws['!freeze'] = { xSplit: 0, ySplit: 1, topLeftCell: 'A2' };
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Docentes');
+
+        const nombreArchivo = 'Docentes_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+        XLSX.writeFile(wb, nombreArchivo);
+    } catch (err) {
+        console.error('Error al generar Excel:', err);
+        alert('No se pudo generar el archivo Excel. Verifica la conexión e intenta de nuevo.');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-file-earmark-excel"></i><span class="btn-excel-text">Exportar docentes</span>';
+        }
+    }
+}
+
 function getBadgeActivo(activo) {
     return activo
         ? '<span class="badge bg-success-subtle text-success">Activo</span>'
@@ -53,18 +216,32 @@ async function cargarDocentes() {
     try {
         const response = await fetch(`${API_URL}/maestros`, {
             method: 'GET',
-            headers: getHeadersDocentes()
+            headers: getHeadersDocentes(false)
         });
 
+        if (response.status === 401) {
+            if (typeof logout === 'function') logout();
+            else window.location.href = '../index.html';
+            return;
+        }
+
         if (!response.ok) {
-            throw new Error('Error al cargar docentes');
+            let msg = 'Error al cargar docentes';
+            try {
+                const d = await response.json();
+                msg = d.error || d.message || msg;
+            } catch (_) {
+                try { msg = await response.text() || msg; } catch (_) { }
+            }
+            throw new Error(msg);
         }
 
         docentes = await response.json();
         renderizarTablaDocentes(docentes);
     } catch (error) {
         console.error('Error al cargar docentes:', error);
-        mostrarErrorTablaDocentes('Error al cargar la lista de docentes');
+        const mensaje = error.message || 'Error al cargar la lista de docentes. Verifica la conexión y que el backend esté en ejecución.';
+        mostrarErrorTablaDocentes(mensaje);
     }
 }
 
@@ -73,11 +250,17 @@ function renderizarTablaDocentes(lista) {
     if (!tbody) return;
 
     if (!Array.isArray(lista) || lista.length === 0) {
-        if (typeof createEmptyTableMessage === 'function') {
-            tbody.innerHTML = createEmptyTableMessage('No hay docentes registrados');
-        } else {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No hay docentes registrados</td></tr>';
-        }
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <div class="text-muted">
+                        <i class="bi bi-people display-4 d-block mb-2" style="opacity: 0.5;"></i>
+                        <p class="mb-0 fs-5">No hay docentes registrados</p>
+                        <p class="small mb-0 mt-1">Usa la pestaña «Registrar docentes» para dar de alta al primer maestro.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
         return;
     }
 
@@ -109,8 +292,13 @@ function mostrarErrorTablaDocentes(mensaje) {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="text-center text-danger py-4">
-                ${escapeHtmlDocente(mensaje)}
+            <td colspan="7" class="text-center py-5">
+                <div class="text-danger">
+                    <i class="bi bi-exclamation-triangle display-6 d-block mb-2"></i>
+                    <p class="mb-1 fw-semibold">No se pudo cargar la lista</p>
+                    <p class="small mb-0 text-muted">${escapeHtmlDocente(mensaje)}</p>
+                    <p class="small mt-2 mb-0">Verifica que el backend esté en ejecución y que hayas iniciado sesión.</p>
+                </div>
             </td>
         </tr>
     `;
@@ -130,14 +318,17 @@ function prepararFormularioDocente(docente) {
     document.getElementById('maestroArea').value = docente ? (docente.area || '') : '';
     document.getElementById('maestroCorreoInstitucional').value = docente ? (docente.correoInstitucional || '') : '';
     document.getElementById('maestroCorreoPersonal').value = docente ? (docente.correoPersonal || '') : '';
-    document.getElementById('maestroTelefono').value = docente ? (docente.telefono || '') : '';
+    document.getElementById('maestroTelefono').value = docente ? normalizarTelefono10Docente(docente.telefono || '') : '';
+    actualizarContadorTelefonoDocente('maestroTelefono', 'maestroTelefonoCounter');
     document.getElementById('maestroCodigoPostal').value = docente ? (docente.codigoPostal || '') : '';
     document.getElementById('maestroContactoNombre').value = docente ? (docente.nombreContactoEmergencia || '') : '';
-    document.getElementById('maestroContactoTelefono').value = docente ? (docente.telefonoContactoEmergencia || '') : '';
+    document.getElementById('maestroContactoTelefono').value = docente ? normalizarTelefono10Docente(docente.telefonoContactoEmergencia || '') : '';
+    actualizarContadorTelefonoDocente('maestroContactoTelefono', 'maestroContactoTelefonoCounter');
     document.getElementById('maestroRfc').value = docente ? (docente.rfc || '') : '';
     document.getElementById('maestroRegimen').value = docente ? (docente.regimenFiscal || '') : '';
     document.getElementById('maestroTipo').value = docente ? (docente.tipoMaestro || '') : '';
-    document.getElementById('maestroFechaAlta').value = docente ? (docente.fechaAlta || '') : '';
+    const fechaAltaRaw = docente && docente.fechaAlta ? String(docente.fechaAlta) : '';
+    document.getElementById('maestroFechaAlta').value = docente ? (fechaAltaRaw ? fechaAltaRaw.substring(0, 10) : '') : '';
     document.getElementById('maestroActivo').value = docente ? String(docente.activo) : 'true';
     document.getElementById('maestroObservaciones').value = docente ? (docente.observaciones || '') : '';
 
@@ -164,7 +355,7 @@ function prepararFormularioDocente(docente) {
 
     const boton = document.getElementById('btnGuardarMaestro');
     if (boton) {
-        boton.textContent = docente ? 'Actualizar maestro' : 'Guardar maestro';
+        boton.textContent = docente ? 'Actualizar docente' : 'Guardar docente';
     }
 }
 
@@ -179,7 +370,11 @@ function editarDocente(id) {
 
     docenteEditando = docente;
     prepararFormularioDocente(docente);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    var tabBtn = document.getElementById('tab-registrar-docente');
+    if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+        bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+    }
+    document.getElementById('maestroForm')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function obtenerEtiquetaSeleccionada() {
@@ -195,29 +390,68 @@ function obtenerEtiquetaSeleccionada() {
 
 async function guardarDocente() {
     const form = document.getElementById('maestroForm');
+    const btnGuardar = document.getElementById('btnGuardarMaestro');
     if (!form) return;
+
+    if (guardarDocenteEnCurso) {
+        return;
+    }
 
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
 
+    const telRaw = document.getElementById('maestroTelefono').value || '';
+    const tel = normalizarTelefono10Docente(telRaw);
+    if (String(telRaw || '').trim() && tel.length !== 10) {
+        alert('El teléfono debe tener exactamente 10 dígitos numéricos.');
+        document.getElementById('maestroTelefono')?.focus();
+        return;
+    }
+    document.getElementById('maestroTelefono').value = tel;
+
+    const telEmergRaw = document.getElementById('maestroContactoTelefono').value || '';
+    const telEmerg = normalizarTelefono10Docente(telEmergRaw);
+    if (String(telEmergRaw || '').trim() && telEmerg.length !== 10) {
+        alert('El teléfono de emergencia debe tener exactamente 10 dígitos numéricos.');
+        document.getElementById('maestroContactoTelefono')?.focus();
+        return;
+    }
+    document.getElementById('maestroContactoTelefono').value = telEmerg;
+
+    const rfcTrim = (document.getElementById('maestroRfc') && document.getElementById('maestroRfc').value || '').trim();
+    const rfcUpper = normalizarRfcUpperDocente(rfcTrim);
+    const rfcEl = document.getElementById('maestroRfc');
+    if (rfcEl && rfcEl.value !== rfcUpper) rfcEl.value = rfcUpper;
+    if (rfcTrim && (rfcTrim.length > 13 || rfcTrim.length < 12)) {
+        alert('El RFC debe tener 12 o 13 caracteres, o dejarse vacío.');
+        document.getElementById('maestroRfc')?.focus();
+        return;
+    }
+
+    guardarDocenteEnCurso = true;
+    if (btnGuardar) {
+        btnGuardar.disabled = true;
+        btnGuardar.textContent = 'Guardando…';
+    }
+
     const docenteData = {
-        curp: document.getElementById('maestroCurp').value.trim(),
-        nombre: document.getElementById('maestroNombre').value.trim(),
-        apellidoPaterno: document.getElementById('maestroApellidoPaterno').value.trim(),
-        apellidoMaterno: document.getElementById('maestroApellidoMaterno').value.trim(),
+        curp: normalizarCurpUpperAlnumDocente(document.getElementById('maestroCurp').value),
+        nombre: normalizarNombreTituloDocenteFinal(document.getElementById('maestroNombre').value),
+        apellidoPaterno: normalizarNombreTituloDocenteFinal(document.getElementById('maestroApellidoPaterno').value),
+        apellidoMaterno: normalizarNombreTituloDocenteFinal(document.getElementById('maestroApellidoMaterno').value),
         etiqueta: obtenerEtiquetaSeleccionada(),
         gradoAcademico: document.getElementById('maestroGrado').value || null,
         cedulaProfesional: document.getElementById('maestroCedula').value.trim() || null,
         area: document.getElementById('maestroArea').value || null,
         correoInstitucional: document.getElementById('maestroCorreoInstitucional').value.trim(),
         correoPersonal: document.getElementById('maestroCorreoPersonal').value.trim() || null,
-        telefono: document.getElementById('maestroTelefono').value.trim() || null,
+        telefono: tel || null,
         codigoPostal: document.getElementById('maestroCodigoPostal').value.trim() || null,
-        nombreContactoEmergencia: document.getElementById('maestroContactoNombre').value.trim() || null,
-        telefonoContactoEmergencia: document.getElementById('maestroContactoTelefono').value.trim() || null,
-        rfc: document.getElementById('maestroRfc').value.trim() || null,
+        nombreContactoEmergencia: normalizarNombreTituloDocenteFinal(document.getElementById('maestroContactoNombre').value) || null,
+        telefonoContactoEmergencia: telEmerg || null,
+        rfc: normalizarRfcUpperDocente(document.getElementById('maestroRfc').value) || null,
         regimenFiscal: document.getElementById('maestroRegimen').value || null,
         tipoMaestro: document.getElementById('maestroTipo').value || null,
         fechaAlta: document.getElementById('maestroFechaAlta').value || null,
@@ -227,35 +461,39 @@ async function guardarDocente() {
 
     const docenteId = document.getElementById('maestroId').value;
     const url = docenteId ? `${API_URL}/maestros/${docenteId}` : `${API_URL}/maestros`;
-    const method = docenteId ? 'PUT' : 'POST';
-
-    const formData = new FormData();
-    formData.append('maestro', new Blob([JSON.stringify(docenteData)], { type: 'application/json' }));
-
     const archivos = document.getElementById('maestroAntecedentes');
-    if (archivos && archivos.files && archivos.files.length > 0) {
-        Array.from(archivos.files).forEach(file => {
-            formData.append('antecedentes', file);
-        });
-    }
+    const tieneArchivos = archivos && archivos.files && archivos.files.length > 0;
 
     try {
-        const response = await fetch(url, {
-            method,
-            headers: getHeadersDocentes(false),
-            body: formData
-        });
+        let response;
+        if (tieneArchivos) {
+            const formData = new FormData();
+            formData.append('maestro', new File([JSON.stringify(docenteData)], 'maestro.json', { type: 'application/json' }));
+            Array.from(archivos.files).forEach(file => formData.append('antecedentes', file));
+            response = await fetch(url, {
+                method: docenteId ? 'PUT' : 'POST',
+                headers: getHeadersDocentes(false),
+                body: formData
+            });
+        } else {
+            response = await fetch(url, {
+                method: docenteId ? 'PUT' : 'POST',
+                headers: getHeadersDocentes(),
+                body: JSON.stringify(docenteData)
+            });
+        }
 
         let data = null;
-        try {
-            data = await response.json();
-        } catch (parseError) {
-            data = null;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            try { data = await response.json(); } catch (_) { }
+        } else if (!response.ok) {
+            try { data = { error: await response.text() }; } catch (_) { }
         }
 
         if (!response.ok) {
-            const message = data && (data.error || data.message) ? (data.error || data.message) : 'Error al guardar docente';
-            throw new Error(message);
+            const msg = (data && typeof data === 'object' && (data.error || data.message)) ? (data.error || data.message) : (typeof data === 'string' ? data : 'Error al guardar docente');
+            throw new Error(msg);
         }
 
         limpiarFormularioDocente();
@@ -263,8 +501,63 @@ async function guardarDocente() {
         alert(docenteId ? 'Docente actualizado exitosamente' : 'Docente creado exitosamente');
     } catch (error) {
         console.error('Error al guardar docente:', error);
-        alert(error.message || 'Error al guardar docente');
+        alert(error.message || 'Error al guardar docente. Verifica la conexión y tu sesión.');
+    } finally {
+        guardarDocenteEnCurso = false;
+        if (btnGuardar) {
+            btnGuardar.disabled = false;
+            btnGuardar.textContent = docenteEditando ? 'Actualizar docente' : 'Guardar docente';
+        }
     }
+}
+
+function bindNormalizacionesDocentes() {
+    const curp = document.getElementById('maestroCurp');
+    if (curp && !curp.dataset.curpNorm) {
+        curp.dataset.curpNorm = '1';
+        curp.addEventListener('input', () => {
+            const pos = curp.selectionStart;
+            const v = normalizarCurpUpperAlnumDocente(curp.value);
+            if (curp.value !== v) {
+                curp.value = v;
+                try { curp.setSelectionRange(pos, pos); } catch (_) {}
+            }
+        });
+        curp.addEventListener('blur', () => {
+            const v = normalizarCurpUpperAlnumDocente(curp.value);
+            if (curp.value !== v) curp.value = v;
+        });
+    }
+
+    const rfc = document.getElementById('maestroRfc');
+    if (rfc && !rfc.dataset.norm) {
+        rfc.dataset.norm = '1';
+        rfc.addEventListener('input', () => {
+            const v = normalizarRfcUpperDocente(rfc.value);
+            if (rfc.value !== v) rfc.value = v;
+        });
+        rfc.addEventListener('blur', () => {
+            const v = normalizarRfcUpperDocente(rfc.value);
+            if (rfc.value !== v) rfc.value = v;
+        });
+    }
+    ['maestroNombre', 'maestroApellidoPaterno', 'maestroApellidoMaterno', 'maestroContactoNombre'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.dataset.norm) return;
+        el.dataset.norm = '1';
+        el.addEventListener('input', () => {
+            const pos = el.selectionStart;
+            const v = normalizarNombreTituloDocenteLive(el.value);
+            if (el.value !== v) {
+                el.value = v;
+                try { el.setSelectionRange(pos, pos); } catch (_) {}
+            }
+        });
+        el.addEventListener('blur', () => {
+            const v = normalizarNombreTituloDocenteFinal(el.value);
+            if (el.value !== v) el.value = v;
+        });
+    });
 }
 
 async function eliminarDocente(id) {
@@ -295,16 +588,24 @@ async function eliminarDocente(id) {
 
 function buscarDocente() {
     const input = document.getElementById('buscarDocenteInput');
+    const filtroActivoEl = document.getElementById('docenteFiltroActivo');
     if (!input) return;
 
     const termino = input.value.toLowerCase().trim();
+    const filtroActivo = filtroActivoEl ? filtroActivoEl.value : '';
+
+    let base = Array.isArray(docentes) ? docentes.slice() : [];
+    if (filtroActivo !== '') {
+        const wantActivo = filtroActivo === 'true';
+        base = base.filter(d => !!d.activo === wantActivo);
+    }
 
     if (!termino) {
-        renderizarTablaDocentes(docentes);
+        renderizarTablaDocentes(base);
         return;
     }
 
-    const filtrados = docentes.filter(docente => {
+    const filtrados = base.filter(docente => {
         const nombreCompleto = [docente.nombre, docente.apellidoPaterno, docente.apellidoMaterno]
             .filter(Boolean)
             .join(' ')
@@ -348,33 +649,54 @@ function inicializarTablaDocentes() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (!document.getElementById('docentesSection')) return;
+    var tbody = document.getElementById('docentesTableBody');
+    if (!tbody) return;
+    if (window._initDocentesDone) return;
+    window._initDocentesDone = true;
 
-    // ✅ ESPERAR A QUE SESIÓN ESTÉ VALIDADA ANTES DE CARGAR DATOS
     function initDocentes() {
         inicializarTablaDocentes();
         cargarDocentes();
 
-        const btnGuardar = document.getElementById('btnGuardarMaestro');
-        if (btnGuardar) {
-            btnGuardar.addEventListener('click', guardarDocente);
+        setupPhoneInput10Docente('maestroTelefono', 'maestroTelefonoCounter');
+        setupPhoneInput10Docente('maestroContactoTelefono', 'maestroContactoTelefonoCounter');
+        bindNormalizacionesDocentes();
+
+        var btnGuardar = document.getElementById('btnGuardarMaestro');
+        if (btnGuardar) btnGuardar.addEventListener('click', guardarDocente);
+
+        var inputBuscar = document.getElementById('buscarDocenteInput');
+        if (inputBuscar) inputBuscar.addEventListener('input', buscarDocente);
+
+        var btnBuscarDoc = document.getElementById('btnBuscarDocentes');
+        if (btnBuscarDoc) btnBuscarDoc.addEventListener('click', buscarDocente);
+
+        var filtroActivo = document.getElementById('docenteFiltroActivo');
+        if (filtroActivo) filtroActivo.addEventListener('change', buscarDocente);
+
+        var btnLimpDoc = document.getElementById('btnLimpiarFiltrosDocentes');
+        if (btnLimpDoc) {
+            btnLimpDoc.addEventListener('click', function () {
+                if (inputBuscar) inputBuscar.value = '';
+                if (filtroActivo) filtroActivo.value = '';
+                buscarDocente();
+            });
         }
 
-        const inputBuscar = document.getElementById('buscarDocenteInput');
-        if (inputBuscar) {
-            inputBuscar.addEventListener('input', buscarDocente);
-        }
+        var btnExcel = document.getElementById('btnDescargarExcelDocentes');
+        if (btnExcel) btnExcel.addEventListener('click', descargarExcelDocentes);
     }
 
-    // Si sesión ya está validada, cargar datos ahora
+    // Página MPA (docentes.html): no hay docentesSection; cargar datos ya (sesión validada en la página)
+    if (!document.getElementById('docentesSection')) {
+        initDocentes();
+        return;
+    }
+    // Dashboard (sección docentes): esperar evento de sesión validada
     if (typeof dashboardSessionValidated !== 'undefined' && dashboardSessionValidated) {
-        console.log('✅ [Docentes] Sesión ya validada, cargando datos...');
         initDocentes();
     } else {
-        // Si no, esperar al evento de validación
-        console.log('⏳ [Docentes] Esperando validación de sesión...');
         window.addEventListener('dashboardSessionValidated', function onSessionValidated() {
-            console.log('✅ [Docentes] Sesión validada (evento), cargando datos...');
             window.removeEventListener('dashboardSessionValidated', onSessionValidated);
             initDocentes();
         }, { once: true });

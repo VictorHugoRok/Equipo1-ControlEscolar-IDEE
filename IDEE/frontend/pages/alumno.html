@@ -5,366 +5,101 @@
   <meta charset="UTF-8" />
   <title>Control Escolar IDEE - Alumno</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" />
 </head>
 
 <body>
   <div class="dashboard-wrapper">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-ide">
-      <div class="container-fluid">
-        <a class="navbar-brand fw-semibold" href="#">
-          IDEE • Portal alumno
-        </a>
-        <span class="badge-role d-none d-md-inline-block ms-2">Alumno</span>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbar">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="userNavbar">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-            <li class="nav-item">
-              <a class="nav-link active" href="#" onclick="mostrarSeccion('alumnoProgramasSection'); return false;">
-                Mis programas
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="#" onclick="mostrarSeccion('alumnoSolicitudesSection'); return false;">
-                Solicitudes
-              </a>
-            </li>
-          </ul>
-          <span class="me-3 small text-light">alumno@ide.edu.mx</span>
-          <a href="../index.html" class="btn btn-outline-light btn-sm">
-            Cerrar sesión
-          </a>
-        </div>
-      </div>
-    </nav>
-
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar-alumno.html"></div>
+    <main class="dashboard-main">
     <div class="container dashboard-content">
-      <!-- Listado de programas -->
-      <section id="alumnoProgramasSection" class="user-section">
-        <h3 class="section-title">Mis programas</h3>
+      <!-- Horario en agenda (por fechas) -->
+      <section id="alumnoHorarioSection" class="user-section d-none">
+        <h3 class="section-title">Mi horario</h3>
         <p class="text-muted">
-          Programas educativos en los que has estado inscrito(a) o estás inscrito(a).
+          Todas tus clases según tu inscripción en grupos. Vista de solo lectura.
         </p>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="card cursor-pointer"
-              onclick="seleccionarProgramaAlumno('Ingeniería en Sistemas Computacionales')">
-              <div class="card-body">
-                <h5 class="card-title mb-1">Ingeniería en Sistemas Computacionales</h5>
-                <p class="card-subtitle text-muted small mb-2">Generación 2025-2029 • Activo</p>
-                <p class="mb-0 small text-muted">
-                  Consulta tu horario, calificaciones, kardex, observaciones y documentos entregados.
-                </p>
+        <div class="card" id="alumnoHorarioCard">
+          <div class="card-header bg-soft-primary d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="fw-semibold">Mi horario</span>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Vista del horario">
+                <button type="button" class="btn btn-outline-secondary active" id="alumnoHorarioVistaAgendaBtn">Agenda</button>
+                <button type="button" class="btn btn-outline-secondary" id="alumnoHorarioVistaCalendarioBtn">Calendario</button>
               </div>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="alumnoHorarioBtnFullscreen" title="Pantalla completa">
+              <i class="bi bi-fullscreen"></i>
+            </button>
           </div>
-          <div class="col-md-6">
-            <div class="card cursor-pointer" onclick="seleccionarProgramaAlumno('Licenciatura en Administración')">
-              <div class="card-body">
-                <h5 class="card-title mb-1">Licenciatura en Administración</h5>
-                <p class="card-subtitle text-muted small mb-2">Generación 2023-2027 • Historial</p>
-                <p class="mb-0 small text-muted">
-                  Visualiza tu historial académico completo y documentos de este programa.
-                </p>
+          <div class="card-body overflow-auto p-2" id="alumnoHorarioContenido" style="max-height: 70vh;">
+            <div id="alumnoHorarioAgendaWrap">
+              <div id="alumnoHorarioGrafico">
+                <div class="text-center text-muted py-4">Cargando horario…</div>
               </div>
+            </div>
+            <div id="alumnoHorarioCalendarWrap" class="d-none">
+              <div id="alumnoHorarioCalendar"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Detalle de programa -->
-      <section id="alumnoDetalleSection" class="user-section d-none">
-        <h3 class="section-title">
-          Programa seleccionado: <span id="alumnoProgramaSeleccionado" class="fw-normal"></span>
-        </h3>
-
-        <ul class="nav nav-tabs mb-3" id="alumnoTabs">
-          <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabHorarioAlumno">
-              Consultar horario
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabInfoAcademicaAlumno">
-              Información académica
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabEvalDocenteAlumno">
-              Evaluación docente
-            </button>
-          </li>
-        </ul>
-
-        <div class="tab-content">
-          <!-- Horario -->
-          <div class="tab-pane fade show active" id="tabHorarioAlumno">
+      <!-- Inicio: datos generales, foto y documentos -->
+      <section id="alumnoInicioSection" class="user-section">
+        <h3 class="section-title">Inicio</h3>
+        <p class="text-muted">Información de tu perfil académico.</p>
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header bg-soft-primary">Fotografía</div>
+              <div class="card-body text-center">
+                <div id="alumnoFotoPreview" class="rounded border bg-light d-flex align-items-center justify-content-center mx-auto mb-3 overflow-hidden" style="width: 180px; height: 180px;">
+                  <span class="text-muted small" id="alumnoFotoPlaceholder"><i class="bi bi-person-circle" style="font-size: 4rem;"></i></span>
+                  <img id="alumnoFotoImg" src="" alt="" class="w-100 h-100 object-fit-cover d-none" />
+                </div>
+                <label class="form-label small">Cambiar foto</label>
+                <input type="file" id="alumnoFotoInput" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp" />
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card mb-3">
+              <div class="card-header bg-soft-primary">Datos generales</div>
+              <div class="card-body" id="alumnoDatosGenerales">
+                <p class="text-muted mb-0">Cargando…</p>
+              </div>
+            </div>
             <div class="card">
-              <div class="card-body">
-                <h5 class="card-title mb-3">Horario vigente</h5>
-                <p class="text-muted">
-                  Este es el horario que fue construido en el módulo de control escolar.
-                </p>
+              <div class="card-header bg-soft-primary">Documentos</div>
+              <div class="card-body p-0">
                 <div class="table-responsive">
-                  <table class="table table-striped align-middle mb-0">
+                  <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                       <tr>
-                        <th>Día</th>
-                        <th>Hora</th>
-                        <th>Asignatura</th>
-                        <th>Maestro</th>
-                        <th>Aula</th>
+                        <th>Documento</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acción</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr>
-                        <td>Lunes</td>
-                        <td>08:00 - 10:00</td>
-                        <td>Programación II</td>
-                        <td>Juan Pérez</td>
-                        <td>Lab 1</td>
-                      </tr>
-                      <tr>
-                        <td>Martes</td>
-                        <td>10:00 - 12:00</td>
-                        <td>Estructura de Datos</td>
-                        <td>Juan Pérez</td>
-                        <td>Lab 1</td>
-                      </tr>
-                      <!-- Más filas -->
+                    <tbody id="alumnoDocumentosBody">
+                      <tr><td colspan="3" class="text-center text-muted py-3">Cargando…</td></tr>
                     </tbody>
                   </table>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Información académica -->
-          <div class="tab-pane fade" id="tabInfoAcademicaAlumno">
-            <div class="card">
-              <div class="card-header bg-soft-primary">
-                Información académica
-              </div>
-              <div class="card-body">
-                <ul class="nav nav-pills mb-3">
-                  <li class="nav-item">
-                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pillCalifAlumno">
-                      Calificaciones
-                    </button>
-                  </li>
-                  <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillKardexAlumno">
-                      Kardex
-                    </button>
-                  </li>
-                  <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillObsAlumno">
-                      Observaciones
-                    </button>
-                  </li>
-                  <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pillDocsAlumno">
-                      Documentos entregados
-                    </button>
-                  </li>
-                </ul>
-
-                <div class="tab-content">
-                  <!-- Calificaciones -->
-                  <div class="tab-pane fade show active" id="pillCalifAlumno">
-                    <h6>Calificaciones por periodo</h6>
-                    <div class="table-responsive mb-3">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Periodo</th>
-                            <th>Asignatura</th>
-                            <th>Calificación final</th>
-                            <th>Tipo de evaluación</th>
-                            <th>Estatus</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>2025-1</td>
-                            <td>Programación I</td>
-                            <td>90</td>
-                            <td>Ordinario</td>
-                            <td><span class="badge bg-success-subtle text-success">Aprobado</span></td>
-                          </tr>
-                          <tr>
-                            <td>2025-1</td>
-                            <td>Cálculo Diferencial</td>
-                            <td>75</td>
-                            <td>Ordinario</td>
-                            <td><span class="badge bg-success-subtle text-success">Aprobado</span></td>
-                          </tr>
-                          <!-- Más filas -->
-                        </tbody>
-                      </table>
-                    </div>
-                    <div class="small text-muted">
-                      Nota: las calificaciones mostradas son las confirmadas por control escolar.
-                    </div>
-                  </div>
-
-                  <!-- Kardex -->
-                  <div class="tab-pane fade" id="pillKardexAlumno">
-                    <h6>Kardex académico</h6>
-                    <div class="table-responsive mb-3">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Periodo</th>
-                            <th>Clave</th>
-                            <th>Asignatura</th>
-                            <th>Calificación</th>
-                            <th>Créditos</th>
-                            <th>Estatus</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>2025-1</td>
-                            <td>PROG-I</td>
-                            <td>Programación I</td>
-                            <td>90</td>
-                            <td>8</td>
-                            <td><span class="badge bg-success-subtle text-success">Aprobada</span></td>
-                          </tr>
-                          <tr>
-                            <td>2025-1</td>
-                            <td>CALC-I</td>
-                            <td>Cálculo Diferencial</td>
-                            <td>75</td>
-                            <td>8</td>
-                            <td><span class="badge bg-success-subtle text-success">Aprobada</span></td>
-                          </tr>
-                          <!-- Más filas -->
-                        </tbody>
-                      </table>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <div class="card card-small-center">
-                          <div class="card-body">
-                            <div class="small text-muted mb-1">Créditos cursados</div>
-                            <div class="h4 mb-0">32</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="card card-small-center">
-                          <div class="card-body">
-                            <div class="small text-muted mb-1">Créditos requeridos</div>
-                            <div class="h4 mb-0">320</div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-4">
-                        <div class="card card-small-center">
-                          <div class="card-body">
-                            <div class="small text-muted mb-1">Promedio general</div>
-                            <div class="h4 mb-0">88.5</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Observaciones -->
-                  <div class="tab-pane fade" id="pillObsAlumno">
-                    <h6>Observaciones registradas</h6>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Detalle</th>
-                            <th>Registró</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>15/03/2025</td>
-                            <td>Académica</td>
-                            <td>Alumno con buen desempeño en proyectos de programación.</td>
-                            <td>Coordinación de carrera</td>
-                          </tr>
-                          <tr>
-                            <td>20/04/2025</td>
-                            <td>Administrativa</td>
-                            <td>Entregó tardíamente comprobante de pago, regularizado.</td>
-                            <td>Control escolar</td>
-                          </tr>
-                          <!-- Más filas -->
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <!-- Documentos entregados -->
-                  <div class="tab-pane fade" id="pillDocsAlumno">
-                    <h6>Documentos entregados</h6>
-                    <div class="table-responsive">
-                      <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                          <tr>
-                            <th>Documento</th>
-                            <th>Entregado</th>
-                            <th>Fecha de recepción</th>
-                            <th>Observaciones</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Acta de nacimiento</td>
-                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
-                            <td>10/08/2025</td>
-                            <td>Original legible.</td>
-                          </tr>
-                          <tr>
-                            <td>Certificado de bachillerato</td>
-                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
-                            <td>12/08/2025</td>
-                            <td>Sin observaciones.</td>
-                          </tr>
-                          <tr>
-                            <td>CURP impresa</td>
-                            <td><span class="badge bg-success-subtle text-success">Sí</span></td>
-                            <td>10/08/2025</td>
-                            <td>—</td>
-                          </tr>
-                          <tr>
-                            <td>Fotografías</td>
-                            <td><span class="badge bg-warning-subtle text-warning">Pendiente</span></td>
-                            <td>—</td>
-                            <td>Traer 4 fotos tamaño infantil.</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <div class="small text-muted mt-2">
-                      La información de documentos es capturada y actualizada por control escolar.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Evaluación docente -->
-          <div class="tab-pane fade" id="tabEvalDocenteAlumno">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title mb-3">Evaluación docente</h5>
-                <div class="alert alert-warning mb-0">
-                  Por el momento no hay actividad de este tipo disponible para este periodo.
+                <div class="border-top px-3 py-3 bg-body-secondary bg-opacity-25">
+                  <div class="fw-semibold small mb-2 text-secondary">Título / Cédula</div>
+                  <p class="small text-muted mb-2">Hasta 4 registros. Indica la etiqueta del documento, el número de cédula (si aplica) y adjunta el PDF.</p>
+                  <div id="alumnoTitulosCedulaContainer" class="d-flex flex-column gap-3"></div>
+                  <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="alumnoBtnAddTituloCedula">
+                    <i class="bi bi-plus-lg me-1"></i>Añadir otro título o cédula
+                  </button>
                 </div>
               </div>
             </div>
@@ -376,12 +111,12 @@
         <h3 class="section-title">Solicitudes</h3>
         <p class="text-muted">
           Desde aquí puedes solicitar documentos como Kardex o constancias.
-          Tu solicitud será enviada a Secretaría Administrativa para su revisión.
+          Tu solicitud será enviada a Secretaria Administrativa para su revisión.
         </p>
 
         <div class="card mb-3">
           <div class="card-body">
-            <form id="solicitudConstanciaForm" class="row g-3">
+            <form id="solicitudConstanciaForm" class="row g-3" onsubmit="return false;" action="javascript:void(0)">
 
               <div class="col-md-6">
                 <label class="form-label">Nombre completo</label>
@@ -491,18 +226,69 @@
       </section>
 
     </div>
+    </main>
   </div>
 
+  <!-- Vista previa de documento del expediente (PDF) -->
+  <div class="modal fade" id="modalAlumnoDocPreview" tabindex="-1" aria-labelledby="modalAlumnoDocPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAlumnoDocPreviewLabel">Documento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="ratio" style="--bs-aspect-ratio: 130%;">
+            <iframe id="alumnoDocPreviewFrame" title="Vista previa PDF" style="width:100%;height:100%;border:0;background:#fff;"></iframe>
+          </div>
+          <div class="small text-muted mt-2" id="alumnoDocPreviewHint"></div>
+        </div>
+        <div class="modal-footer flex-wrap gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>Cerrar
+          </button>
+          <button type="button" class="btn btn-primary" id="btnDescargarAlumnoDocPdf" disabled>
+            <i class="bi bi-download me-1"></i>Descargar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ui-toast.js"></script>
   <script>
     function mostrarSeccion(id) {
+      // Temporal: alumnos no acceden a Solicitudes (módulo en revisión; sección se mantiene en el HTML)
+      if (id === 'alumnoSolicitudesSection') {
+        id = 'alumnoInicioSection';
+        try {
+          if (new URLSearchParams(window.location.search).get('v') === 'solicitudes') {
+            history.replaceState({}, '', 'alumno.html');
+          }
+        } catch (e) { /* ignore */ }
+      }
       document.querySelectorAll(".user-section").forEach((s) => s.classList.add("d-none"));
-      document.getElementById(id).classList.remove("d-none");
-    }
-
-    function seleccionarProgramaAlumno(nombrePrograma) {
-      document.getElementById("alumnoProgramaSeleccionado").textContent = nombrePrograma;
-      mostrarSeccion("alumnoDetalleSection");
+      var el = document.getElementById(id);
+      if (el) el.classList.remove("d-none");
+      var navId = id;
+      document.querySelectorAll("#navbarMenuPrincipal .nav-link-ide").forEach(function (link) {
+        var ds = link.getAttribute("data-seccion");
+        var href = link.getAttribute("href") || "";
+        var esKardex = href.indexOf("kardex.html") !== -1;
+        var esEval = href.indexOf("evaluacion-docente.html") !== -1;
+        if (esKardex || esEval) {
+          link.classList.remove("active");
+          return;
+        }
+        link.classList.toggle("active", ds === navId);
+      });
+      if (id === "alumnoHorarioSection" && typeof cargarHorarioAlumno === "function") {
+        cargarHorarioAlumno();
+      }
     }
 
     function agregarSolicitudItem() {
@@ -546,7 +332,7 @@
       e.preventDefault();
 
       // Aquí solo simulamos envío; en backend enviarías los datos a la BD
-      alert("Solicitud enviada a Secretaría Administrativa (demo).");
+      alert("Solicitud enviada a Secretaria Administrativa (demo).");
 
       // Opcional: agregar al historial (demo visual)
       const nombre = document.getElementById("solNombre").value;
@@ -582,51 +368,676 @@
     });
   </script>
 
-  <!-- Scripts de conexión al backend -->
-  <script src="../js/config.js"></script>
   <script src="../js/roles.js"></script>
-  <script src="../js/auth.js"></script>
   <script src="../js/sistema-roles-unified.js"></script>
   <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="../js/horarios.js"></script>
   <script>
+    var _alumnoDocPreviewUrl = null;
+    var _alumnoDocPreviewFilename = null;
+
+    function formatoFechaEntregadoAlumno(val) {
+      if (!val) return '';
+      var s = String(val).trim();
+      if (!s) return '';
+      var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return s.substring(0, 10);
+      var y = parseInt(m[1], 10);
+      var mo = parseInt(m[2], 10) - 1;
+      var d = parseInt(m[3], 10);
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var dd = String(d).padStart(2, '0');
+      return dd + ' de ' + meses[Math.max(0, Math.min(11, mo))] + ' ' + String(y);
+    }
+
     // Variables globales
     let currentUser = null;
     let alumnoData = null;
+    var alumnoPageInitDone = false;
 
-    // Inicializar página
+    // Inicializar página (una sola vez por carga para evitar múltiples /auth/me)
     async function initAlumnoPage() {
+      if (alumnoPageInitDone) return;
+      alumnoPageInitDone = true;
       try {
-        // Verificar autenticación y cargar datos del usuario
         currentUser = await initializePage('ALUMNO');
-
-        if (!currentUser) {
-          return;
-        }
-
-        // Cargar datos específicos del alumno
+        if (!currentUser) return;
         await loadAlumnoData();
-
-        console.log('Página de alumno inicializada correctamente');
       } catch (error) {
         handleNetworkError(error);
       }
     }
 
-    // Cargar datos del alumno desde el backend
+    /** true si en expediente consta un archivo, aunque falle o falte el flag entregado (debe ir antes de enriquecer) */
+    function alumnoDocumentoCargado(d) {
+      if (!d) return false;
+      if (d.entregado === true || d.entregado === 'true') return true;
+      if (d.filename && String(d.filename).trim() !== '') return true;
+      if (d.archivoUrl && String(d.archivoUrl).trim() !== '') return true;
+      return false;
+    }
+
+    var ALUMNO_MAX_TITULOS_CEDULA = 4;
+    /** Filas visibles de título/cédula (1–4); se ajusta al cargar y al pulsar «Añadir». */
+    var alumnoTituloCedulaFilasVisibles = 1;
+
+    /**
+     * Asegura lista de documentos fiable: /alumnos/me a veces trae pocos o sin relación resuelta;
+     * /alumnos/me/documentos siempre refleja lo almacenado (metadatos), incl. varias filas TITULO_CEDULA.
+     */
+    async function enriquecerDocumentosDesdeModoMe(alumnoData, apiBase, h) {
+      if (!alumnoData) return;
+      if (!Array.isArray(alumnoData.documentos)) {
+        alumnoData.documentos = [];
+      }
+      alumnoData._tiposConArchivo = {};
+      alumnoData._docsMetaList = [];
+      try {
+        var res = await fetch(apiBase + '/alumnos/me/documentos', { headers: h });
+        if (!res.ok) return;
+        var list = await res.json();
+        if (!Array.isArray(list)) return;
+        alumnoData._docsMetaList = list;
+        var merged = [];
+        list.forEach(function (m) {
+          if (!m || m.tipo == null) return;
+          var t = String(m.tipo).toUpperCase();
+          if (!t) return;
+          var entreg = m.entregado === true || m.entregado === 'true';
+          if (!entreg && m.filename && String(m.filename).trim() !== '') entreg = true;
+          if (entreg && t !== 'TITULO_CEDULA') {
+            alumnoData._tiposConArchivo[t] = true;
+          }
+          merged.push({
+            id: m.id,
+            tipoDocumento: t,
+            tipo: t,
+            docSlot: m.docSlot != null ? m.docSlot : 0,
+            etiquetaDocumento: m.etiquetaDocumento,
+            numeroCedula: m.numeroCedula,
+            entregado: entreg,
+            fechaRecepcion: m.fechaRecepcion,
+            filename: m.filename
+          });
+        });
+        if (merged.length) {
+          alumnoData.documentos = merged;
+          var titN = merged.filter(function (x) { return x.tipoDocumento === 'TITULO_CEDULA'; }).length;
+          alumnoTituloCedulaFilasVisibles = Math.min(ALUMNO_MAX_TITULOS_CEDULA, Math.max(alumnoTituloCedulaFilasVisibles || 1, titN || 1));
+        }
+        (alumnoData.documentos || []).forEach(function (d) {
+          if (!d) return;
+          var t2 = String(d.tipoDocumento != null ? d.tipoDocumento : d.tipo).toUpperCase();
+          if (t2 && t2 !== 'TITULO_CEDULA' && alumnoDocumentoCargado(d)) {
+            alumnoData._tiposConArchivo[t2] = true;
+          }
+        });
+        merged.filter(function (d) { return d.tipoDocumento === 'TITULO_CEDULA' && alumnoDocumentoCargado(d); })
+          .forEach(function () { alumnoData._tiposConArchivo['TITULO_CEDULA'] = true; });
+      } catch (_) { /* dejar lo que venga de /me */ }
+    }
+
+    // Cargar datos del alumno desde /api/alumnos/me
     async function loadAlumnoData() {
       try {
-        // Obtener información completa del usuario incluyendo datos de alumno
-        const response = await authFetch('/auth/me');
-
-        if (response.alumno) {
-          alumnoData = response.alumno;
-          updateAlumnoUI();
+        var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+        var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+        var r = await fetch(apiBase + '/alumnos/me', { headers: h });
+        if (r.ok) {
+          alumnoData = await r.json();
+          await enriquecerDocumentosDesdeModoMe(alumnoData, apiBase, h);
         } else {
-          console.warn('No se encontraron datos de alumno asociados a este usuario');
+          var me = await getCurrentUser();
+          alumnoData = me ? { correoInstitucional: me.email } : null;
         }
+        if (alumnoData) updateAlumnoUI();
       } catch (error) {
         console.error('Error al cargar datos del alumno:', error);
-        showError('Error al cargar información del alumno');
+        var me = await getCurrentUser().catch(function() { return null; });
+        if (me) alumnoData = { correoInstitucional: me.email };
+        if (alumnoData) updateAlumnoUI();
+      }
+    }
+
+    function labelTipoDocumentoAlumno(tipo) {
+      var m = {
+        ACTA_NACIMIENTO: 'Acta de nacimiento',
+        CERTIFICADO_BACHILLERATO: 'Certificado de bachillerato',
+        CURP: 'CURP',
+        INE: 'INE',
+        FOTOGRAFIAS: 'Fotografías',
+        COMPROBANTE_DOMICILIO: 'Comprobante de domicilio',
+        TITULO_PROFESIONAL: 'Título / Cédula',
+        TITULO_CEDULA: 'Título / Cédula',
+        CEDULA_PROFESIONAL: 'Cédula profesional',
+        CONSTANCIA_ESTUDIOS: 'Certificado de estudios',
+        CONSTANCIA_SITUACION_FISCAL: 'Constancia de situación fiscal',
+        OTRO: 'Otro'
+      };
+      return m[String(tipo || '').toUpperCase()] || String(tipo || '—');
+    }
+
+    function escapeHtmlAlumno(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /** Inscripciones desde API (multi-programa); ordenadas por nombre de programa. */
+    function alumnoInscripcionesNormalizadas(data) {
+      if (!data) return [];
+      var raw = data.programasAsignados;
+      var arr = [];
+      if (Array.isArray(raw)) {
+        arr = raw.slice();
+      } else if (raw && typeof raw === 'object') {
+        arr = Object.keys(raw).map(function (k) { return raw[k]; });
+      }
+      arr = arr.filter(function (x) { return x && x.programa; });
+      arr.sort(function (a, b) {
+        var na = (a.programa && a.programa.nombre) ? String(a.programa.nombre) : '';
+        var nb = (b.programa && b.programa.nombre) ? String(b.programa.nombre) : '';
+        return na.localeCompare(nb, 'es', { sensitivity: 'base' });
+      });
+      return arr;
+    }
+
+    function labelEstatusMatriculaAlumno(v) {
+      var m = {
+        ACTIVA: 'Activa',
+        BAJA_TEMPORAL: 'Baja temporal',
+        BAJA_DEFINITIVA: 'Baja definitiva',
+        EGRESADO: 'Egresado'
+      };
+      var k = String(v || '').toUpperCase();
+      return m[k] || (v ? String(v).replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); }) : '—');
+    }
+
+    function badgeEstatusMatriculaAlumnoHtml(est) {
+      var k = String(est || '').toUpperCase();
+      var lab = escapeHtmlAlumno(labelEstatusMatriculaAlumno(est));
+      if (k === 'ACTIVA') {
+        return '<span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle fw-semibold">' + lab + '</span>';
+      }
+      if (k === 'EGRESADO') {
+        return '<span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle fw-semibold">' + lab + '</span>';
+      }
+      return '<span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold">' + lab + '</span>';
+    }
+
+    function textoPeriodoCursandoDesdeInscripcion(ap) {
+      if (!ap) return '—';
+      var pec = ap.periodoEscolarCursandoCodigo != null ? String(ap.periodoEscolarCursandoCodigo).trim() : '';
+      if (pec) return pec;
+      var p = ap.periodoAcademicoActual;
+      if (p && p.codigo) return String(p.codigo).trim();
+      if (p && p.nombre) return String(p.nombre).trim();
+      return '—';
+    }
+
+    function subtituloTipoProgramaAlumno(prog) {
+      if (!prog || !prog.tipoPrograma) return '';
+      var t = String(prog.tipoPrograma).replace(/_/g, ' ').toLowerCase();
+      return t.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+
+    function renderAlumnoInicioDatos() {
+      var el = document.getElementById('alumnoDatosGenerales');
+      if (!el || !alumnoData) return;
+      var insc = alumnoInscripcionesNormalizadas(alumnoData);
+      var bloqueProgramas = '';
+      if (insc.length === 0) {
+        bloqueProgramas =
+          '<p class="text-muted small mb-0 mt-2">' +
+          '<i class="bi bi-info-circle me-1"></i>No hay programas académicos vinculados a tu cuenta. Si es un error, contacta a secretaría.' +
+          '</p>';
+      } else {
+        var filas = insc.map(function (ap) {
+          var prog = ap.programa;
+          var nom = prog && prog.nombre ? String(prog.nombre) : '—';
+          var sub = subtituloTipoProgramaAlumno(prog);
+          var celdaProg = '<div class="fw-semibold lh-sm">' + escapeHtmlAlumno(nom) + '</div>' +
+            (sub ? '<div class="text-muted lh-sm">' + escapeHtmlAlumno(sub) + '</div>' : '');
+          var per = textoPeriodoCursandoDesdeInscripcion(ap);
+          var est = ap.estatusMatricula;
+          return '' +
+            '<div class="d-flex align-items-start justify-content-between gap-3 px-3 py-2 border-bottom">' +
+              '<div class="flex-grow-1" style="min-width:0;">' +
+                celdaProg +
+              '</div>' +
+              '<div class="text-end" style="min-width:110px;">' +
+                '<div class="fw-medium lh-sm">' + escapeHtmlAlumno(per) + '</div>' +
+                '<div class="mt-1">' + badgeEstatusMatriculaAlumnoHtml(est) + '</div>' +
+              '</div>' +
+            '</div>';
+        }).join('');
+        bloqueProgramas =
+          '<div class="small mt-3">' +
+            '<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">' +
+              '<span class="fw-semibold text-secondary">Programas académicos</span>' +
+              '<span class="badge bg-light text-dark border">' + insc.length + (insc.length === 1 ? ' programa' : ' programas') + '</span>' +
+            '</div>' +
+            '<div class="rounded border bg-white overflow-hidden">' +
+              '<div class="d-flex align-items-center justify-content-between gap-3 px-3 py-2 bg-light border-bottom text-muted">' +
+                '<div class="fw-semibold">Programa</div>' +
+                '<div class="fw-semibold text-end" style="min-width:110px;">Periodo y estatus</div>' +
+              '</div>' +
+              filas +
+            '</div>' +
+          '</div>';
+      }
+      el.innerHTML =
+        '<dl class="row mb-0 small">' +
+        '<dt class="col-sm-4">Nombre</dt><dd class="col-sm-8">' + escapeHtmlAlumno([alumnoData.nombre, alumnoData.apellidoPaterno, alumnoData.apellidoMaterno].filter(Boolean).join(' ')) + '</dd>' +
+        '<dt class="col-sm-4">Matrícula</dt><dd class="col-sm-8">' + escapeHtmlAlumno(alumnoData.matricula || '—') + '</dd>' +
+        '</dl>' +
+        bloqueProgramas;
+    }
+
+    var _alumnoFotoObjectUrl = null;
+    function refrescarFotoAlumnoPortal() {
+      var img = document.getElementById('alumnoFotoImg');
+      var ph = document.getElementById('alumnoFotoPlaceholder');
+      if (!img || !ph) return;
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      if (_alumnoFotoObjectUrl) {
+        try { URL.revokeObjectURL(_alumnoFotoObjectUrl); } catch (e) {}
+        _alumnoFotoObjectUrl = null;
+      }
+      fetch(apiBase + '/alumnos/me/foto', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } })
+        .then(function (r) {
+          if (!r.ok) {
+            img.classList.add('d-none');
+            ph.classList.remove('d-none');
+            return;
+          }
+          return r.blob();
+        })
+        .then(function (blob) {
+          if (!blob) return;
+          _alumnoFotoObjectUrl = URL.createObjectURL(blob);
+          img.src = _alumnoFotoObjectUrl;
+          img.classList.remove('d-none');
+          ph.classList.add('d-none');
+        })
+        .catch(function () {
+          img.classList.add('d-none');
+          ph.classList.remove('d-none');
+        });
+    }
+
+    function alumnoDocumentoByTipo(tipo) {
+      var t = String(tipo || '').toUpperCase();
+      if (t === 'TITULO_CEDULA') return null;
+      var docs = alumnoData && alumnoData.documentos;
+      if (!docs || !docs.length) return null;
+      for (var i = 0; i < docs.length; i++) {
+        var d = docs[i];
+        if (!d) continue;
+        var tr = d.tipoDocumento != null ? d.tipoDocumento : d.tipo;
+        if (String(tr).toUpperCase() === t) return d;
+      }
+      return null;
+    }
+
+    function alumnoTitulosCedulaDesdeDatos() {
+      var docs = alumnoData && alumnoData.documentos;
+      if (!docs || !docs.length) return [];
+      return docs.filter(function (d) {
+        if (!d) return false;
+        var tr = String(d.tipoDocumento != null ? d.tipoDocumento : d.tipo).toUpperCase();
+        return tr === 'TITULO_CEDULA';
+      }).sort(function (a, b) {
+        var sa = a.docSlot != null ? a.docSlot : 0;
+        var sb = b.docSlot != null ? b.docSlot : 0;
+        return sa - sb;
+      });
+    }
+
+    /** Mismo criterio que gestión alumnos + expediente (registro y documentos de expediente). */
+    function alumnoExpedienteTieneArchivoSubido(tipo) {
+      var t = String(tipo || '').toUpperCase();
+      if (t === 'TITULO_CEDULA') {
+        var arr = alumnoTitulosCedulaDesdeDatos();
+        for (var i = 0; i < arr.length; i++) {
+          if (alumnoDocumentoCargado(arr[i])) return true;
+        }
+        return false;
+      }
+      if (alumnoData && alumnoData._tiposConArchivo && alumnoData._tiposConArchivo[t]) {
+        return true;
+      }
+      return alumnoDocumentoCargado(alumnoDocumentoByTipo(tipo));
+    }
+
+    /**
+     * Documentos del portal del alumno (alineados con expediente administrativo). Título/cédula: bloque aparte, hasta 4.
+     */
+    var TIPOS_DOCS_ALUMNO = [
+      { tipo: 'CURP' },
+      { tipo: 'INE' },
+      { tipo: 'CONSTANCIA_SITUACION_FISCAL' },
+      { tipo: 'ACTA_NACIMIENTO' },
+      { tipo: 'CONSTANCIA_ESTUDIOS' }
+    ];
+
+    function abrirOMiDocumentoPorId(docId, nombreDescarga) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+      var url = apiBase + '/alumnos/me/documentos/descarga?docId=' + encodeURIComponent(String(docId));
+      fetch(url, { headers: h })
+        .then(function (r) {
+          if (!r.ok) throw new Error('No se pudo abrir el archivo');
+          return r.blob();
+        })
+        .then(function (blob) {
+          try {
+            if (_alumnoDocPreviewUrl && _alumnoDocPreviewUrl.indexOf('blob:') === 0) {
+              URL.revokeObjectURL(_alumnoDocPreviewUrl);
+            }
+          } catch (_) {}
+          _alumnoDocPreviewUrl = URL.createObjectURL(blob);
+          _alumnoDocPreviewFilename = (nombreDescarga || 'documento').toLowerCase().replace(/[^a-z0-9._-]+/gi, '_') + '.pdf';
+          var frame = document.getElementById('alumnoDocPreviewFrame');
+          if (frame) frame.src = _alumnoDocPreviewUrl;
+          var hint = document.getElementById('alumnoDocPreviewHint');
+          if (hint) hint.textContent = 'Archivo: ' + _alumnoDocPreviewFilename;
+          var dlBtn = document.getElementById('btnDescargarAlumnoDocPdf');
+          if (dlBtn) dlBtn.disabled = false;
+          var modalEl = document.getElementById('modalAlumnoDocPreview');
+          if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+          }
+        })
+        .catch(function (e) {
+          alert(e.message || 'Error al abrir el documento');
+        });
+    }
+
+    function abrirOMiDocumento(tipo) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+      var url = apiBase + '/alumnos/me/documentos/' + encodeURIComponent(String(tipo)) + '/archivo';
+      fetch(url, { headers: h })
+        .then(function (r) {
+          if (!r.ok) throw new Error('No se pudo abrir el archivo');
+          return r.blob();
+        })
+        .then(function (blob) {
+          try {
+            if (_alumnoDocPreviewUrl && _alumnoDocPreviewUrl.indexOf('blob:') === 0) {
+              URL.revokeObjectURL(_alumnoDocPreviewUrl);
+            }
+          } catch (_) {}
+          _alumnoDocPreviewUrl = URL.createObjectURL(blob);
+          _alumnoDocPreviewFilename = (String(tipo || 'documento').toLowerCase() + '.pdf');
+          var frame = document.getElementById('alumnoDocPreviewFrame');
+          if (frame) frame.src = _alumnoDocPreviewUrl;
+          var hint = document.getElementById('alumnoDocPreviewHint');
+          if (hint) hint.textContent = 'Archivo: ' + _alumnoDocPreviewFilename;
+          var dlBtn = document.getElementById('btnDescargarAlumnoDocPdf');
+          if (dlBtn) dlBtn.disabled = false;
+          var modalEl = document.getElementById('modalAlumnoDocPreview');
+          if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+          }
+        })
+        .catch(function (e) {
+          alert(e.message || 'Error al abrir el documento');
+        });
+    }
+
+    function filaAlumnoDoc(tipo) {
+      var d = alumnoDocumentoByTipo(tipo);
+      var ok = alumnoExpedienteTieneArchivoSubido(tipo);
+      var est = ok ? '<span class="badge bg-success-subtle text-success">Entregado</span>' : '<span class="badge bg-warning-subtle text-warning">Pendiente</span>';
+      var extra = (d && d.fechaRecepcion ? '<span class="text-muted small ms-1 text-nowrap">' + escapeHtmlAlumno(formatoFechaEntregadoAlumno(d.fechaRecepcion)) + '</span>' : '');
+      var nomb = labelTipoDocumentoAlumno(tipo);
+      var acc = [];
+      if (ok) {
+        acc.push('<button type="button" class="btn btn-sm btn-outline-primary alumno-btn-ver-doc" data-tipo="' + escapeHtmlAlumno(tipo) + '"><i class="bi bi-eye"></i> Ver</button>');
+      } else {
+        acc.push('<input type="file" class="form-control form-control-sm d-inline-block w-auto align-middle alumno-doc-file" data-tipo="' + escapeHtmlAlumno(tipo) + '" accept=\"application/pdf,.pdf\" />');
+      }
+      return '<tr><td>' + escapeHtmlAlumno(nomb) + '</td><td>' + est + extra + '</td><td class="text-end">' + acc.join('') + '</td></tr>';
+    }
+
+    function alumnoParchearMetadatosTitulo(docId, etiqueta, numero) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      return fetch(apiBase + '/alumnos/me/documentos/doc/' + encodeURIComponent(String(docId)), {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ etiquetaDocumento: etiqueta || '', numeroCedula: numero || '' })
+      });
+    }
+
+    function renderAlumnoTitulosCedulaBloque() {
+      var cont = document.getElementById('alumnoTitulosCedulaContainer');
+      if (!cont || !alumnoData) return;
+      cont.innerHTML = '';
+      var titulos = alumnoTitulosCedulaDesdeDatos();
+      var porSlot = {};
+      titulos.forEach(function (t) {
+        var s = t.docSlot != null ? t.docSlot : 0;
+        if (s >= 1 && s <= ALUMNO_MAX_TITULOS_CEDULA) porSlot[s] = t;
+      });
+      var nVis = Math.min(ALUMNO_MAX_TITULOS_CEDULA, Math.max(1, alumnoTituloCedulaFilasVisibles || 1));
+      for (var s = 1; s <= nVis; s++) {
+        (function (slot) {
+          var meta = porSlot[slot] || null;
+          var docId = meta && meta.id != null ? meta.id : null;
+          var ok = meta && alumnoDocumentoCargado(meta);
+          var wrap = document.createElement('div');
+          wrap.className = 'border rounded p-3 bg-white';
+          var tit = document.createElement('div');
+          tit.className = 'small fw-semibold text-secondary mb-2';
+          tit.textContent = 'Registro ' + slot + ' de ' + ALUMNO_MAX_TITULOS_CEDULA;
+          wrap.appendChild(tit);
+          var row = document.createElement('div');
+          row.className = 'row g-2';
+          var colEt = document.createElement('div');
+          colEt.className = 'col-md-4';
+          colEt.innerHTML = '<label class="form-label form-label-sm mb-0">Etiqueta del documento</label>' +
+            '<input type="text" class="form-control form-control-sm alumno-titulo-etiqueta" data-slot="' + slot + '" placeholder="Ej. Título, Cédula, Especialidad…" />';
+          var colNum = document.createElement('div');
+          colNum.className = 'col-md-4';
+          colNum.innerHTML = '<label class="form-label form-label-sm mb-0">Número de cédula</label>' +
+            '<input type="text" class="form-control form-control-sm alumno-titulo-numero" data-slot="' + slot + '" placeholder="Opcional" />';
+          var colFile = document.createElement('div');
+          colFile.className = 'col-md-4';
+          var accHtml = '';
+          if (ok) {
+            accHtml = '<label class="form-label form-label-sm mb-0">PDF</label><div class="d-flex flex-wrap gap-2 align-items-center">' +
+              '<button type="button" class="btn btn-sm btn-outline-primary alumno-btn-ver-titulo" data-doc-id="' + String(docId) + '"><i class="bi bi-eye"></i> Ver</button>' +
+              '<span class="small text-muted text-truncate" style="max-width:12rem" title="' + escapeHtmlAlumno(meta.filename || '') + '">' + escapeHtmlAlumno(meta.filename || 'Archivo') + '</span></div>';
+          } else {
+            accHtml = '<label class="form-label form-label-sm mb-0">Documento (PDF)</label>' +
+              '<input type="file" class="form-control form-control-sm alumno-titulo-file" data-slot="' + slot + '" accept="application/pdf,.pdf" />';
+          }
+          colFile.innerHTML = accHtml;
+          row.appendChild(colEt);
+          row.appendChild(colNum);
+          row.appendChild(colFile);
+          wrap.appendChild(row);
+          cont.appendChild(wrap);
+          var inpEt = wrap.querySelector('.alumno-titulo-etiqueta');
+          var inpNum = wrap.querySelector('.alumno-titulo-numero');
+          if (meta && meta.etiquetaDocumento) inpEt.value = meta.etiquetaDocumento;
+          if (meta && meta.numeroCedula) inpNum.value = meta.numeroCedula;
+          function guardarMetaSiHayId() {
+            if (!docId) return;
+            alumnoParchearMetadatosTitulo(docId, inpEt.value, inpNum.value).catch(function () { /* silencioso */ });
+          }
+          inpEt.addEventListener('blur', guardarMetaSiHayId);
+          inpNum.addEventListener('blur', guardarMetaSiHayId);
+          var finp = wrap.querySelector('.alumno-titulo-file');
+          if (finp) {
+            finp.addEventListener('change', function () {
+              if (!finp.files || !finp.files[0]) return;
+              subirDocumentoTituloCedulaAlumno(finp.files[0], slot, inpEt.value, inpNum.value);
+              finp.value = '';
+            });
+          }
+          var vbtn = wrap.querySelector('.alumno-btn-ver-titulo');
+          if (vbtn) {
+            vbtn.addEventListener('click', function () {
+              var id = vbtn.getAttribute('data-doc-id');
+              abrirOMiDocumentoPorId(id, meta && meta.filename ? meta.filename : 'titulo_cedula_' + slot);
+            });
+          }
+        })(s);
+      }
+    }
+
+    function renderAlumnoDocumentosTabla() {
+      var tbody = document.getElementById('alumnoDocumentosBody');
+      if (!tbody || !alumnoData) return;
+      tbody.innerHTML = TIPOS_DOCS_ALUMNO.map(function (x) { return filaAlumnoDoc(x.tipo); }).join('');
+      tbody.querySelectorAll('.alumno-doc-file').forEach(function (inp) {
+        inp.addEventListener('change', function () {
+          if (!inp.files || !inp.files[0]) return;
+          subirDocumentoAlumno(inp.files[0], inp.getAttribute('data-tipo'));
+          inp.value = '';
+        });
+      });
+      tbody.querySelectorAll('.alumno-btn-ver-doc').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          abrirOMiDocumento(btn.getAttribute('data-tipo'));
+        });
+      });
+      renderAlumnoTitulosCedulaBloque();
+      var btnAdd = document.getElementById('alumnoBtnAddTituloCedula');
+      if (btnAdd && !btnAdd._bound) {
+        btnAdd._bound = true;
+        btnAdd.addEventListener('click', function () {
+          if (alumnoTituloCedulaFilasVisibles >= ALUMNO_MAX_TITULOS_CEDULA) {
+            if (typeof window.showSystemToast === 'function') {
+              window.showSystemToast('Para agregar más documentos debe solicitarlo a la secretaría académica.', { type: 'warning', durationMs: 5500 });
+            } else {
+              alert('Para agregar más documentos debe solicitarlo a la secretaría académica.');
+            }
+            return;
+          }
+          alumnoTituloCedulaFilasVisibles++;
+          renderAlumnoTitulosCedulaBloque();
+        });
+      }
+    }
+
+    function alumnoSafeUploadFilename(file, fallback) {
+      var name = file && file.name ? String(file.name) : String(fallback || 'documento.pdf');
+      try {
+        name = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      } catch (_) {}
+      name = name.replace(/[\\\/\r\n\t]+/g, '_').replace(/[^A-Za-z0-9._ -]/g, '_').replace(/\s+/g, ' ').trim();
+      return name || String(fallback || 'documento.pdf');
+    }
+
+    function alumnoHeaderText(value) {
+      var s = value != null ? String(value).trim() : '';
+      return s ? encodeURIComponent(s) : '';
+    }
+
+    async function subirDocumentoTituloCedulaAlumno(file, slot, etiqueta, numero) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      try {
+        var r = await fetch(
+          apiBase + '/alumnos/me/documentos/raw?tipo=TITULO_CEDULA&slot=' + encodeURIComponent(String(slot)),
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+              'Content-Type': (file && file.type) ? file.type : 'application/pdf',
+              'X-Filename': alumnoSafeUploadFilename(file, 'titulo_cedula_' + slot + '.pdf'),
+              'X-Etiqueta-Documento': alumnoHeaderText(etiqueta),
+              'X-Numero-Cedula': alumnoHeaderText(numero)
+            },
+            body: file
+          }
+        );
+        var data = null;
+        try { data = await r.json(); } catch (_) {}
+        if (!r.ok) {
+          alert((data && (data.error || data.message)) || 'No se pudo subir el documento');
+          return;
+        }
+        alumnoData = data;
+        if (!Array.isArray(alumnoData.documentos)) alumnoData.documentos = [];
+        await enriquecerDocumentosDesdeModoMe(alumnoData, apiBase, { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') });
+        window.alumnoData = alumnoData;
+        renderAlumnoDocumentosTabla();
+        if (typeof window.showSystemToast === 'function') {
+          window.showSystemToast('Documento registrado.', { type: 'success' });
+        } else {
+          alert('Documento registrado.');
+        }
+      } catch (e) {
+        alert(e.message || 'Error de red');
+      }
+    }
+
+    async function subirDocumentoAlumno(file, tipoDocumento) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      try {
+        // Endpoint RAW: evita problemas de multipart en algunos entornos (octet-stream).
+        var r = await fetch(
+          apiBase + '/alumnos/me/documentos/raw?tipo=' + encodeURIComponent(String(tipoDocumento || '')),
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+              'Content-Type': (file && file.type) ? file.type : 'application/pdf',
+              'X-Filename': alumnoSafeUploadFilename(file, String(tipoDocumento || 'documento').toLowerCase() + '.pdf')
+            },
+            body: file
+          }
+        );
+        var data = null;
+        try { data = await r.json(); } catch (_) {}
+        if (!r.ok) {
+          alert((data && (data.error || data.message)) || 'No se pudo subir el documento');
+          return;
+        }
+        alumnoData = data;
+        if (!Array.isArray(alumnoData.documentos)) alumnoData.documentos = [];
+        await enriquecerDocumentosDesdeModoMe(alumnoData, apiBase, { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') });
+        window.alumnoData = alumnoData;
+        renderAlumnoDocumentosTabla();
+        if (typeof window.showSystemToast === 'function') {
+          window.showSystemToast('Documento registrado.', { type: 'success' });
+        } else {
+          alert('Documento registrado.');
+        }
+      } catch (e) {
+        alert(e.message || 'Error de red');
+      }
+    }
+
+    async function subirFotoAlumnoPortal(file) {
+      if (!file) return;
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      var fd = new FormData();
+      fd.append('foto', file);
+      try {
+        var r = await fetch(apiBase + '/alumnos/me', { method: 'PUT', headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }, body: fd });
+        var data = null;
+        try { data = await r.json(); } catch (_) {}
+        if (!r.ok) {
+          alert((data && (data.error || data.message)) || 'No se pudo actualizar la foto');
+          return;
+        }
+        alumnoData = data;
+        window.alumnoData = data;
+        refrescarFotoAlumnoPortal();
+      } catch (e) {
+        alert(e.message || 'Error de red');
       }
     }
 
@@ -634,17 +1045,249 @@
     function updateAlumnoUI() {
       if (!alumnoData) return;
 
+      const nombreSidebar = document.getElementById('sidebarUserNombre');
+      if (nombreSidebar && (alumnoData.nombre || alumnoData.apellidoPaterno)) {
+        var fullLine = [alumnoData.nombre, alumnoData.apellidoPaterno, alumnoData.apellidoMaterno].filter(Boolean).join(' ');
+        if (fullLine) {
+          nombreSidebar.textContent = typeof formatearNombreMostrar === 'function'
+            ? formatearNombreMostrar(fullLine)
+            : fullLine;
+        }
+      }
       // Actualizar email en navbar
-      const emailSpan = document.querySelector('.navbar .text-light');
+      const emailSpan = document.getElementById('userEmail');
       if (emailSpan && alumnoData.correoInstitucional) {
         emailSpan.textContent = alumnoData.correoInstitucional;
+      }
+
+      window.alumnoData = alumnoData;
+      cargarHorarioAlumno();
+      initAlumnoHorarioVistaToggle();
+      renderAlumnoInicioDatos();
+      refrescarFotoAlumnoPortal();
+      renderAlumnoDocumentosTabla();
+
+      if (alumnoData.matricula) {
+        var solMat = document.getElementById('solMatricula');
+        if (solMat) solMat.value = alumnoData.matricula;
+        var solNom = document.getElementById('solNombre');
+        if (solNom) solNom.value = [alumnoData.nombre, alumnoData.apellidoPaterno, alumnoData.apellidoMaterno].filter(Boolean).join(' ');
+      }
+      var solProg = document.getElementById('solPrograma');
+      if (solProg) {
+        var inscSol = alumnoInscripcionesNormalizadas(alumnoData);
+        solProg.innerHTML = '<option value="">Selecciona…</option>' +
+          inscSol.map(function (ap) {
+            var nom = ap.programa && ap.programa.nombre ? String(ap.programa.nombre) : '';
+            var pid = ap.programa && ap.programa.id != null ? String(ap.programa.id) : '';
+            return '<option value="' + escapeHtmlAlumno(pid) + '">' + escapeHtmlAlumno(nom) + '</option>';
+          }).join('');
       }
 
       console.log('Datos del alumno cargados:', alumnoData);
     }
 
-    // Inicializar cuando el DOM esté listo
-    document.addEventListener('DOMContentLoaded', initAlumnoPage);
+    var HV_COLORES_ALUMNO = [
+      { bg: '#d4edff', border: '#0066cc' }, { bg: '#c8f0c8', border: '#228b22' }, { bg: '#ffe4b5', border: '#e65100' },
+      { bg: '#e6d5f5', border: '#6a1b9a' }, { bg: '#b2ebf2', border: '#00838f' }, { bg: '#f8bbd9', border: '#ad1457' },
+      { bg: '#fff9c4', border: '#f9a825' }, { bg: '#c5cae9', border: '#283593' }, { bg: '#d7ccc8', border: '#5d4037' },
+      { bg: '#ffccbc', border: '#bf360c' }, { bg: '#dcedc8', border: '#558b2f' }, { bg: '#b2dfdb', border: '#00695c' },
+      { bg: '#d1c4e9', border: '#4527a0' }, { bg: '#ffecb3', border: '#ff8f00' }
+    ];
+    var HV_DIAS_ALUMNO = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+    var HV_HORAS_ALUMNO = ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
+
+    function getColorAlumno(asignaturaId) {
+      var idx = Math.abs(parseInt(asignaturaId, 10) || 0) % HV_COLORES_ALUMNO.length;
+      return HV_COLORES_ALUMNO[idx];
+    }
+
+    function cargarHorarioAlumno() {
+      var grafico = document.getElementById('alumnoHorarioGrafico');
+      if (!grafico) return;
+      grafico.innerHTML = '<div class="text-center text-muted py-4"><span class="spinner-border spinner-border-sm"></span> Cargando…</div>';
+      var prom = (typeof authFetch === 'function')
+        ? authFetch('/alumnos/me/horarios')
+        : fetch((typeof API_URL !== 'undefined' && API_URL ? API_URL : 'http://localhost:8080/api') + '/alumnos/me/horarios', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } }).then(function(r) { if (!r.ok) throw new Error('Error al cargar'); return r.json(); });
+      prom.then(function (lista) {
+        try {
+          lista = lista || [];
+          if (lista != null && !Array.isArray(lista)) {
+            if (lista.data && Array.isArray(lista.data)) lista = lista.data;
+            else if (lista.content && Array.isArray(lista.content)) lista = lista.content;
+            else lista = [];
+          }
+          if (lista.length === 0) {
+            grafico.innerHTML = '<div class="text-center text-muted py-5">No tienes horarios registrados aún.<br><small>Tu horario se mostrará cuando estés inscrito en grupos y la secretaría académica haya asignado los bloques.</small></div>';
+            initAlumnoHorarioFullscreen();
+            return;
+          }
+          if (typeof buildHorarioAgenda === 'function') {
+            grafico.innerHTML = buildHorarioAgenda(lista, { tipo: 'alumno' });
+          } else if (typeof buildHorarioConsultaVisual === 'function') {
+            grafico.innerHTML = buildHorarioConsultaVisual(lista, { tipo: 'alumno' });
+          } else {
+            grafico.innerHTML = '<div class="text-center text-danger py-4">Error: no se cargó el módulo de horarios.</div>';
+          }
+          // Inicializar calendario
+          try {
+            if (typeof renderHorarioCalendar === 'function') {
+              var calEl = document.getElementById('alumnoHorarioCalendar');
+              if (calEl) {
+                var res = renderHorarioCalendar(calEl, lista, { tipo: 'alumno' });
+                if (res && res.missingDates > 0) {
+                  var wrap = document.getElementById('alumnoHorarioCalendarWrap');
+                  if (wrap) {
+                    var warn = document.createElement('div');
+                    warn.className = 'alert alert-warning small py-2 mb-2';
+                    warn.textContent = 'Hay ' + res.missingDates + ' clases sin fechaInicio/fechaFin; no se pueden mostrar en Calendario.';
+                    wrap.insertBefore(warn, wrap.firstChild);
+                  }
+                }
+              }
+            }
+          } catch (_) {}
+          initAlumnoHorarioFullscreen();
+        } catch (err) {
+          grafico.innerHTML = '<div class="text-center text-danger py-4">Error al mostrar horario: ' + (err && err.message ? err.message : String(err)) + '</div>';
+          initAlumnoHorarioFullscreen();
+        }
+      }).catch(function (e) {
+        var msg = (e && e.message) ? e.message : (typeof e === 'string' ? e : 'Error del servidor');
+        grafico.innerHTML = '<div class="text-center text-danger py-4">No se pudo cargar el horario. ' + msg + '</div>';
+        initAlumnoHorarioFullscreen();
+      });
+    }
+
+    function initAlumnoHorarioVistaToggle() {
+      var btnAgenda = document.getElementById('alumnoHorarioVistaAgendaBtn');
+      var btnCal = document.getElementById('alumnoHorarioVistaCalendarioBtn');
+      var wrapAgenda = document.getElementById('alumnoHorarioAgendaWrap');
+      var wrapCal = document.getElementById('alumnoHorarioCalendarWrap');
+      if (!btnAgenda || !btnCal || !wrapAgenda || !wrapCal) return;
+
+      function setVista(v) {
+        var isAgenda = (v === 'agenda');
+        if (isAgenda) {
+          wrapAgenda.classList.remove('d-none');
+          wrapCal.classList.add('d-none');
+          btnAgenda.classList.add('active');
+          btnCal.classList.remove('active');
+        } else {
+          wrapAgenda.classList.add('d-none');
+          wrapCal.classList.remove('d-none');
+          btnCal.classList.add('active');
+          btnAgenda.classList.remove('active');
+          try {
+            var calEl = document.getElementById('alumnoHorarioCalendar');
+            var inst = calEl && calEl._hvFullCalendarInstance;
+            if (inst && typeof inst.updateSize === 'function') inst.updateSize();
+          } catch (_) {}
+        }
+      }
+
+      btnAgenda.onclick = function () { setVista('agenda'); };
+      btnCal.onclick = function () { setVista('cal'); };
+      setVista('agenda');
+    }
+
+    var _alumnoHorarioFsInit = false;
+    function initAlumnoHorarioFullscreen() {
+      if (_alumnoHorarioFsInit) return;
+      var btn = document.getElementById('alumnoHorarioBtnFullscreen');
+      var card = document.getElementById('alumnoHorarioCard');
+      if (!btn || !card) return;
+      _alumnoHorarioFsInit = true;
+      var reqFs = card.requestFullscreen || card.webkitRequestFullscreen;
+      var exitFs = document.exitFullscreen || document.webkitExitFullscreen;
+      var isFs = function () { return document.fullscreenElement || document.webkitFullscreenElement; };
+      btn.onclick = function () {
+        if (!isFs()) {
+          if (reqFs) reqFs.call(card).then(function () { btn.innerHTML = '<i class="bi bi-fullscreen-exit"></i>'; }).catch(function () {});
+        } else {
+          if (exitFs) exitFs.call(document).then(function () { btn.innerHTML = '<i class="bi bi-fullscreen"></i>'; });
+        }
+      };
+      document.addEventListener('fullscreenchange', function () { if (!isFs() && btn) btn.innerHTML = '<i class="bi bi-fullscreen"></i>'; });
+      document.addEventListener('webkitfullscreenchange', function () { if (!isFs() && btn) btn.innerHTML = '<i class="bi bi-fullscreen"></i>'; });
+    }
+
+    function aplicarSeccionDesdeQuery() {
+      var params = new URLSearchParams(window.location.search || '');
+      var v = params.get('v');
+      if (v === 'horario') {
+        if (typeof mostrarSeccion === 'function') mostrarSeccion('alumnoHorarioSection');
+      } else if (v === 'solicitudes') {
+        try { history.replaceState({}, '', 'alumno.html'); } catch (e) { /* ignore */ }
+        if (typeof mostrarSeccion === 'function') mostrarSeccion('alumnoInicioSection');
+      } else {
+        if (typeof mostrarSeccion === 'function') mostrarSeccion('alumnoInicioSection');
+      }
+    }
+
+    document.addEventListener('alumnoSidebarReady', function () {
+      aplicarSeccionDesdeQuery();
+      if (typeof updateAlumnoUI === 'function' && typeof alumnoData !== 'undefined' && alumnoData) updateAlumnoUI();
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        window.currentUser = {
+          email: localStorage.getItem('userEmail') || '',
+          tipoUsuario: localStorage.getItem('userTipo'),
+          rol: localStorage.getItem('userTipo')
+        };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      initAlumnoPage();
+      aplicarSeccionDesdeQuery();
+      var fi = document.getElementById('alumnoFotoInput');
+      if (fi) {
+        fi.addEventListener('change', function () {
+          if (fi.files && fi.files[0]) subirFotoAlumnoPortal(fi.files[0]);
+          fi.value = '';
+        });
+      }
+
+      // Descargar desde vista previa de documento
+      var btnDl = document.getElementById('btnDescargarAlumnoDocPdf');
+      if (btnDl && !btnDl.__bound) {
+        btnDl.__bound = true;
+        btnDl.addEventListener('click', function () {
+          if (!_alumnoDocPreviewUrl) return;
+          var a = document.createElement('a');
+          a.href = _alumnoDocPreviewUrl;
+          a.download = _alumnoDocPreviewFilename || 'documento.pdf';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        });
+      }
+
+      // Limpiar blob al cerrar modal
+      var modalEl = document.getElementById('modalAlumnoDocPreview');
+      if (modalEl && !modalEl.__boundCleanup) {
+        modalEl.__boundCleanup = true;
+        modalEl.addEventListener('hidden.bs.modal', function () {
+          var frame = document.getElementById('alumnoDocPreviewFrame');
+          if (frame) frame.src = 'about:blank';
+          var dlBtn = document.getElementById('btnDescargarAlumnoDocPdf');
+          if (dlBtn) dlBtn.disabled = true;
+          try {
+            if (_alumnoDocPreviewUrl && _alumnoDocPreviewUrl.indexOf('blob:') === 0) {
+              URL.revokeObjectURL(_alumnoDocPreviewUrl);
+            }
+          } catch (_) {}
+          _alumnoDocPreviewUrl = null;
+          _alumnoDocPreviewFilename = null;
+        });
+      }
+    });
   </script>
 </body>
 

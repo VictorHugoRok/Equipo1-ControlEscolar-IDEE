@@ -11,11 +11,11 @@ let titulosCache = [];
 // ==================== INICIALIZACIÓN ====================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Solo inicializar si estamos en la página correcta
-    if (document.getElementById('titulosElectronicosSection')) {
-        inicializarEventos();
-        configurarFechaActual();
-    }
+    if (!document.getElementById('titulosElectronicosSection')) return;
+    if (window._titulosElectronicosInitDone) return;
+    window._titulosElectronicosInitDone = true;
+    inicializarEventos();
+    configurarFechaActual();
 });
 
 function inicializarEventos() {
