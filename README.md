@@ -495,7 +495,7 @@ Autenticación: `Authorization: Bearer <token>`
 
 ## Equipo
 
-Proyecto desarrollado por el **Equipo 1** del programa de desarrollo de software del IDEE.
+Proyecto trabajado por el **Equipo 1**.
 
 | Integrante | GitHub |
 |---|---|
