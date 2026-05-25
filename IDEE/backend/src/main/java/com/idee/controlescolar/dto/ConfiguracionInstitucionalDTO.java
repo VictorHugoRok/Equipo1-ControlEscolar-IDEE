@@ -31,7 +31,6 @@ public class ConfiguracionInstitucionalDTO {
 
     private String certificadoPath;
     private String llavePrivadaPath;
-    private String noCertificadoSat;
     private Boolean activo;
     private boolean tieneCertificados;
 }

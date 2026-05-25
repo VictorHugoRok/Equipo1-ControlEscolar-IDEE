@@ -1,6 +1,7 @@
 package com.idee.controlescolar.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +43,8 @@ public class ResponsableFirma {
     /**
      * Segundo apellido del responsable
      */
-    @Column(name = "segundo_apellido", length = 100)
+    @NotBlank(message = "El segundo apellido es requerido")
+    @Column(name = "segundo_apellido", nullable = false, length = 100)
     private String segundoApellido;
 
     /**

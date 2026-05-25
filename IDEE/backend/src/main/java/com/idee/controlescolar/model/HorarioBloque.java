@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -33,11 +35,45 @@ public class HorarioBloque {
     @Column(nullable = false)
     private LocalTime horaFin;
 
+    /** Vigencia del bloque (para modelo modular/secuencial). Null = sin límite. */
+    private LocalDate fechaInicio;
+
+    /** Vigencia del bloque (para modelo modular/secuencial). Null = sin límite. */
+    private LocalDate fechaFin;
+
     private String aula; // Ej: "Lab 1", "Aula 301"
 
-    private String grupo; // Ej: "3A"
+    @ManyToOne
+    @JoinColumn(name = "grupo_id")
+    @JsonIgnoreProperties({"calificaciones", "alumnos", "asignatura", "programa", "maestro"})
+    private Grupo grupoEntity;  // FK a Grupo (gestión correcta)
 
-    private String periodo; // Ej: "2025-2"
+    @Column(name = "grupo")
+    private String grupo;  // Nombre "3A" - sincronizado desde grupoEntity o texto legacy
+
+    @ManyToOne
+    @JoinColumn(name = "periodo_academico_id")
+    @JsonIgnoreProperties({"fechaCreacion", "fechaActualizacion"})
+    private PeriodoAcademico periodoAcademico;
+
+    @Column(name = "ciclo_escolar")
+    private String cicloEscolar;  // Sincronizado desde periodoAcademico.codigo
+
+    @PrePersist
+    @PreUpdate
+    private void sincronizarCampos() {
+        if (periodoAcademico != null) {
+            cicloEscolar = periodoAcademico.getCodigo();
+        }
+        if (grupoEntity != null) {
+            grupo = grupoEntity.getNombre();
+        }
+    }
+
+    /** Nombre del grupo para display/API (desde FK o texto legacy). */
+    public String getGrupoNombre() {
+        return grupoEntity != null ? grupoEntity.getNombre() : grupo;
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -53,14 +89,17 @@ public class HorarioBloque {
     // Relaciones
     @ManyToOne
     @JoinColumn(name = "programa_id")
+    @JsonIgnoreProperties({"asignaturas", "alumnos"})
     private ProgramaEducativo programa;
 
     @ManyToOne
     @JoinColumn(name = "asignatura_id", nullable = false)
+    @JsonIgnoreProperties({"programa", "maestros", "grupos"})
     private Asignatura asignatura;
 
     @ManyToOne
-    @JoinColumn(name = "maestro_id", nullable = false)
+    @JoinColumn(name = "maestro_id")
+    @JsonIgnoreProperties({"asignaturas", "horariosImpartidos", "usuario", "documentos"})
     private Maestro maestro;
 
     // Enums

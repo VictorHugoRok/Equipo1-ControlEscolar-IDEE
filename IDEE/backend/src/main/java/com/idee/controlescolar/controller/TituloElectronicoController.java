@@ -20,7 +20,7 @@ import java.util.Map;
  * Controlador REST para la gestión de títulos profesionales electrónicos.
  */
 @RestController
-@RequestMapping("/api/titulos-electronicos")
+@RequestMapping("/titulos-electronicos")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*")

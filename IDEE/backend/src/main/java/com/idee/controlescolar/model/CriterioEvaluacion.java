@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,14 +44,17 @@ public class CriterioEvaluacion {
     // Relaciones
     @ManyToOne
     @JoinColumn(name = "asignatura_id", nullable = false)
+    @JsonIgnoreProperties({"programa", "grupos", "maestros"})
     private Asignatura asignatura;
 
     @ManyToOne
     @JoinColumn(name = "maestro_id", nullable = false)
+    @JsonIgnoreProperties({"usuario", "documentos", "asignaturas", "horariosImpartidos"})
     private Maestro maestro;
 
     @ManyToOne
     @JoinColumn(name = "grupo_id")
+    @JsonIgnoreProperties({"alumnos", "calificaciones", "programa", "maestro"})
     private Grupo grupo;
 
     // Validación

@@ -2,6 +2,8 @@ package com.idee.controlescolar.repository;
 
 import com.idee.controlescolar.model.Personal;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -9,6 +11,12 @@ import java.util.List;
 
 @Repository
 public interface PersonalRepository extends JpaRepository<Personal, Long> {
+
+    @Query("SELECT DISTINCT p FROM Personal p LEFT JOIN FETCH p.cedulasProfesionales WHERE p.id = :id")
+    Optional<Personal> findByIdWithCedulasProfesionales(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT p FROM Personal p LEFT JOIN FETCH p.documentos WHERE p.id = :id")
+    Optional<Personal> findByIdWithDocumentos(@Param("id") Long id);
     
     /**
      * Buscar personal por CURP
@@ -24,6 +32,8 @@ public interface PersonalRepository extends JpaRepository<Personal, Long> {
      * Buscar personal por correo institucional
      */
     Optional<Personal> findByCorreoInstitucional(String correoInstitucional);
+
+    Optional<Personal> findByUsuario_Id(Long usuarioId);
     
     /**
      * Buscar personal por puesto

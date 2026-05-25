@@ -68,6 +68,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Carga variables desde backend/.env en local (SPRING_DATASOURCE_* etc.) -->
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
         <!-- H2 Database (para desarrollo/testing) -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -157,6 +164,19 @@
             <artifactId>flyway-core</artifactId>
         </dependency>
 
+        <!-- OpenHTMLToPDF: HTML a PDF -->
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>1.1.37</version>
+        </dependency>
+
+        <!-- Apache POI para lectura de Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
+        </dependency>
 
     </dependencies>
 

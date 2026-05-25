@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -53,6 +54,7 @@ public class SolicitudConstancia {
     // Relaciones
     @ManyToOne
     @JoinColumn(name = "alumno_id", nullable = false)
+    @JsonIgnoreProperties({"calificaciones", "observaciones_list", "documentos", "solicitudes", "usuario"})
     private Alumno alumno;
 
     // Enums

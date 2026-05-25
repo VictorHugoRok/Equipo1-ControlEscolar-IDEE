@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Control Escolar IDEE - Mi información</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar-maestro.html"></div>
+    <main class="dashboard-main">
+      <div class="container dashboard-content">
+        <div class="dashboard-home mb-4">
+          <div class="dashboard-hero">
+            <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+              <div>
+                <h3 class="section-title mb-1">Mi información</h3>
+                <p class="text-muted mb-0">Mismo formato que el inicio del estudiante: datos, fotografía y documentos. Tu inicio docente sigue en <a href="maestro.html">Portal docente</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="user-section">
+          <h3 class="section-title">Perfil y documentos</h3>
+          <p class="text-muted">Puedes actualizar tu foto y subir documentos requeridos (PDF).</p>
+          <div class="row g-4">
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header bg-soft-primary">Fotografía</div>
+                <div class="card-body text-center">
+                  <div id="maestroInfoFotoPreview" class="rounded border bg-light d-flex align-items-center justify-content-center mx-auto mb-3 overflow-hidden" style="width: 180px; height: 180px;">
+                    <span class="text-muted small" id="maestroInfoFotoPlaceholder"><i class="bi bi-person-circle" style="font-size: 4rem;"></i></span>
+                    <img id="maestroInfoFotoImg" src="" alt="" class="w-100 h-100 object-fit-cover d-none" />
+                  </div>
+                  <label class="form-label small">Cambiar foto</label>
+                  <input type="file" id="maestroInfoFotoInput" class="form-control form-control-sm" accept="image/jpeg,image/png,image/webp" />
+                  <p class="small text-muted mt-2 mb-0">Solo puedes reemplazar la imagen; no está permitido dejarla vacía.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="card mb-3">
+                <div class="card-header bg-soft-primary">Datos generales</div>
+                <div class="card-body" id="maestroInfoDatosGenerales">
+                  <p class="text-muted mb-0">Cargando…</p>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header bg-soft-primary">Documentos</div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Documento</th>
+                          <th>Estado</th>
+                          <th class="text-end">Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody id="maestroInfoDocumentosBody">
+                        <tr><td colspan="3" class="text-center text-muted py-3">Cargando…</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal fade" id="modalMaestroDocPreview" tabindex="-1" aria-labelledby="modalMaestroDocPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalMaestroDocPreviewLabel">Documento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="ratio" style="--bs-aspect-ratio: 130%;">
+            <iframe id="maestroDocPreviewFrame" title="Vista previa PDF" style="width:100%;height:100%;border:0;background:#fff;"></iframe>
+          </div>
+          <div class="small text-muted mt-2" id="maestroDocPreviewHint"></div>
+        </div>
+        <div class="modal-footer flex-wrap gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>Cerrar
+          </button>
+          <button type="button" class="btn btn-primary" id="btnDescargarMaestroDocPdf" disabled>
+            <i class="bi bi-download me-1"></i>Descargar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script>
+    var _maestroDocPreviewUrl = null;
+    var _maestroDocPreviewFilename = null;
+    var _maestroFotoObjectUrl = null;
+    var maestroInfoData = null;
+    var maestroInfoInitDone = false;
+
+    function formatoFechaEntregadoMaestro(val) {
+      if (!val) return '';
+      var s = String(val).trim();
+      if (!s) return '';
+      var m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return s.substring(0, 10);
+      var y = parseInt(m[1], 10);
+      var mo = parseInt(m[2], 10) - 1;
+      var d = parseInt(m[3], 10);
+      var meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+      var dd = String(d).padStart(2, '0');
+      return dd + ' de ' + meses[Math.max(0, Math.min(11, mo))] + ' ' + String(y);
+    }
+
+    function maestroDocumentoMetaCargado(m) {
+      if (!m) return false;
+      if (m.entregado === true || m.entregado === 'true') return true;
+      if (m.filename && String(m.filename).trim() !== '') return true;
+      return false;
+    }
+
+    async function enriquecerDocumentosMaestroDesdeApi(maestroData, apiBase, h) {
+      if (!maestroData) return;
+      maestroData._tiposConArchivo = {};
+      var byTipo = {};
+      try {
+        var res = await fetch(apiBase + '/maestros/me/documentos', { headers: h });
+        if (!res.ok) return;
+        var list = await res.json();
+        if (!Array.isArray(list)) return;
+        list.forEach(function (m) {
+          if (!m || m.tipo == null) return;
+          var t = String(m.tipo).toUpperCase();
+          if (!t) return;
+          var entreg = maestroDocumentoMetaCargado(m);
+          if (entreg) maestroData._tiposConArchivo[t] = true;
+          byTipo[t] = m;
+        });
+      } catch (_) {}
+    }
+
+    function escapeHtmlMaestro(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function labelTipoDocumentoMaestro(tipo) {
+      var m = {
+        ACTA_NACIMIENTO: 'Acta de nacimiento',
+        CERTIFICADO_BACHILLERATO: 'Certificado de bachillerato',
+        CURP: 'CURP',
+        INE: 'INE',
+        FOTOGRAFIAS: 'Fotografías',
+        COMPROBANTE_DOMICILIO: 'Comprobante de domicilio',
+        TITULO_PROFESIONAL: 'Título / Cédula',
+        CEDULA_PROFESIONAL: 'Cédula profesional',
+        CONSTANCIA_ESTUDIOS: 'Certificado de estudios',
+        CONSTANCIA_SITUACION_FISCAL: 'Constancia de situación fiscal (CSF)',
+        OTRO: 'Otro'
+      };
+      return m[String(tipo || '').toUpperCase()] || String(tipo || '—');
+    }
+
+    var TIPOS_DOCS_MAESTRO_PORTAL = [
+      { tipo: 'CURP', registro: true },
+      { tipo: 'INE', registro: true },
+      { tipo: 'CONSTANCIA_SITUACION_FISCAL', registro: true },
+      { tipo: 'CEDULA_PROFESIONAL', registro: true },
+      { tipo: 'ACTA_NACIMIENTO', registro: false },
+      { tipo: 'CERTIFICADO_BACHILLERATO', registro: false },
+      { tipo: 'CONSTANCIA_ESTUDIOS', registro: false },
+      { tipo: 'TITULO_PROFESIONAL', registro: false }
+    ];
+
+    function renderMaestroInfoDatos() {
+      var el = document.getElementById('maestroInfoDatosGenerales');
+      if (!el || !maestroInfoData) return;
+      var m = maestroInfoData;
+      var nombre = [m.nombre, m.apellidoPaterno, m.apellidoMaterno].filter(Boolean).join(' ');
+      var grado = m.gradoAcademico != null ? String(m.gradoAcademico) : '—';
+      el.innerHTML =
+        '<dl class="row mb-0 small">' +
+        '<dt class="col-sm-4">Nombre</dt><dd class="col-sm-8">' + escapeHtmlMaestro(nombre) + '</dd>' +
+        '<dt class="col-sm-4">CURP</dt><dd class="col-sm-8">' + escapeHtmlMaestro(m.curp || '—') + '</dd>' +
+        '<dt class="col-sm-4">Correo institucional</dt><dd class="col-sm-8">' + escapeHtmlMaestro(m.correoInstitucional || '—') + '</dd>' +
+        '<dt class="col-sm-4">Teléfono</dt><dd class="col-sm-8">' + escapeHtmlMaestro(m.telefono || '—') + '</dd>' +
+        '<dt class="col-sm-4">Grado académico</dt><dd class="col-sm-8">' + escapeHtmlMaestro(grado) + '</dd>' +
+        '<dt class="col-sm-4">Área</dt><dd class="col-sm-8">' + escapeHtmlMaestro(m.area || '—') + '</dd>' +
+        '</dl>';
+    }
+
+    function refrescarFotoMaestroPortal() {
+      var img = document.getElementById('maestroInfoFotoImg');
+      var ph = document.getElementById('maestroInfoFotoPlaceholder');
+      if (!img || !ph) return;
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      if (_maestroFotoObjectUrl) {
+        try { URL.revokeObjectURL(_maestroFotoObjectUrl); } catch (e) {}
+        _maestroFotoObjectUrl = null;
+      }
+      fetch(apiBase + '/maestros/me/foto', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } })
+        .then(function (r) {
+          if (!r.ok) {
+            img.classList.add('d-none');
+            ph.classList.remove('d-none');
+            return;
+          }
+          return r.blob();
+        })
+        .then(function (blob) {
+          if (!blob) return;
+          _maestroFotoObjectUrl = URL.createObjectURL(blob);
+          img.src = _maestroFotoObjectUrl;
+          img.classList.remove('d-none');
+          ph.classList.add('d-none');
+        })
+        .catch(function () {
+          img.classList.add('d-none');
+          ph.classList.remove('d-none');
+        });
+    }
+
+    function maestroExpedienteTieneArchivo(tipo) {
+      var t = String(tipo || '').toUpperCase();
+      if (maestroInfoData && maestroInfoData._tiposConArchivo && maestroInfoData._tiposConArchivo[t]) {
+        return true;
+      }
+      return false;
+    }
+
+    function abrirOMiDocumentoMaestro(tipo) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+      var url = apiBase + '/maestros/me/documentos/' + encodeURIComponent(String(tipo)) + '/archivo';
+      fetch(url, { headers: h })
+        .then(function (r) {
+          if (!r.ok) throw new Error('No se pudo abrir el archivo');
+          return r.blob();
+        })
+        .then(function (blob) {
+          try {
+            if (_maestroDocPreviewUrl && _maestroDocPreviewUrl.indexOf('blob:') === 0) {
+              URL.revokeObjectURL(_maestroDocPreviewUrl);
+            }
+          } catch (_) {}
+          _maestroDocPreviewUrl = URL.createObjectURL(blob);
+          _maestroDocPreviewFilename = (String(tipo || 'documento').toLowerCase() + '.pdf');
+          var frame = document.getElementById('maestroDocPreviewFrame');
+          if (frame) frame.src = _maestroDocPreviewUrl;
+          var hint = document.getElementById('maestroDocPreviewHint');
+          if (hint) hint.textContent = 'Archivo: ' + _maestroDocPreviewFilename;
+          var dlBtn = document.getElementById('btnDescargarMaestroDocPdf');
+          if (dlBtn) dlBtn.disabled = false;
+          var modalEl = document.getElementById('modalMaestroDocPreview');
+          if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+          }
+        })
+        .catch(function (e) {
+          alert(e.message || 'Error al abrir el documento');
+        });
+    }
+
+    function filaMaestroDoc(tipo) {
+      var ok = maestroExpedienteTieneArchivo(tipo);
+      var est = ok ? '<span class="badge bg-success-subtle text-success">Entregado</span>' : '<span class="badge bg-warning-subtle text-warning">Pendiente</span>';
+      var nomb = labelTipoDocumentoMaestro(tipo);
+      var acc = [];
+      if (ok) {
+        acc.push('<button type="button" class="btn btn-sm btn-outline-primary maestro-btn-ver-doc" data-tipo="' + escapeHtmlMaestro(tipo) + '"><i class="bi bi-eye"></i> Ver</button>');
+      } else {
+        acc.push('<input type="file" class="form-control form-control-sm d-inline-block w-auto align-middle maestro-doc-file" data-tipo="' + escapeHtmlMaestro(tipo) + '" accept="application/pdf,.pdf" />');
+      }
+      return '<tr><td>' + escapeHtmlMaestro(nomb) + '</td><td>' + est + '</td><td class="text-end">' + acc.join('') + '</td></tr>';
+    }
+
+    function renderMaestroDocumentosTabla() {
+      var tbody = document.getElementById('maestroInfoDocumentosBody');
+      if (!tbody || !maestroInfoData) return;
+      var rowsR = TIPOS_DOCS_MAESTRO_PORTAL.filter(function (x) { return x.registro; }).map(function (x) { return filaMaestroDoc(x.tipo); }).join('');
+      var rowsE = TIPOS_DOCS_MAESTRO_PORTAL.filter(function (x) { return !x.registro; }).map(function (x) { return filaMaestroDoc(x.tipo); }).join('');
+      tbody.innerHTML = rowsR + rowsE;
+      tbody.querySelectorAll('.maestro-doc-file').forEach(function (inp) {
+        inp.addEventListener('change', function () {
+          if (!inp.files || !inp.files[0]) return;
+          subirDocumentoMaestro(inp.files[0], inp.getAttribute('data-tipo'));
+          inp.value = '';
+        });
+      });
+      tbody.querySelectorAll('.maestro-btn-ver-doc').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          abrirOMiDocumentoMaestro(btn.getAttribute('data-tipo'));
+        });
+      });
+    }
+
+    async function subirDocumentoMaestro(file, tipoDocumento) {
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      try {
+        var r = await fetch(
+          apiBase + '/maestros/me/documentos/raw?tipo=' + encodeURIComponent(String(tipoDocumento || '')),
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + (localStorage.getItem('token') || ''),
+              'Content-Type': (file && file.type) ? file.type : 'application/pdf',
+              'X-Filename': (file && file.name) ? String(file.name) : (String(tipoDocumento || 'documento').toLowerCase() + '.pdf')
+            },
+            body: file
+          }
+        );
+        var data = null;
+        try { data = await r.json(); } catch (_) {}
+        if (!r.ok) {
+          alert((data && (data.error || data.message)) || 'No se pudo subir el documento');
+          return;
+        }
+        maestroInfoData = data;
+        var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+        await enriquecerDocumentosMaestroDesdeApi(maestroInfoData, apiBase, h);
+        renderMaestroDocumentosTabla();
+        alert('Documento registrado.');
+      } catch (e) {
+        alert(e.message || 'Error de red');
+      }
+    }
+
+    async function subirFotoMaestroPortal(file) {
+      if (!file) return;
+      var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+      var fd = new FormData();
+      fd.append('foto', file);
+      try {
+        var r = await fetch(apiBase + '/maestros/me', { method: 'PUT', headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') }, body: fd });
+        var data = null;
+        try { data = await r.json(); } catch (_) {}
+        if (!r.ok) {
+          alert((data && (data.error || data.message)) || (typeof data === 'string' ? data : 'No se pudo actualizar la foto'));
+          return;
+        }
+        maestroInfoData = data;
+        refrescarFotoMaestroPortal();
+        alert('Foto actualizada.');
+      } catch (e) {
+        alert(e.message || 'Error de red');
+      }
+    }
+
+    async function initMaestroMiInformacion() {
+      if (maestroInfoInitDone) return;
+      maestroInfoInitDone = true;
+      try {
+        var user = await initializePage('MAESTRO');
+        if (!user) return;
+        var apiBase = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : 'http://localhost:8080/api';
+        var h = { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') };
+        var r = await fetch(apiBase + '/maestros/me', { headers: h });
+        if (r.ok) {
+          maestroInfoData = await r.json();
+          await enriquecerDocumentosMaestroDesdeApi(maestroInfoData, apiBase, h);
+        }
+        renderMaestroInfoDatos();
+        renderMaestroDocumentosTabla();
+        refrescarFotoMaestroPortal();
+        var fin = document.getElementById('maestroInfoFotoInput');
+        if (fin) {
+          fin.addEventListener('change', function () {
+            if (fin.files && fin.files[0]) subirFotoMaestroPortal(fin.files[0]);
+            fin.value = '';
+          });
+        }
+        var dlBtn = document.getElementById('btnDescargarMaestroDocPdf');
+        if (dlBtn) {
+          dlBtn.addEventListener('click', function () {
+            if (!_maestroDocPreviewUrl || !_maestroDocPreviewFilename) return;
+            var a = document.createElement('a');
+            a.href = _maestroDocPreviewUrl;
+            a.download = _maestroDocPreviewFilename;
+            a.click();
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initMaestroMiInformacion);
+  </script>
+</body>
+
+</html>

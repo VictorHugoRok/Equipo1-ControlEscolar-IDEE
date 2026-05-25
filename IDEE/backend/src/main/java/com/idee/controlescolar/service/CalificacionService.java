@@ -74,8 +74,8 @@ public class CalificacionService {
         if (calificacion.getCalificacionFinal() == null) {
             throw new IllegalArgumentException("La calificación final es requerida");
         }
-        if (calificacion.getCalificacionFinal() < 0 || calificacion.getCalificacionFinal() > 100) {
-            throw new IllegalArgumentException("La calificación debe estar entre 0 y 100");
+        if (calificacion.getCalificacionFinal() < 5 || calificacion.getCalificacionFinal() > 10) {
+            throw new IllegalArgumentException("La calificación debe estar entre 5 y 10");
         }
 
         // Inicializar estado si no viene
@@ -113,9 +113,9 @@ public class CalificacionService {
 
         // Actualizar campos permitidos
         if (calificacionActualizada.getCalificacionFinal() != null) {
-            if (calificacionActualizada.getCalificacionFinal() < 0 || 
-                calificacionActualizada.getCalificacionFinal() > 100) {
-                throw new IllegalArgumentException("La calificación debe estar entre 0 y 100");
+            if (calificacionActualizada.getCalificacionFinal() < 5 || 
+                calificacionActualizada.getCalificacionFinal() > 10) {
+                throw new IllegalArgumentException("La calificación debe estar entre 5 y 10");
             }
             calificacionExistente.setCalificacionFinal(calificacionActualizada.getCalificacionFinal());
         }

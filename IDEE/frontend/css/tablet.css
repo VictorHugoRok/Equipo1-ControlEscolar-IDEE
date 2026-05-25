@@ -1,0 +1,78 @@
+/**
+ * Estilos específicos para tabletas.
+ * Se aplican en viewports medianos (tabletas).
+ */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --sidebar-width: 190px;
+  }
+
+  .sidebar-ide {
+    width: var(--sidebar-width);
+    height: 100dvh;
+    max-height: -webkit-fill-available;
+  }
+
+  .dashboard-main {
+    margin-left: var(--sidebar-width);
+    padding-left: 1rem;
+    padding-right: 0.75rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .sidebar-ide .sidebar-header {
+    padding: 0.75rem 0.5rem 0;
+  }
+
+  .sidebar-ide .sidebar-logo {
+    height: 40px;
+  }
+
+  .sidebar-ide .sidebar-badge-academico {
+    font-size: 0.72rem;
+    padding: 0.28rem 0.65rem;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .sidebar-ide .sidebar-nav .nav-link-ide {
+    padding: 0.45rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .sidebar-ide .sidebar-nav .nav-sub .nav-link-ide {
+    padding-left: 1rem;
+  }
+
+  .sidebar-ide .sidebar-footer {
+    padding: 0.65rem 0.5rem max(0.65rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-ide .sidebar-user-name {
+    font-size: 0.82rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .sidebar-ide .sidebar-email {
+    font-size: 0.68rem;
+    margin-bottom: 0.5rem;
+    max-height: 3.2em;
+    line-height: 1.2;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sidebar-ide .btn-logout-ide {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* En tableta el resize puede seguir activo; opcionalmente ocultar si se prefiere */
+  .sidebar-resize-handle {
+    width: 6px;
+  }
+}

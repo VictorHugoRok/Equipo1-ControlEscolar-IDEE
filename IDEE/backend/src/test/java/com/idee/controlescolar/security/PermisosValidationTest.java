@@ -76,7 +76,7 @@ public class PermisosValidationTest {
     @Test
     public void testAdminNoPuedeConfirmarCalificaciones() throws Exception {
         mockMvc.perform(
-            post("/api/calificaciones/1/confirmar")
+            post("/calificaciones/1/confirmar")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -90,7 +90,7 @@ public class PermisosValidationTest {
     @Test
     public void testSecretariaPuedeConfirmarCalificaciones() throws Exception {
         mockMvc.perform(
-            post("/api/calificaciones/1/confirmar")
+            post("/calificaciones/1/confirmar")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -105,7 +105,7 @@ public class PermisosValidationTest {
         String calificacionJson = "{\"calificacion\": 95, \"observaciones\": \"Excelente\"}";
         
         mockMvc.perform(
-            put("/api/calificaciones/1")
+            put("/calificaciones/1")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(calificacionJson)
@@ -121,7 +121,7 @@ public class PermisosValidationTest {
         String calificacionJson = "{\"calificacion\": 95, \"observaciones\": \"Excelente\"}";
         
         mockMvc.perform(
-            put("/api/calificaciones/1")
+            put("/calificaciones/1")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(calificacionJson)
@@ -135,7 +135,7 @@ public class PermisosValidationTest {
     @Test
     public void testAdminNoPuedeVerTitulos() throws Exception {
         mockMvc.perform(
-            get("/api/titulos-electronicos")
+            get("/titulos-electronicos")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -148,7 +148,7 @@ public class PermisosValidationTest {
     @Test
     public void testSecretariaPuedeVerTitulos() throws Exception {
         mockMvc.perform(
-            get("/api/titulos-electronicos")
+            get("/titulos-electronicos")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -163,7 +163,7 @@ public class PermisosValidationTest {
         String tituloJson = "{\"alumnoId\": 1, \"estado\": \"pendiente\"}";
         
         mockMvc.perform(
-            post("/api/titulos-electronicos")
+            post("/titulos-electronicos")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tituloJson)
@@ -179,7 +179,7 @@ public class PermisosValidationTest {
         String tituloJson = "{\"alumnoId\": 1, \"estado\": \"pendiente\"}";
         
         mockMvc.perform(
-            post("/api/titulos-electronicos")
+            post("/titulos-electronicos")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tituloJson)
@@ -195,7 +195,7 @@ public class PermisosValidationTest {
     @Test
     public void testAdminPuedeVerCalificaciones() throws Exception {
         mockMvc.perform(
-            get("/api/calificaciones")
+            get("/calificaciones")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -208,7 +208,7 @@ public class PermisosValidationTest {
     @Test
     public void testSecretariaPuedeVerCalificaciones() throws Exception {
         mockMvc.perform(
-            get("/api/calificaciones")
+            get("/calificaciones")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -221,7 +221,7 @@ public class PermisosValidationTest {
     @Test
     public void testNoAutenticadoNoPuedeAcceder() throws Exception {
         mockMvc.perform(
-            get("/api/calificaciones")
+            get("/calificaciones")
                 .contentType(MediaType.APPLICATION_JSON)
         )
         .andExpect(status().isUnauthorized());
@@ -233,7 +233,7 @@ public class PermisosValidationTest {
     @Test
     public void testTokenInvalidoNoPuedeAcceder() throws Exception {
         mockMvc.perform(
-            get("/api/calificaciones")
+            get("/calificaciones")
                 .header("Authorization", "Bearer TOKEN_INVALIDO")
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -248,7 +248,7 @@ public class PermisosValidationTest {
     @Test
     public void testAdminNoPuedeFirmarTitulos() throws Exception {
         mockMvc.perform(
-            post("/api/titulos-electronicos/1/firmar")
+            post("/titulos-electronicos/1/firmar")
                 .header("Authorization", "Bearer " + tokenAdmin)
                 .contentType(MediaType.APPLICATION_JSON)
         )
@@ -261,7 +261,7 @@ public class PermisosValidationTest {
     @Test
     public void testSecretariaPuedeFirmarTitulos() throws Exception {
         mockMvc.perform(
-            post("/api/titulos-electronicos/1/firmar")
+            post("/titulos-electronicos/1/firmar")
                 .header("Authorization", "Bearer " + tokenSecretaria)
                 .contentType(MediaType.APPLICATION_JSON)
         )

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grupos - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content">
+      <h3 class="section-title">Grupos</h3>
+      <p class="text-muted">
+        Gestiona los grupos disponibles para cada programa educativo.
+      </p>
+
+      <div class="card mb-4">
+        <div class="card-header bg-soft-primary">Crear grupo</div>
+        <div class="card-body">
+          <form id="formGrupo" data-allow-native-submit="true">
+            <div class="row g-3 mb-2" id="grupoCamposBasicos">
+              <div class="col-md-3">
+                <label class="form-label" for="grupoPrograma">Programa <span class="text-danger">*</span></label>
+                <select class="form-select" id="grupoPrograma" required>
+                  <option value="">Selecciona programa…</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="grupoNumeroPeriodo">Número de periodo <span class="text-danger">*</span></label>
+                <select class="form-select" id="grupoNumeroPeriodo" required disabled>
+                  <option value="">Selecciona programa primero…</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="grupoNombre">Nombre del grupo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="grupoNombre" placeholder="Ej. A, B, 1A" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label" for="grupoEstatus">Estatus <span class="text-danger">*</span></label>
+                <select class="form-select" id="grupoEstatus" required>
+                  <option value="ACTIVO">Activo</option>
+                  <option value="INACTIVO">Inactivo</option>
+                </select>
+              </div>
+            </div>
+
+            <input type="hidden" id="grupoIdEditar" value="" />
+            <button type="submit" class="btn btn-ide" id="btnGuardarGrupo">Guardar grupo</button>
+            <button type="button" class="btn btn-outline-secondary ms-2 d-none" id="btnCancelarEdicion">Cancelar edición</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-soft-primary">Grupos registrados</div>
+        <div class="card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Filtrar por programa</label>
+              <select class="form-select" id="filtroPrograma" title="Filtrar por programa">
+                <option value="">Todos los programas</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped mb-0 align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Grupo</th>
+                  <th>Programa</th>
+                  <th>Número de periodo</th>
+                  <th>Estatus</th>
+                  <th>Alumnos</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="gruposTableBody">
+                <tr><td colspan="6" class="text-center text-muted py-4">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Lista de alumnos del grupo -->
+  <div class="modal fade" id="modalAlumnosGrupo" tabindex="-1" aria-labelledby="modalAlumnosGrupoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content modal-alumnos-grupo">
+        <div class="modal-header modal-alumnos-grupo-header">
+          <h5 class="modal-title" id="modalAlumnosGrupoLabel">
+            <i class="bi bi-people me-2"></i>Alumnos del grupo <span id="modalAlumnosGrupoNombre"></span>
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body modal-alumnos-grupo-body">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Matrícula</th>
+                  <th>Nombre completo</th>
+                  <th>Correo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="modalAlumnosGrupoBody">
+                <tr><td colspan="4" class="text-center text-muted py-4">Cargando…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer modal-alumnos-grupo-footer">
+          <button type="button" class="btn btn-outline-success" id="btnDescargarExcelAlumnosGrupo">
+            <i class="bi bi-download me-1"></i>Descargar lista
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/gestion-grupos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (typeof cargarGrupos !== 'undefined') cargarGrupos();
+    });
+  </script>
+</body>
+</html>

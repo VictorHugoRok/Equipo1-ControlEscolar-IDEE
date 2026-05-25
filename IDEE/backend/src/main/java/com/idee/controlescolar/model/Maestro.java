@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Maestro {
 
     @Id
@@ -79,6 +81,9 @@ public class Maestro {
 
     private String telefonoContactoEmergencia;
 
+    /** Ruta en disco (mismo criterio que {@link Alumno#getFotoUrl()}). */
+    private String fotoUrl;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
@@ -93,16 +98,19 @@ public class Maestro {
     private Usuario usuario;
 
     @OneToMany(mappedBy = "maestro", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Grupo> grupos = new ArrayList<>();
 
     @OneToMany(mappedBy = "maestro", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<HorarioBloque> horariosImpartidos = new ArrayList<>();
 
     @ManyToMany(mappedBy = "maestros")
+    @JsonIgnore
     private List<Asignatura> asignaturas = new ArrayList<>();
 
     @OneToMany(mappedBy = "maestro", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"maestro", "data"})
+    @JsonIgnore
     private List<MaestroDocumento> documentos = new ArrayList<>();
 
     // Enums

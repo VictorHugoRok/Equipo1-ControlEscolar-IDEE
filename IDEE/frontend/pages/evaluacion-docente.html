@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Evaluación docente - IDEE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+  <style>
+    /* Modales evaluación académica / informe: centrados en el viewport (evitan verse pegados a la izquierda del área de contenido) */
+    #edModalInformeAcademico.modal.show,
+    #edModalSecretariaResponder.modal.show {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+    #edModalInformeAcademico .modal-dialog,
+    #edModalSecretariaResponder .modal-dialog {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    @media (min-width: 992px) {
+      #edModalInformeAcademico.modal.show,
+      #edModalSecretariaResponder.modal.show {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      #edModalSecretariaResponder .modal-dialog.modal-xl {
+        width: 100%;
+        max-width: min(1140px, calc(100vw - 2rem));
+      }
+      #edModalInformeAcademico .modal-dialog.modal-xl {
+        height: min(90vh, 880px);
+        max-height: min(90vh, 880px);
+        width: 100%;
+        max-width: min(1140px, calc(100vw - 2rem));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <script>
+      (function () {
+        var c = document.getElementById('sidebar-container');
+        if (!c) return;
+        var t = localStorage.getItem('userTipo');
+        if (t === 'ALUMNO') c.setAttribute('data-sidebar-src', '../components/sidebar-alumno.html');
+        else if (t === 'MAESTRO') c.setAttribute('data-sidebar-src', '../components/sidebar-maestro.html');
+      })();
+    </script>
+    <main class="dashboard-main">
+      <div class="container dashboard-content py-4" id="evalDocenteRoot">
+        <h3 class="section-title">Evaluación docente</h3>
+        <p class="text-muted">
+          Comparte tu opinión sobre la experiencia académica para contribuir a la mejora continua de la enseñanza.</p>
+
+        <div id="panelAdminSecretaria" class="d-none">
+          <ul class="nav nav-tabs mb-3" id="edAdminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="edTabListaBtn" data-bs-toggle="tab" data-bs-target="#edTabLista" type="button" role="tab">Evaluaciones</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="edTabCrearBtn" data-bs-toggle="tab" data-bs-target="#edTabCrear" type="button" role="tab">Crear</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="edTabAplicarBtn" data-bs-toggle="tab" data-bs-target="#edTabAplicar" type="button" role="tab">Aplicar</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="edTabResultadosBtn" data-bs-toggle="tab" data-bs-target="#edTabResultados" type="button" role="tab">Resultados</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="edTabLista" role="tabpanel">
+              <div class="card">
+                <div class="card-header bg-soft-primary d-flex flex-wrap align-items-center justify-content-between gap-2">
+                  <div>Evaluaciones registradas</div>
+                  <div class="excel-actions-buttons mb-0">
+                    <button
+                      type="button"
+                      id="edBtnExcelPlantilla"
+                      class="btn btn-excel-action btn-excel-download"
+                      title="Descargar Excel">
+                      <i class="bi bi-file-earmark-arrow-down"></i>
+                      <span class="btn-excel-text">Exportar Excel</span>
+                    </button>
+                    <button
+                      type="button"
+                      id="edBtnExcelImportar"
+                      class="btn btn-excel-action btn-excel-import ms-2"
+                      title="Importar desde Excel">
+                      <i class="bi bi-upload"></i>
+                      <span class="btn-excel-text">Importar Excel</span>
+                    </button>
+                    <input type="file" id="edExcelInput" class="d-none" accept=".xlsx,.xls" />
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                      <thead class="table-light"><tr><th>Título</th><th>Tipo</th><th>Activación</th><th>Activo</th></tr></thead>
+                      <tbody id="edTablaFormularios"><tr><td colspan="4" class="text-muted text-center py-3">Cargando…</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="edTabCrear" role="tabpanel">
+              <div class="card">
+                <div class="card-header bg-soft-primary">Crear evaluación docente</div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Tipo</label>
+                      <select id="edTipo" class="form-select">
+                        <option value="POR_ALUMNOS" selected>Evaluación Docente</option>
+                        <option value="POR_SECRETARIA_ACADEMICA">Evaluación Académica</option>
+                        <option value="AUTOEVALUACION">Autoevaluación</option>
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Nombre</label>
+                      <input type="text" id="edTitulo" class="form-control" placeholder="Ej. Evaluación de docencia 2026-1" />
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Descripción</label>
+                      <textarea id="edDesc" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-12">
+                      <p class="text-muted small mb-0">
+                        La evaluación por alumnos y la autoevaluación se habilitan según la fecha y hora de fin del módulo en el horario de cada asignatura; no usan vigencia por calendario en este formulario.
+                      </p>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="edActivo" checked />
+                        <label class="form-check-label" for="edActivo">Formulario activo</label>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div>
+                          <div class="fw-semibold">Bloques</div>
+                          <div class="text-muted small">Agrega bloques y reactivos. Cada bloque puede tener un tipo distinto.</div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="edBtnAgregarBloque">
+                          <i class="bi bi-plus-lg me-1"></i>Agregar bloque
+                        </button>
+                      </div>
+                      <div id="edBloquesWrap" class="mt-3"></div>
+                    </div>
+
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                      <button type="button" class="btn btn-ide" id="edBtnCrearForm">Guardar evaluación</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="edTabAplicar" role="tabpanel">
+              <div class="card">
+                <div class="card-header bg-soft-primary">Aplicar Evaluación Académica</div>
+                <div class="card-body">
+                  <div id="edSecretariaMensaje" class="alert alert-info d-none"></div>
+                  <div id="edSecretariaFormulario" class="d-none">
+                    <h5 id="edSecretariaTitulo" class="mb-3"></h5>
+                    <div id="edSecretariaBloques"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="edTabResultados" role="tabpanel">
+              <div class="card">
+                <div class="card-header bg-soft-primary">Resultados</div>
+                <div class="card-body">
+                  <p class="text-muted mb-0">En esta pestaña se consultarán resultados agregados por evaluación y por docente. (Siguiente paso)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panelAlumno" class="d-none">
+          <div id="edAlumnoMensaje" class="alert alert-info d-none"></div>
+          <div id="edAlumnoAcciones" class="d-none mb-2"></div>
+          <div id="edAlumnoFormulario" class="d-none">
+            <h5 id="edAlumnoTitulo" class="mb-3"></h5>
+            <div id="edAlumnoBloques"></div>
+            <!-- Solo modo prueba (admin): validar envío sin guardar -->
+            <button type="button" class="btn btn-ide mt-3 d-none" id="edBtnEnviarEval">Enviar evaluación</button>
+          </div>
+        </div>
+
+        <div id="panelMaestro" class="d-none">
+          <ul class="nav nav-tabs mb-3" id="edMaestroTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="edMaestroTabAutoevalBtn" data-bs-toggle="tab" data-bs-target="#edMaestroTabAutoeval" type="button" role="tab">
+                Autoevaluación
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link position-relative" id="edMaestroTabResultadosBtn" data-bs-toggle="tab" data-bs-target="#edMaestroTabResultados" type="button" role="tab">
+                Resultados<span class="ed-tab-badge-informe d-none" id="edMaestroTabResultadosBadge" aria-hidden="true"></span>
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="edMaestroTabAutoeval" role="tabpanel">
+              <div class="card" id="edAutoevalCard">
+                <div class="card-header bg-soft-primary">Autoevaluación</div>
+                <div class="card-body">
+                  <div id="edAutoevalMsg" class="alert alert-info d-none"></div>
+                  <div id="edAutoevalForm" class="d-none">
+                    <h5 id="edAutoevalTitulo" class="mb-3"></h5>
+                    <div id="edAutoevalBloques"></div>
+                    <button type="button" class="btn btn-ide mt-3 d-none" id="edBtnEnviarAutoeval">Enviar autoevaluación</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="edMaestroTabResultados" role="tabpanel">
+              <div id="edMaestroResultados"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="evalSinPermiso" class="alert alert-warning d-none">Tu rol no tiene acceso a esta sección o inicia sesión de nuevo.</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: editar evaluación docente -->
+  <div class="modal fade" id="edModalEditar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar evaluación docente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning py-2 small mb-3">
+            En esta pantalla solo se editan datos generales (título y estado). Las preguntas no se modifican aquí. La disponibilidad para alumnos y docentes depende del horario de cada módulo.
+          </div>
+          <input type="hidden" id="edEditId" />
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Nombre</label>
+              <input type="text" id="edEditTitulo" class="form-control" />
+            </div>
+            <div class="col-12">
+              <label class="form-label">Descripción</label>
+              <textarea id="edEditDesc" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-12 d-flex align-items-end">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="edEditActivo" />
+                <label class="form-check-label" for="edEditActivo">Formulario activo</label>
+              </div>
+            </div>
+          </div>
+          <div id="edEditMsg" class="alert alert-danger d-none mt-3 mb-0"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-ide" id="edBtnGuardarEdicion">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: responder evaluación (Alumno) -->
+  <div class="modal fade" id="edModalAlumnoResponder" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-soft-primary ed-modal-header">
+          <div class="d-flex flex-column">
+            <h5 class="modal-title mb-0" id="edAlumnoModalTitulo">Evaluación docente</h5>
+            <div class="small ed-modal-subtitle" id="edAlumnoModalSubtitulo"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="edAlumnoModalDesc" class="text-muted small mb-3"></div>
+          <div id="edAlumnoModalMsg" class="alert d-none" role="alert"></div>
+          <div id="edAlumnoModalForm"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" id="edAlumnoModalBtnCancelar">Cancelar</button>
+          <button type="button" class="btn btn-ide" id="edAlumnoModalBtnEnviar">Enviar respuestas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Evaluación Académica (Secretaría / Coordinación) -->
+  <div class="modal fade" id="edModalSecretariaResponder" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-soft-primary ed-modal-header">
+          <div class="d-flex flex-column">
+            <h5 class="modal-title mb-0" id="edSecretariaModalTitulo">Evaluación Académica</h5>
+            <div class="small ed-modal-subtitle" id="edSecretariaModalSubtitulo"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="edSecretariaModalDesc" class="text-muted small mb-3"></div>
+          <div id="edSecretariaModalMsg" class="alert d-none" role="alert"></div>
+          <div id="edSecretariaModalForm"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" id="edSecretariaModalBtnCancelar">Cancelar</button>
+          <button type="button" class="btn btn-ide" id="edSecretariaModalBtnEnviar">Guardar evaluación</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: informe / consulta evaluación académica (Secretaría / Coordinación / Admin) -->
+  <div class="modal fade" id="edModalInformeAcademico" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-xl modal-dialog-centered m-0">
+      <div class="modal-content shadow h-100 d-flex flex-column overflow-hidden">
+        <div class="modal-header bg-soft-primary ed-modal-header flex-wrap gap-2 flex-shrink-0">
+          <div class="d-flex flex-column flex-grow-1">
+            <h5 class="modal-title mb-0" id="edInformeAcademicoTitulo">Informe de observación</h5>
+            <div class="small ed-modal-subtitle text-muted" id="edInformeAcademicoSubtitulo"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div id="edInformeAcademicoMsg" class="alert d-none mx-3 mt-3 mb-0 flex-shrink-0" role="alert"></div>
+        <div class="modal-body p-0 d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
+          <div class="row g-0 flex-grow-1 overflow-hidden flex-lg-nowrap" style="min-height: 0;">
+            <div class="col-12 col-lg-7 d-flex flex-column border-bottom border-lg-0 border-lg-end overflow-hidden" style="min-height: 0;">
+              <div class="px-3 py-2 bg-light border-bottom small fw-semibold text-secondary flex-shrink-0">
+                Resultados
+              </div>
+              <div class="flex-grow-1 overflow-y-auto overflow-x-hidden p-3" id="edInformeAcademicoCuerpoWrap" style="min-height: 0;">
+                <div id="edInformeAcademicoCuerpo"></div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-5 d-flex flex-column bg-light overflow-hidden" id="edInformeAcademicoPanelRedaccion" style="min-height: 0;">
+              <div class="px-3 py-2 border-bottom small fw-semibold text-secondary flex-shrink-0">
+                Redacción del informe para el docente
+              </div>
+              <div class="p-3 d-flex flex-column flex-grow-1 gap-2 overflow-hidden" style="min-height: 0;">
+                <p class="text-muted small mb-0 flex-shrink-0" id="edInformeAcademicoAyudaRedaccion">
+                  Este texto es el que verá el docente en su portal.
+                </p>
+                <textarea id="edInformeAcademicoTexto" class="form-control flex-grow-1" style="min-height: 160px; max-height: 100%; resize: none; overflow-y: auto;" placeholder="Escribe el informe institucional (observaciones finales, acuerdos, seguimiento)…" disabled></textarea>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <span class="text-muted small" id="edInformeAcademicoContador">0 / —</span>
+                  <button type="button" class="btn btn-ide btn-sm d-lg-none" id="edInformeAcademicoBtnGuardarMobile" disabled>Guardar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top flex-shrink-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-ide" id="edInformeAcademicoBtnGuardar" disabled>Guardar informe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: responder autoevaluación (Docente) -->
+  <div class="modal fade" id="edModalMaestroAutoeval" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-soft-primary ed-modal-header">
+          <div class="d-flex flex-column">
+            <h5 class="modal-title mb-0" id="edMaestroAutoevalModalTitulo">Autoevaluación</h5>
+            <div class="small ed-modal-subtitle" id="edMaestroAutoevalModalSubtitulo"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div id="edMaestroAutoevalModalDesc" class="text-muted small mb-3"></div>
+          <div id="edMaestroAutoevalModalMsg" class="alert d-none" role="alert"></div>
+          <div id="edMaestroAutoevalModalForm"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" id="edMaestroAutoevalModalBtnCancelar">Cancelar</button>
+          <button type="button" class="btn btn-ide" id="edMaestroAutoevalModalBtnEnviar">Enviar autoevaluación</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/evaluacion-docente-maestro-notificaciones.js"></script>
+  <script src="../js/evaluacion-docente.js?v=2026-05-04-resultados-docente-tabla"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof initEvaluacionDocentePage === 'function') initEvaluacionDocentePage();
+    });
+  </script>
+</body>
+</html>

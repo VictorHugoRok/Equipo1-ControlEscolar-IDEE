@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Control Escolar IDEE - Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content">
+
+      <!-- Panel de control (navegación por páginas) -->
+      <div class="dashboard-home">
+        <div class="dashboard-hero mb-4">
+          <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+            <div>
+              <h3 class="section-title mb-1">Panel de control</h3>
+              <p class="text-muted mb-0">Selecciona una opción para empezar.</p>
+            </div>
+          </div>
+        </div>
+        <div class="row g-3" id="dashboardCards">
+          <div class="col-md-6 col-lg-4" id="cardProgramas">
+            <a href="programas-educativos.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-journal-bookmark"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Programas educativos</h5>
+                      <p class="card-text small text-muted mb-0">Programas educativos y asignaturas.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardPersonal">
+            <a href="personal.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-people"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Usuarios</h5>
+                      <p class="card-text small text-muted mb-0">Personal, docentes y estudiantes (rol Alumno). Un solo listado.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardCiclosPeriodos">
+            <a href="ciclos-periodos-academicos.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-calendar-range"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Calendario académico</h5>
+                      <p class="card-text small text-muted mb-0">Ciclo escolar y periodos académicos.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardCohortes">
+            <a href="cohortes.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-diagram-3"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Cohortes</h5>
+                      <p class="card-text small text-muted mb-0">Cohortes por programa y miembros.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardGrupos">
+            <a href="grupos.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-collection"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Grupos</h5>
+                      <p class="card-text small text-muted mb-0">Grupos por programa.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardHorarios">
+            <a href="horarios.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-calendar3"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Horarios</h5>
+                      <p class="card-text small text-muted mb-0">Consulta y creación visual por grupo.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4 d-none" id="cardInscripciones">
+            <a href="inscripciones.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-pencil-square"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Inscripciones</h5>
+                      <p class="card-text small text-muted mb-0">Inscripción a programas y grupos.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardCalificaciones">
+            <a href="calificaciones.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-clipboard2-data"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Calificaciones</h5>
+                      <p class="card-text small text-muted mb-0">Captura, revisión y confirmación.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardEvaluacionDocente">
+            <a href="evaluacion-docente.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-clipboard2-check"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Evaluación docente</h5>
+                      <p class="card-text small text-muted mb-0">Formularios y evaluación.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4" id="cardKardex">
+            <a href="kardex.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-journal-text"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Kardex</h5>
+                      <p class="card-text small text-muted mb-0">Historial académico y avance.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4 d-none" id="cardCertificados">
+            <a href="certificados-electronicos.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-award"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Certificados</h5>
+                      <p class="card-text small text-muted mb-0">Certificados electrónicos (DEC).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4 d-none" id="cardConstancias">
+            <a href="constancias.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-file-text"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Constancias</h5>
+                      <p class="card-text small text-muted mb-0">Constancias de inscripción.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4 d-none" id="cardTitulos">
+            <a href="titulos-electronicos.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-mortarboard"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Títulos</h5>
+                      <p class="card-text small text-muted mb-0">Títulos electrónicos SEP.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4 d-none" id="cardConfigSep">
+            <a href="configuracion-titulos-sep.html" class="text-decoration-none">
+              <div class="card h-100 border-0 dashboard-tile">
+                <div class="card-body">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="dashboard-tile-icon bg-soft-primary text-primary"><i class="bi bi-gear"></i></div>
+                    <div>
+                      <h5 class="card-title mb-1">Config. Institucional</h5>
+                      <p class="card-text small text-muted mb-0">Institución, firmas y certificados.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+
+  <!-- ✅ ORDEN CORRECTO DE CARGA: CRÍTICO PARA EL SISTEMA DE ROLES -->
+  <!-- 1. Configuración general -->
+  <script src="../js/config.js"></script>
+  
+  <!-- 2. ROLES Y PERMISOS (ÚNICO lugar donde se definen) -->
+  <script src="../js/roles.js"></script>
+  
+  <!-- 3. Autenticación JWT -->
+  <script src="../js/auth.js"></script>
+
+  <!-- 4. Sistema de roles unificado (DESPUÉS de roles.js) -->
+  <script src="../js/sistema-roles-unified.js"></script>
+
+  <!-- 5. App principal (módulos cargan en sus propias páginas) -->
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+
+  <script>
+
+ 
+    (function () {
+      var dashboardInitDone = false;
+      document.addEventListener('DOMContentLoaded', async function () {
+        if (dashboardInitDone) return;
+        dashboardInitDone = true;
+
+        if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+
+        var userEmailEl = document.getElementById('userEmail');
+        var btnLogout = document.getElementById('btnLogout');
+        if (userEmailEl) userEmailEl.textContent = localStorage.getItem('userEmail') || '';
+
+        if (!isAuthenticated()) {
+          window.location.href = '../index.html';
+          return;
+        }
+        try {
+          var userData = await getCurrentUser();
+          if (!userData) {
+            return;
+          }
+          if (userData.email) {
+            if (userEmailEl) userEmailEl.textContent = userData.email;
+            localStorage.setItem('userEmail', userData.email);
+          }
+          var rolesArr = userData.roles;
+          if (!rolesArr || !rolesArr.length) {
+            rolesArr = userData.tipoUsuario ? [userData.tipoUsuario] : [];
+          }
+          if (typeof ensureRolActivoInStorage === 'function') {
+            ensureRolActivoInStorage();
+          }
+          var rolUi = (typeof obtenerRolActivoParaUi === 'function')
+              ? obtenerRolActivoParaUi()
+              : (userData.tipoUsuario || userData.rol || '');
+          window.currentUser = {
+            email: userData.email,
+            id: userData.id,
+            tipoUsuario: userData.tipoUsuario,
+            rol: rolUi || userData.tipoUsuario || userData.rol,
+            roles: rolesArr
+          };
+          if (rolUi === 'MAESTRO') {
+            window.location.replace('maestro.html');
+            return;
+          }
+          if (rolUi === 'ALUMNO') {
+            window.location.replace('alumno.html');
+            return;
+          }
+          aplicarPermisosSegunRol();
+          if (typeof dashboardSessionValidated !== 'undefined') dashboardSessionValidated = true;
+          window.dispatchEvent(new Event('dashboardSessionValidated'));
+        } catch (error) {
+          if (error.message && error.message.includes('401')) {
+            logout();
+            return;
+          }
+          var utFallback = localStorage.getItem('userTipo');
+          if (utFallback === 'MAESTRO') {
+            window.location.replace('maestro.html');
+            return;
+          }
+          if (utFallback === 'ALUMNO') {
+            window.location.replace('alumno.html');
+            return;
+          }
+        }
+      });
+    })();
+
+  </script>
+</body>
+
+</html>

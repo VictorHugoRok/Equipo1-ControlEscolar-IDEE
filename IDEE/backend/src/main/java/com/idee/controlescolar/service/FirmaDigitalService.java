@@ -3,6 +3,7 @@ package com.idee.controlescolar.service;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.pkcs.EncryptedPrivateKeyInfo;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
@@ -25,6 +26,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
 
 /**
@@ -305,6 +307,7 @@ public class FirmaDigitalService {
     /**
      * Extrae el número de serie del certificado almacenado en BD.
      * Este método genera el atributo "noCertificadoResponsable" del estándar DOF.
+     * Usado por títulos electrónicos.
      *
      * @param certificadoData Contenido del archivo .cer (byte[])
      * @return Número de serie del certificado en hexadecimal (20 dígitos)
@@ -322,6 +325,40 @@ public class FirmaDigitalService {
 
         log.info("Número de certificado extraído: {}", numeroSerie);
         return numeroSerie;
+    }
+
+    /**
+     * Extrae el noCertificadoResponsable para certificados electrónicos (DEC).
+     * Formato según SEP: Número de Serie del .cer en hexadecimal, capturar únicamente
+     * el segundo dígito de cada par. Resultado: 20 dígitos (hex: 0-9, A-F).
+     * No afecta a títulos electrónicos (usan extraerNumeroCertificadoDesdeBytes).
+     *
+     * @param certificadoData Contenido del archivo .cer (byte[])
+     * @return 20 dígitos (segundo de cada par de la cadena hexadecimal)
+     */
+    public String extraerNumeroCertificadoParaCertificadoElectronico(byte[] certificadoData) throws Exception {
+        log.info("Extrayendo número de certificado para DEC (hex: segundo dígito de cada par)");
+
+        X509Certificate cert = cargarCertificadoDesdeBytes(certificadoData);
+        String numeroSerieHex = cert.getSerialNumber().toString(16).toUpperCase();
+
+        // Necesitamos 40 caracteres hex para formar 20 pares (cada par aporta el segundo dígito)
+        while (numeroSerieHex.length() < 40) {
+            numeroSerieHex = "0" + numeroSerieHex;
+        }
+        if (numeroSerieHex.length() > 40) {
+            numeroSerieHex = numeroSerieHex.substring(numeroSerieHex.length() - 40);
+        }
+
+        // Extraer el segundo dígito de cada par: índices 1, 3, 5, ... 39
+        StringBuilder resultado = new StringBuilder(20);
+        for (int i = 1; i < 40; i += 2) {
+            resultado.append(numeroSerieHex.charAt(i));
+        }
+
+        String noCert = resultado.toString();
+        log.info("noCertificadoResponsable para DEC: {} (20 dígitos, segundo de cada par en hex)", noCert);
+        return noCert;
     }
 
     /**
@@ -345,10 +382,19 @@ public class FirmaDigitalService {
     public PrivateKey cargarLlavePrivadaDesdeBytes(byte[] llavePrivadaData, String password) throws Exception {
         log.info("Cargando llave privada desde bytes (tamaño: {} bytes)", llavePrivadaData.length);
 
+        // Normalizar: quitar BOM UTF-8 si existe
+        byte[] keyBytes = llavePrivadaData;
+        if (keyBytes.length >= 3 && keyBytes[0] == (byte) 0xEF && keyBytes[1] == (byte) 0xBB && keyBytes[2] == (byte) 0xBF) {
+            keyBytes = Arrays.copyOfRange(keyBytes, 3, keyBytes.length);
+            log.debug("Eliminado BOM UTF-8 del inicio del archivo .key");
+        }
+
+        char[] passwordChars = (password != null && !password.isEmpty()) ? password.toCharArray() : new char[0];
+
         // PASO 1: Intentar cargar como PEM (formato texto)
         try {
             InputStreamReader isr = new InputStreamReader(
-                new ByteArrayInputStream(llavePrivadaData),
+                new ByteArrayInputStream(keyBytes),
                 StandardCharsets.UTF_8
             );
             PEMParser pemParser = new PEMParser(isr);
@@ -364,7 +410,7 @@ public class FirmaDigitalService {
 
                 InputDecryptorProvider decryptorProvider = new JceOpenSSLPKCS8DecryptorProviderBuilder()
                     .setProvider("BC")
-                    .build(password.toCharArray());
+                    .build(passwordChars);
 
                 PrivateKeyInfo privateKeyInfo = encryptedInfo.decryptPrivateKeyInfo(decryptorProvider);
                 return converter.getPrivateKey(privateKeyInfo);
@@ -385,27 +431,44 @@ public class FirmaDigitalService {
             log.info("No es formato PEM, intentando formato DER SAT: {}", e.getMessage());
         }
 
-        // PASO 2: Intentar cargar como DER encriptado (formato típico del SAT)
-        // Los archivos .key del SAT vienen en formato PKCS#8 DER encriptado con password
+        // PASO 2a: Intentar como EncryptedPrivateKeyInfo (formato DER SAT alternativo)
         try {
-            log.info("Intentando cargar como PKCS8 DER encriptado (formato SAT)...");
+            log.info("Intentando cargar como EncryptedPrivateKeyInfo DER (formato SAT)...");
+            ASN1Sequence derseq = ASN1Sequence.getInstance(keyBytes);
+            EncryptedPrivateKeyInfo epkInfo = EncryptedPrivateKeyInfo.getInstance(derseq);
+            PKCS8EncryptedPrivateKeyInfo encobj = new PKCS8EncryptedPrivateKeyInfo(epkInfo);
 
-            // Leer la estructura PKCS#8 encriptada desde DER
-            PKCS8EncryptedPrivateKeyInfo encryptedInfo = new PKCS8EncryptedPrivateKeyInfo(llavePrivadaData);
-
-            // Crear decryptor con la contraseña
             InputDecryptorProvider decryptorProvider = new JceOpenSSLPKCS8DecryptorProviderBuilder()
                 .setProvider("BC")
-                .build(password.toCharArray());
+                .build(passwordChars);
 
-            // Desencriptar y obtener la información de la llave privada
+            PrivateKeyInfo keyInfo = encobj.decryptPrivateKeyInfo(decryptorProvider);
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+            PrivateKey privateKey = converter.getPrivateKey(keyInfo);
+
+            log.info("✓ Llave privada cargada desde EncryptedPrivateKeyInfo DER (SAT)");
+            return privateKey;
+
+        } catch (Exception e) {
+            log.debug("No EncryptedPrivateKeyInfo DER: {}", e.getMessage());
+        }
+
+        // PASO 2b: Intentar cargar como PKCS8EncryptedPrivateKeyInfo(byte[]) directo
+        try {
+            log.info("Intentando cargar como PKCS8 DER encriptado (bytes directos)...");
+
+            PKCS8EncryptedPrivateKeyInfo encryptedInfo = new PKCS8EncryptedPrivateKeyInfo(keyBytes);
+
+            InputDecryptorProvider decryptorProvider = new JceOpenSSLPKCS8DecryptorProviderBuilder()
+                .setProvider("BC")
+                .build(passwordChars);
+
             PrivateKeyInfo privateKeyInfo = encryptedInfo.decryptPrivateKeyInfo(decryptorProvider);
 
-            // Convertir a PrivateKey de Java
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             PrivateKey privateKey = converter.getPrivateKey(privateKeyInfo);
 
-            log.info("✓ Llave privada cargada exitosamente desde formato DER encriptado (SAT)");
+            log.info("✓ Llave privada cargada desde PKCS8 DER encriptado");
             return privateKey;
 
         } catch (Exception e) {
@@ -415,7 +478,7 @@ public class FirmaDigitalService {
         // PASO 3: Intentar cargar como DER sin encriptar (por si acaso)
         try {
             log.info("Intentando cargar como DER sin encriptar...");
-            ASN1InputStream asn1 = new ASN1InputStream(new ByteArrayInputStream(llavePrivadaData));
+            ASN1InputStream asn1 = new ASN1InputStream(new ByteArrayInputStream(keyBytes));
             ASN1Sequence seq = (ASN1Sequence) asn1.readObject();
             asn1.close();
 

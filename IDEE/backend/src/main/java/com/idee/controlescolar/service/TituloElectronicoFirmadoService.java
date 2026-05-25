@@ -49,7 +49,7 @@ public class TituloElectronicoFirmadoService {
         log.info("Generando título electrónico firmado para alumno: {}", titulo.getAlumno().getCurp());
 
         // 1. Obtener configuración institucional activa
-        ConfiguracionInstitucional configuracion = configuracionRepository.findByActivoTrue()
+        ConfiguracionInstitucional configuracion = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
             .orElseThrow(() -> new IllegalStateException("No existe configuración institucional activa"));
 
         // Validar que hay certificados cargados
@@ -253,14 +253,14 @@ public class TituloElectronicoFirmadoService {
      */
     public void validarRequisitosParaFirmar() throws IllegalStateException {
         // Verificar configuración activa
-        ConfiguracionInstitucional config = configuracionRepository.findByActivoTrue()
+        ConfiguracionInstitucional config = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
             .orElseThrow(() -> new IllegalStateException(
                 "No existe configuración institucional activa. Configure primero los datos de la institución."));
 
         // Verificar certificados
         if (config.getCertificadoData() == null || config.getLlavePrivadaData() == null) {
             throw new IllegalStateException(
-                "No hay certificados SAT cargados. Suba el archivo .cer y .key en la configuración.");
+                "No hay FIEL cargada. Suba el archivo .cer y .key en la configuración.");
         }
 
         // Verificar responsables
@@ -277,7 +277,7 @@ public class TituloElectronicoFirmadoService {
      * Obtiene información del certificado actual para mostrar en UI.
      */
     public String obtenerInfoCertificado() throws Exception {
-        ConfiguracionInstitucional config = configuracionRepository.findByActivoTrue()
+        ConfiguracionInstitucional config = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
             .orElseThrow(() -> new IllegalStateException("No existe configuración activa"));
 
         if (config.getCertificadoData() == null) {

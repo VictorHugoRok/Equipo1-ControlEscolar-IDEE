@@ -1,5 +1,6 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,17 +21,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProgramaEducativo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "id_programa", unique = true)
+    private String idPrograma;
+
     @Column(nullable = false, unique = true)
     private String clave;
 
     @Column(name = "clave_dgp")
     private String claveDgp;
+
+    /**
+     * Solo para JSON: nombre del plantel en catálogo institucional (resuelto por {@link #claveDgp}).
+     */
+    @Transient
+    private String nombrePlantel;
 
     @Column(nullable = false)
     private String nombre;
@@ -39,8 +50,13 @@ public class ProgramaEducativo {
     @Column(nullable = false)
     private TipoPrograma tipoPrograma;
 
+    /**
+     * Cantidad de periodos/niveles del plan (ej. 6 semestres, 8 cuatrimestres). Debe coincidir con los
+     * periodos del plan y con las asignaturas asignadas a cada número de periodo.
+     */
     private Integer duracionPeriodos;
 
+    /** Tipo de cada periodo del plan: semestre, cuatrimestre, etc. */
     @Enumerated(EnumType.STRING)
     private TipoPeriodo tipoPeriodo;
 
@@ -48,6 +64,9 @@ public class ProgramaEducativo {
     private Modalidad modalidad;
 
     private Integer creditosTotales;
+
+    @Column(name = "plan_estudio")
+    private String planEstudio;
 
     private String rvoe;
 
@@ -67,28 +86,64 @@ public class ProgramaEducativo {
     @LastModifiedDate
     private LocalDateTime fechaActualizacion;
 
-    // Relaciones
-    @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("programa")
-    private List<Asignatura> asignaturas = new ArrayList<>();
+    // Relaciones (no se serializan en JSON: el frontend carga periodos/asignaturas/alumnos vía endpoints dedicados)
+    @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Periodo> periodos = new ArrayList<>();
 
     @OneToMany(mappedBy = "programa")
-    @JsonIgnoreProperties({"programa", "calificaciones", "observaciones_list", "documentos", "solicitudes", "usuario"})
-    private List<Alumno> alumnos = new ArrayList<>();
+    @JsonIgnore
+    private List<Asignatura> asignaturas = new ArrayList<>();
 
-    // Enums
+    // Alumnos se relacionan a programas vía AlumnoPrograma (alumno_programa).
+
+    /**
+     * Tipos de programa / nivel de estudios con IDs oficiales del catálogo SEP (inalterables).
+     * Licenciatura=81, Maestría=82, Profesional Asociado=83, Técnico Superior=84, Especialidad=85, Doctorado=95.
+     */
     public enum TipoPrograma {
-        LICENCIATURA,
-        MAESTRIA,
-        ESPECIALIDAD,
-        DOCTORADO,
-        EXTRACURRICULAR
+        LICENCIATURA("81"),
+        MAESTRIA("82"),
+        PROFESIONAL_ASOCIADO("83"),
+        TECNICO_SUPERIOR("84"),
+        ESPECIALIDAD("85"),
+        DOCTORADO("95"),
+        EXTRACURRICULAR("81");
+
+        private final String idOficial;
+
+        TipoPrograma(String idOficial) {
+            this.idOficial = idOficial;
+        }
+
+        public String getIdOficial() {
+            return idOficial;
+        }
     }
 
+    /**
+     * Tipos de periodo con IDs oficiales del catálogo SEP (inalterables).
+     * Semestre=91, Cuatrimestre=93, Tetramestre=94, Trimestre=260.
+     */
     public enum TipoPeriodo {
-        SEMESTRE,
-        TRIMESTRE,
-        CUATRIMESTRE
+        /**
+         * Plan con cadencia semanal (en este sistema se maneja como 2 periodos por año: AÑO-1 y AÑO-2).
+         */
+        SEMANAL("0"),
+        SEMESTRE("91"),
+        CUATRIMESTRE("93"),
+        TETRAMESTRE("94"),
+        TRIMESTRE("260");
+
+        private final String idOficial;
+
+        TipoPeriodo(String idOficial) {
+            this.idOficial = idOficial;
+        }
+
+        public String getIdOficial() {
+            return idOficial;
+        }
     }
 
     public enum Modalidad {

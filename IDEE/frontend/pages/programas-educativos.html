@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Programas educativos - IDEE Control Escolar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+    <div class="container dashboard-content">
+      <h3 class="section-title">Programas educativos</h3>
+      <p class="text-muted">
+        Alta, modificación y baja de programas educativos y sus asignaturas.
+      </p>
+
+      <ul class="nav nav-tabs mb-4" id="programasEducativosTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-programas-asignaturas" data-bs-toggle="tab" data-bs-target="#paneProgramasAsignaturas" type="button" role="tab">
+            <i class="bi bi-list-ul me-1"></i>Programas
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-registrar-programa" data-bs-toggle="tab" data-bs-target="#paneRegistrarPrograma" type="button" role="tab">
+            <i class="bi bi-plus-circle me-1"></i>Registrar programa
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-registrar-asignaturas" data-bs-toggle="tab" data-bs-target="#paneRegistrarAsignaturas" type="button" role="tab">
+            <i class="bi bi-journal-text me-1"></i>Registrar asignaturas
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="programasEducativosTabContent">
+        <!-- Tab 1: Programas y asignaturas (vista principal) -->
+        <div class="tab-pane fade show active" id="paneProgramasAsignaturas" role="tabpanel">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-soft-primary">
+          <span>Programas registrados</span>
+          <div class="input-group input-group-sm programa-search">
+            <span class="input-group-text programa-search-icon">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              id="buscarProgramaInput"
+              class="form-control programa-search-input"
+              placeholder="Buscar por clave o nombre" />
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle table-programas">
+              <thead class="table-light">
+                <tr>
+                  <th>Clave</th>
+                  <th>Clave DGP</th>
+                  <th>Programa</th>
+                  <th>Tipo</th>
+                  <th>No. periodos</th>
+                  <th>RVOE</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="programasTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="excel-actions-buttons mb-3">
+        <button
+          type="button"
+          id="btnDescargarExcelProgramas"
+          class="btn btn-excel-action btn-excel-download"
+          title="Descargar Excel">
+          <i class="bi bi-file-earmark-arrow-down"></i>
+          <span class="btn-excel-text">Exportar Excel</span>
+        </button>
+        <button
+          type="button"
+          id="btnCargarExcelProgramas"
+          class="btn btn-excel-action btn-excel-import"
+          data-bs-toggle="modal"
+          data-bs-target="#modalCargaMasivaProgramas"
+          title="Importar desde Excel">
+          <i class="bi bi-upload"></i>
+          <span class="btn-excel-text">Importar Excel</span>
+        </button>
+      </div>
+
+      <!-- Modal Carga Masiva -->
+      <div class="modal fade" id="modalCargaMasivaProgramas" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-soft-primary">
+              <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Carga masiva de Programas y Asignaturas</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p class="text-muted small mb-3">
+                Sube un archivo Excel (.xlsx) con el mismo formato que se descarga. Debe contener las hojas <strong>Programas</strong> y <strong>Asignaturas</strong>.
+                Las asignaturas se vinculan al programa mediante <strong>idPrograma</strong> o <strong>Clave Programa</strong>.
+              </p>
+              <div class="mb-3">
+                <label for="archivoCargaMasiva" class="form-label">Archivo Excel</label>
+                <input type="file" class="form-control" id="archivoCargaMasiva" accept=".xlsx,.xls" />
+              </div>
+              <div id="cargaMasivaResultado" class="alert d-none" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button type="button" class="btn btn-primary" id="btnEjecutarCargaMasiva">
+                <i class="bi bi-upload me-1"></i>Procesar archivo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Asignaturas del programa -->
+      <div class="modal fade" id="modalAsignaturasPrograma" tabindex="-1" aria-labelledby="modalAsignaturasProgramaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content modal-asignaturas-programa">
+            <div class="modal-header modal-asignaturas-programa-header">
+              <h5 class="modal-title" id="modalAsignaturasProgramaLabel">
+                <i class="bi bi-journal-text me-2"></i>Asignaturas del programa <span id="modalAsignaturasProgramaNombre"></span>
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body modal-asignaturas-programa-body">
+              <div class="modal-programa-detalle mb-3" id="modalProgramaDetalleBox">
+                <div class="modal-programa-detalle__estatus" id="modalProgramaDetalleEstatus">—</div>
+                <div class="row g-3 small">
+                  <div class="col-12">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-12 col-lg-3">
+                        <div class="modal-programa-detalle__label">ID Programa</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleIdPrograma">—</div>
+                      </div>
+                      <div class="col-12 col-lg-2">
+                        <div class="modal-programa-detalle__label">Clave interna</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleClave">—</div>
+                      </div>
+                      <div class="col-12 col-lg-5">
+                        <div class="modal-programa-detalle__label">Programa</div>
+                        <div class="modal-programa-detalle__value modal-programa-detalle__value--title" id="modalProgramaDetalleNombre">—</div>
+                      </div>
+                      <div class="col-12 col-lg-2">
+                        <div class="modal-programa-detalle__label">Tipo</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleTipo">—</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="row g-2">
+                      <div class="col-12 col-lg-6">
+                        <div class="modal-programa-detalle__label">Plantel</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetallePlantel">—</div>
+                      </div>
+                      <div class="col-12 col-lg-3">
+                        <div class="modal-programa-detalle__label">Clave DGP</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleClaveDgp">—</div>
+                      </div>
+                      <div class="col-12 col-lg-3">
+                        <div class="modal-programa-detalle__label">Modalidad</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleModalidad">—</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="row g-2">
+                      <div class="col-12 col-lg-4">
+                        <div class="modal-programa-detalle__label">Duración</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleDuracion">—</div>
+                      </div>
+                      <div class="col-12 col-lg-4">
+                        <div class="modal-programa-detalle__label">Créditos totales</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetalleCreditos">—</div>
+                      </div>
+                      <div class="col-12 col-lg-4">
+                        <div class="modal-programa-detalle__label">RVOE / Fecha RVOE</div>
+                        <div class="modal-programa-detalle__value">
+                          <span id="modalProgramaDetalleRvoe">—</span>
+                          <span class="text-muted">·</span>
+                          <span id="modalProgramaDetalleFechaRvoe">—</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="row g-2">
+                      <div class="col-12 col-lg-8">
+                        <div class="modal-programa-detalle__label">Plan de estudio</div>
+                        <div class="modal-programa-detalle__value" id="modalProgramaDetallePlanEstudio">—</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle table-asignaturas-modal">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>Clave</th>
+                      <th>Asignatura</th>
+                      <th>Tipo</th>
+                      <th>No. periodo</th>
+                      <th>Créditos</th>
+                      <th>Horas</th>
+                      <th>Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody id="modalAsignaturasProgramaBody">
+                    <tr><td colspan="8" class="text-center text-muted py-4">Cargando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer modal-asignaturas-programa-footer">
+              <button type="button" class="btn btn-ide" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <!-- Tab 2: Registrar programa -->
+        <div class="tab-pane fade" id="paneRegistrarPrograma" role="tabpanel">
+          <div class="card">
+            <div class="card-header bg-soft-primary">Nuevo programa educativo</div>
+            <div class="card-body">
+              <form id="programaForm" class="row g-3" onsubmit="return false;" action="javascript:void(0)">
+                <input type="hidden" id="programaId" />
+                <div class="col-12">
+                  <div class="row g-3 mb-0">
+                    <div class="col-md-3">
+                      <label class="form-label">ID Programa</label>
+                      <input type="text" id="programaIdPrograma" class="form-control" placeholder="Ej. IDEE-ESP-001" required />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="row g-3 mb-0">
+                    <div class="col-md-2">
+                      <label class="form-label">Clave interna</label>
+                      <input type="text" id="programaClave" class="form-control" placeholder="ODO" required />
+                    </div>
+                    <div class="col-md-8">
+                      <label class="form-label">Nombre del plantel</label>
+                      <select id="programaNombrePlantel" class="form-select" required>
+                        <option value="">Seleccione plantel…</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Clave DGP</label>
+                      <input type="text" id="programaClaveDgp" class="form-control bg-light" readonly placeholder="Se asigna al elegir plantel" required />
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Nombre del programa</label>
+                  <input type="text" id="programaNombre" class="form-control" placeholder="Licenciatura en Administración" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Tipo de programa</label>
+                  <select id="programaTipo" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <option value="LICENCIATURA">Licenciatura</option>
+                    <option value="MAESTRIA">Maestría</option>
+                    <option value="PROFESIONAL_ASOCIADO">Profesional Asociado</option>
+                    <option value="TECNICO_SUPERIOR">Técnico Superior</option>
+                    <option value="ESPECIALIDAD">Especialidad</option>
+                    <option value="DOCTORADO">Doctorado</option>
+                    <option value="EXTRACURRICULAR">Extracurricular</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">No. de periodos</label>
+                  <input type="number" id="programaDuracion" min="1" class="form-control" placeholder="8" title="Número de periodos del programa" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Tipo de periodo</label>
+                  <select id="programaTipoPeriodo" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <option value="SEMESTRE">Semestre</option>
+                    <option value="CUATRIMESTRE">Cuatrimestre</option>
+                    <option value="TETRAMESTRE">Tetramestre</option>
+                    <option value="TRIMESTRE">Trimestre</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Modalidad</label>
+                  <select id="programaModalidad" class="form-select" required>
+                    <option value="">Selecciona...</option>
+                    <option value="ESCOLARIZADO">Escolarizado</option>
+                    <option value="MIXTO">Mixto</option>
+                    <option value="EN_LINEA">En línea</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Créditos totales</label>
+                  <input type="number" id="programaCreditos" class="form-control" placeholder="—" min="1" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Plan de estudio</label>
+                  <input type="text" id="programaPlanEstudio" class="form-control" placeholder="2023" required />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">RVOE</label>
+                  <input type="text" id="programaRvoe" class="form-control" placeholder="RVOE-2025-12345" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Fecha de RVOE</label>
+                  <input type="date" id="programaFechaRvoe" class="form-control" required />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Estatus</label>
+                  <select id="programaEstatus" class="form-select" required>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="INACTIVO">Inactivo</option>
+                  </select>
+                </div>
+                <div class="col-md-12 d-flex align-items-end justify-content-end">
+                  <button type="button" id="btnGuardarPrograma" class="btn btn-ide">Guardar programa</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Tab 3: Registrar asignaturas -->
+        <div class="tab-pane fade" id="paneRegistrarAsignaturas" role="tabpanel">
+          <div class="card">
+            <div class="card-header bg-soft-primary">
+              <span>Asignaturas del programa: <strong id="programaSeleccionadoLabel">Seleccione un programa...</strong></span>
+            </div>
+            <div class="card-body">
+              <div class="mb-4">
+                <label class="form-label">Seleccionar un programa</label>
+                <select id="asignaturasSelectorPrograma" class="form-select" style="max-width: 400px;">
+                  <option value="">-- Seleccione un programa --</option>
+                </select>
+              </div>
+              <form id="asignaturaForm" onsubmit="return false;" action="javascript:void(0)">
+                <input type="hidden" id="asignaturaId" />
+                <div id="asignaturasBlocksContainer"></div>
+                <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+                  <button type="button" id="btnGuardarAsignatura" class="btn btn-ide">Guardar asignaturas</button>
+                  <button type="button" id="btnCancelarEdicionAsignatura" class="btn btn-outline-secondary d-none">Cancelar</button>
+                  <span id="asignaturasContador" class="text-muted small">1 formulario</span>
+                </div>
+              </form>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID</th>
+                      <th>Clave</th>
+                      <th>Asignatura</th>
+                      <th>Tipo</th>
+                      <th>No. periodo</th>
+                      <th>Créditos</th>
+                      <th>Horas</th>
+                      <th>Estatus</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="asignaturasTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/gestion-programas.js"></script>
+  <script src="../js/gestion-asignaturas.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        window.currentUser = { email: localStorage.getItem('userEmail') || '', tipoUsuario: localStorage.getItem('userTipo'), rol: localStorage.getItem('userTipo') };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'programasSection' });
+      var btnExcel = document.getElementById('btnDescargarExcelProgramas');
+      if (btnExcel && typeof descargarExcelProgramasAsignaturas === 'function') {
+        btnExcel.addEventListener('click', descargarExcelProgramasAsignaturas);
+      }
+      var btnCargaMasiva = document.getElementById('btnEjecutarCargaMasiva');
+      if (btnCargaMasiva && typeof ejecutarCargaMasivaProgramasAsignaturas === 'function') {
+        btnCargaMasiva.addEventListener('click', ejecutarCargaMasivaProgramasAsignaturas);
+      }
+      var modalCarga = document.getElementById('modalCargaMasivaProgramas');
+      if (modalCarga) {
+        modalCarga.addEventListener('show.bs.modal', function () {
+          var res = document.getElementById('cargaMasivaResultado');
+          if (res) { res.classList.add('d-none'); res.textContent = ''; }
+        });
+        modalCarga.addEventListener('hidden.bs.modal', function () {
+          var inp = document.getElementById('archivoCargaMasiva');
+          if (inp) inp.value = '';
+        });
+      }
+    });
+    function seleccionarPrograma(nombre) {
+      var el = document.getElementById('programaSeleccionadoLabel');
+      if (el) el.textContent = nombre;
+    }
+  </script>
+</body>
+</html>

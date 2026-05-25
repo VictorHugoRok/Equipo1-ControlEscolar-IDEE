@@ -1,7 +1,10 @@
 package com.idee.controlescolar.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -40,6 +43,12 @@ public class ConfiguracionInstitucional {
     private String nombreInstitucion;
 
     /**
+     * Abreviatura / nombre corto para folios (ej. IDEE, CUIDEE).
+     */
+    @Column(name = "nombre_corto", length = 30)
+    private String nombreCorto;
+
+    /**
      * ID de la entidad federativa según catálogo SEP
      */
     @Column(name = "id_entidad_federativa", nullable = false, length = 10)
@@ -50,6 +59,18 @@ public class ConfiguracionInstitucional {
      */
     @Column(name = "entidad_federativa", nullable = false, length = 100)
     private String entidadFederativa;
+
+    /**
+     * ID del campus según catálogo SEP (usado en XML de certificados electrónicos).
+     */
+    @Column(name = "id_campus", length = 10)
+    private String idCampus;
+
+    /**
+     * Nombre del campus (usado en XML de certificados electrónicos).
+     */
+    @Column(name = "campus", length = 150)
+    private String campus;
 
     /**
      * Ruta al archivo .cer del certificado SAT (DEPRECATED - usar certificadoData)
@@ -65,8 +86,12 @@ public class ConfiguracionInstitucional {
 
     /**
      * Contenido binario del archivo .cer del certificado SAT
+     * FetchType.EAGER evita "Unable to access lob stream" al leer fuera del contexto de carga.
+     * @JsonIgnore: nunca exponer en API (seguridad).
      */
-    @Lob
+    @JsonIgnore
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Basic(fetch = FetchType.EAGER)
     @Column(name = "certificado_data")
     private byte[] certificadoData;
 
@@ -78,8 +103,12 @@ public class ConfiguracionInstitucional {
 
     /**
      * Contenido binario del archivo .key de la llave privada SAT
+     * FetchType.EAGER evita "Unable to access lob stream" al leer fuera del contexto de carga.
+     * @JsonIgnore: nunca exponer en API (seguridad).
      */
-    @Lob
+    @JsonIgnore
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Basic(fetch = FetchType.EAGER)
     @Column(name = "llave_privada_data")
     private byte[] llavePrivadaData;
 
@@ -90,16 +119,12 @@ public class ConfiguracionInstitucional {
     private String llavePrivadaFilename;
 
     /**
-     * Contraseña de la llave privada (encriptada)
+     * Contraseña de la llave privada (encriptada o en texto según configuración).
+     * @JsonIgnore: nunca exponer en API (seguridad).
      */
+    @JsonIgnore
     @Column(name = "password_llave_privada")
     private String passwordLlavePrivada;
-
-    /**
-     * Número del certificado SAT
-     */
-    @Column(name = "no_certificado_sat", length = 50)
-    private String noCertificadoSat;
 
     /**
      * Indica si esta configuración está activa.

@@ -18,7 +18,7 @@ import java.util.Map;
  * Controlador REST para la configuración institucional.
  */
 @RestController
-@RequestMapping("/api/configuracion-institucional")
+@RequestMapping("/configuracion-institucional")
 @RequiredArgsConstructor
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -30,27 +30,41 @@ public class ConfiguracionInstitucionalController {
     @GetMapping
     @Transactional(readOnly = true)
     public ResponseEntity<ConfiguracionInstitucional> obtenerConfiguracion() {
-        return configuracionRepository.findByActivoTrue()
+        return configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<ConfiguracionInstitucional> crearConfiguracion(
             @RequestBody ConfiguracionInstitucional configuracion) {
         configuracion.setActivo(true);
+        configuracionRepository.desactivarTodas();
         ConfiguracionInstitucional guardada = configuracionRepository.save(configuracion);
         return ResponseEntity.ok(guardada);
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public ResponseEntity<ConfiguracionInstitucional> actualizarConfiguracion(
             @PathVariable Long id,
             @RequestBody ConfiguracionInstitucional configuracion) {
         return configuracionRepository.findById(id)
                 .map(existing -> {
-                    configuracion.setId(id);
-                    return ResponseEntity.ok(configuracionRepository.save(configuracion));
+                    // Actualizar solo campos no sensibles; NUNCA sobrescribir certificados/llave/contraseña
+                    existing.setCveInstitucion(configuracion.getCveInstitucion());
+                    existing.setNombreInstitucion(configuracion.getNombreInstitucion());
+                    existing.setNombreCorto(configuracion.getNombreCorto());
+                    existing.setIdEntidadFederativa(configuracion.getIdEntidadFederativa());
+                    existing.setEntidadFederativa(configuracion.getEntidadFederativa());
+                    existing.setIdCampus(configuracion.getIdCampus());
+                    existing.setCampus(configuracion.getCampus());
+                    existing.setActivo(configuracion.getActivo());
+                    if (Boolean.TRUE.equals(configuracion.getActivo())) {
+                        configuracionRepository.desactivarOtras(id);
+                    }
+                    return ResponseEntity.ok(configuracionRepository.save(existing));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -72,7 +86,7 @@ public class ConfiguracionInstitucionalController {
             log.info("Recibiendo certificados para carga: cer={}, key={}, passwordLength={}",
                 cer.getOriginalFilename(), key.getOriginalFilename(), password.length());
 
-            ConfiguracionInstitucional cfg = configuracionRepository.findByActivoTrue()
+            ConfiguracionInstitucional cfg = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
                 .orElseThrow(() -> new IllegalStateException("No existe configuración activa"));
 
             byte[] cerBytes = cer.getBytes();
@@ -104,9 +118,13 @@ public class ConfiguracionInstitucionalController {
             cfg.setLlavePrivadaData(keyBytes);
             cfg.setLlavePrivadaFilename(key.getOriginalFilename());
 
-            // Guardar password (puedes encriptarlo si lo deseas)
-            // cfg.setPasswordLlavePrivada(firmaDigitalService.encriptarPassword(password));
-            cfg.setPasswordLlavePrivada(password);
+            // Guardar password (encriptado para mayor seguridad en BD)
+            try {
+                cfg.setPasswordLlavePrivada(firmaDigitalService.encriptarPassword(password));
+            } catch (Exception e) {
+                log.warn("No se pudo encriptar password: {}", e.getMessage());
+                cfg.setPasswordLlavePrivada(password);
+            }
 
             configuracionRepository.saveAndFlush(cfg);
 
@@ -211,49 +229,60 @@ public class ConfiguracionInstitucionalController {
      * GET /api/configuracion-institucional/certificados/diagnostico
      *
      * Devuelve si hay certificados, si son válidos, y su información.
+     * @Transactional evita "Unable to access lob stream" al leer certificadoData/llavePrivadaData.
      */
     @GetMapping("/certificados/diagnostico")
+    @Transactional(readOnly = true)
     public ResponseEntity<?> diagnosticoCertificados() {
         try {
-            ConfiguracionInstitucional cfg = configuracionRepository.findByActivoTrue()
+            ConfiguracionInstitucional cfg = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
                 .orElseThrow(() -> new IllegalStateException("No existe configuración activa"));
+
+            // Copiar bytes de LOB dentro de la transacción para evitar "Unable to access lob stream"
+            byte[] cerBytes = cfg.getCertificadoData();
+            byte[] keyBytes = cfg.getLlavePrivadaData();
+            String pass = cfg.getPasswordLlavePrivada();
 
             Map<String, Object> diagnostico = new HashMap<>();
 
             // Check 1: ¿Tiene certificados cargados?
-            boolean tieneCertificados = cfg.tieneCertificados();
+            boolean tieneCertificados = (cerBytes != null && cerBytes.length > 0 && keyBytes != null && keyBytes.length > 0)
+                && pass != null && !pass.isBlank();
             diagnostico.put("tieneCertificados", tieneCertificados);
 
             if (!tieneCertificados) {
                 diagnostico.put("mensaje", "No hay .cer/.key cargados");
-                diagnostico.put("cerBytes", cfg.getCertificadoData() == null ? 0 : cfg.getCertificadoData().length);
-                diagnostico.put("keyBytes", cfg.getLlavePrivadaData() == null ? 0 : cfg.getLlavePrivadaData().length);
-                diagnostico.put("hasPassword", cfg.getPasswordLlavePrivada() != null && !cfg.getPasswordLlavePrivada().isBlank());
+                diagnostico.put("cerBytes", cerBytes == null ? 0 : cerBytes.length);
+                diagnostico.put("keyBytes", keyBytes == null ? 0 : keyBytes.length);
+                diagnostico.put("hasPassword", pass != null && !pass.isBlank());
                 return ResponseEntity.ok(diagnostico);
             }
 
             diagnostico.put("cerFilename", cfg.getCertificadoFilename());
             diagnostico.put("keyFilename", cfg.getLlavePrivadaFilename());
-            diagnostico.put("cerBytes", cfg.getCertificadoData().length);
-            diagnostico.put("keyBytes", cfg.getLlavePrivadaData().length);
+            diagnostico.put("cerBytes", cerBytes.length);
+            diagnostico.put("keyBytes", keyBytes.length);
+
+            // Desencriptar contraseña si está guardada encriptada (Base64); si falla, usar tal cual (texto plano legacy)
+            String passwordParaValidar = pass;
+            if (pass != null && !pass.isBlank()) {
+                try {
+                    passwordParaValidar = firmaDigitalService.desencriptarPassword(pass);
+                } catch (Exception e) {
+                    log.debug("Password no encriptado o desencriptación fallida, usando como texto plano: {}", e.getMessage());
+                }
+            }
 
             // Check 2: ¿Son par válido y password correcto?
-            String pass = cfg.getPasswordLlavePrivada();
-            // Si guardaste encriptado: pass = firmaDigitalService.desencriptarPassword(pass);
-
             log.info("Validando par certificado/llave desde BD...");
-            boolean parValido = firmaDigitalService.validarParCertificadoLlaveDesdeBytes(
-                cfg.getCertificadoData(),
-                cfg.getLlavePrivadaData(),
-                pass
-            );
+            boolean parValido = firmaDigitalService.validarParCertificadoLlaveDesdeBytes(cerBytes, keyBytes, passwordParaValidar);
 
             diagnostico.put("parValido", parValido);
             diagnostico.put("passwordCorrecto", parValido);
 
             if (parValido) {
                 // Obtener info del certificado
-                String infoCert = firmaDigitalService.obtenerInfoCertificadoDesdeBytes(cfg.getCertificadoData());
+                String infoCert = firmaDigitalService.obtenerInfoCertificadoDesdeBytes(cerBytes);
                 diagnostico.put("infoCertificado", infoCert);
                 diagnostico.put("mensaje", "OK: .cer y .key son par válido y password correcto");
             } else {
@@ -268,6 +297,38 @@ public class ConfiguracionInstitucionalController {
                 "error", e.getMessage(),
                 "mensaje", "Error al realizar diagnóstico"
             ));
+        }
+    }
+
+    /**
+     * Elimina los certificados (.cer y .key) de la configuración institucional activa.
+     * DELETE /api/configuracion-institucional/certificados
+     */
+    @DeleteMapping("/certificados")
+    @Transactional
+    public ResponseEntity<?> eliminarCertificados() {
+        try {
+            ConfiguracionInstitucional cfg = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
+                .orElseThrow(() -> new IllegalStateException("No existe configuración activa"));
+
+            cfg.setCertificadoData(null);
+            cfg.setCertificadoFilename(null);
+            cfg.setLlavePrivadaData(null);
+            cfg.setLlavePrivadaFilename(null);
+            cfg.setPasswordLlavePrivada(null);
+
+            configuracionRepository.saveAndFlush(cfg);
+
+            log.info("Certificados eliminados de la configuración institucional ID: {}", cfg.getId());
+
+            return ResponseEntity.ok(Map.of(
+                "mensaje", "Certificados eliminados correctamente"
+            ));
+        } catch (Exception e) {
+            log.error("Error al eliminar certificados: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(
+                Map.of("error", "Error al eliminar certificados: " + e.getMessage())
+            );
         }
     }
 

@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,15 +37,20 @@ public class PermisosAspect {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Value("${app.permission-check.enabled:true}")
+    private boolean permissionCheckEnabled;
+
     /**
      * Interceptar métodos anotados con @RequierePermiso
-     * Validar permisos ANTES de ejecutar el método
+     * Validar permisos ANTES de ejecutar el método.
+     * En perfil development (app.permission-check.enabled=false): se omite la validación
+     * para facilitar pruebas con datos falsos. En production: validación completa.
      */
     @Around("@annotation(requierePermiso)")
     public Object validarPermiso(ProceedingJoinPoint joinPoint, RequierePermiso requierePermiso) 
             throws Throwable {
         
-        // Obtener el usuario autenticado
+        // Obtener el usuario autenticado (siempre requerido)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -52,13 +58,19 @@ public class PermisosAspect {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
         }
 
+        // En desarrollo: bypass de validación de permisos para pruebas con datos falsos
+        if (!permissionCheckEnabled) {
+            logger.debug("DEV: Bypass de permisos para {}", joinPoint.getSignature());
+            return joinPoint.proceed();
+        }
+
         // Obtener el nombre de usuario del token JWT
         String username = authentication.getName();
         
         // Obtener el usuario de la base de datos
-        Usuario usuario = usuarioRepository.findByEmail(username)
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndActivoTrue(username)
             .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.UNAUTHORIZED, 
+                HttpStatus.UNAUTHORIZED,
                 "Usuario no encontrado: " + username
             ));
 

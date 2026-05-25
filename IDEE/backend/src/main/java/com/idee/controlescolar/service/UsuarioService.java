@@ -23,7 +23,7 @@ public class UsuarioService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmailAndActivoTrue(email)
+        return usuarioRepository.findByEmailIgnoreCaseAndActivoTrue(email)
             .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + email));
     }
 
@@ -64,6 +64,18 @@ public class UsuarioService implements UserDetailsService {
         }
 
         return usuarioRepository.save(existing);
+    }
+
+    @Transactional
+    public void cambiarPassword(Long id, String newRawPassword, boolean mustChangePassword) {
+        Usuario existing = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (newRawPassword == null || newRawPassword.trim().length() < 6) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+        }
+        existing.setPassword(passwordEncoder.encode(newRawPassword.trim()));
+        existing.setMustChangePassword(mustChangePassword);
+        usuarioRepository.save(existing);
     }
 
     @Transactional

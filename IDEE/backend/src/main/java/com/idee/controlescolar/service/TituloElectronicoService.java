@@ -64,7 +64,7 @@ public class TituloElectronicoService {
         validarRequisitosAlumno(alumno);
 
         // 3. Obtener configuración y responsables
-        ConfiguracionInstitucional configuracion = configuracionRepository.findByActivoTrue()
+        ConfiguracionInstitucional configuracion = configuracionRepository.findFirstByActivoTrueOrderByIdDesc()
                 .orElseThrow(() -> new RuntimeException("No existe configuración institucional activa"));
 
         List<ResponsableFirma> responsables = responsableRepository.findByActivoTrueOrderByOrdenFirmaAsc();
