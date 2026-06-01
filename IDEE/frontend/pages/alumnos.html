@@ -2,14 +2,507 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Redirigiendo - Usuarios</title>
+  <title>Alumnos - IDEE Control Escolar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="refresh" content="0; url=personal.html" />
-  <script>
-    window.location.replace('personal.html');
-  </script> 
+  <link rel="icon" href="../assets/favicon.png" type="image/png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/tablet.css" />
+  <link rel="stylesheet" href="../css/mobile.css" />
 </head>
 <body>
-  <p>La gestión de alumnos se unificó en <strong>Usuarios</strong>. Redirigiendo… <a href="personal.html">Ir ahora</a>.</p>
+  <div class="dashboard-wrapper">
+    <div id="sidebar-container" data-sidebar-src="../components/sidebar.html"></div>
+    <main class="dashboard-main">
+      <div class="container dashboard-content">
+
+        <!-- Encabezado -->
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+          <div>
+            <h3 class="section-title mb-1">Alumnos</h3>
+            <p class="text-muted mb-0 small">Consulta, alta, edición y baja de expedientes de alumnos inscritos.</p>
+          </div>
+        </div>
+
+        <!-- Pestañas principales -->
+        <ul class="nav nav-tabs mb-3" id="alumnosMainTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-consulta-alumnos"
+              data-bs-toggle="tab" data-bs-target="#paneConsultaAlumnos"
+              type="button" role="tab" aria-controls="paneConsultaAlumnos" aria-selected="true">
+              <i class="bi bi-list-ul me-1"></i>Lista de alumnos
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-registrar-alumno"
+              data-bs-toggle="tab" data-bs-target="#paneRegistrarAlumno"
+              type="button" role="tab" aria-controls="paneRegistrarAlumno" aria-selected="false">
+              <i class="bi bi-person-plus me-1"></i>Registrar alumno
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="alumnosTabContent">
+
+          <!-- ===== PESTAÑA: LISTA ===== -->
+          <div class="tab-pane fade show active" id="paneConsultaAlumnos" role="tabpanel">
+
+            <!-- Buscador y filtros -->
+            <div class="card mb-3 card-filtros-alumnos">
+              <div class="card-body p-3">
+                <form id="alumnoSearchForm" onsubmit="return false;">
+                  <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-4">
+                      <div class="input-group input-group-sm">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" id="alumnoFiltroBusqueda" class="form-control"
+                          placeholder="Nombre, matrícula o CURP…" autocomplete="off" />
+                        <button type="button" id="btnBuscarAlumnos" class="btn btn-primary btn-sm">Buscar</button>
+                      </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <select id="alumnoFiltroPrograma" class="form-select form-select-sm">
+                        <option value="">Programa de estudios</option>
+                      </select>
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <select id="alumnoFiltroPeriodoIngreso" class="form-select form-select-sm">
+                        <option value="">Periodo de ingreso</option>
+                      </select>
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <select id="alumnoFiltroEstatus" class="form-select form-select-sm">
+                        <option value="">Estatus</option>
+                        <option value="ACTIVA">Activa</option>
+                        <option value="BAJA_TEMPORAL">Baja temporal</option>
+                        <option value="BAJA_DEFINITIVA">Baja definitiva</option>
+                        <option value="EGRESADO">Egresado</option>
+                      </select>
+                    </div>
+                    <div class="col-6 col-md-2 d-flex gap-1">
+                      <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x-circle me-1"></i>Limpiar
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Barra de acciones -->
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <button type="button" id="btnNuevoAlumno" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus me-1"></i>Nuevo alumno
+              </button>
+              <button type="button" id="btnDescargarExcelAlumnos" class="btn btn-excel-action btn-excel-download btn-sm">
+                <i class="bi bi-file-earmark-excel"></i>
+                <span class="btn-excel-text ms-1">Exportar Excel</span>
+              </button>
+              <button type="button" id="btnCargarExcelAlumnos" class="btn btn-excel-action btn-excel-upload btn-sm">
+                <i class="bi bi-upload"></i>
+                <span class="btn-excel-text ms-1">Importar Excel</span>
+              </button>
+              <input type="file" id="inputCargaExcelAlumnos" class="d-none" accept=".xlsx,.xls" />
+              <button type="button" id="btnEliminarAlumnosSeleccionados" class="btn btn-excel-action btn-excel-danger btn-sm" disabled>
+                <i class="bi bi-trash"></i>
+                <span id="lblEliminarSeleccionados" class="ms-1">Eliminar seleccionados</span>
+              </button>
+            </div>
+
+            <!-- Tabla de alumnos -->
+            <div class="card mb-4">
+              <div class="card-header bg-soft-primary d-flex align-items-center justify-content-between py-2">
+                <span class="fw-semibold small">Alumnos registrados</span>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="text-center" style="width:40px;">
+                          <input type="checkbox" id="chkSeleccionarTodosAlumnos" class="form-check-input"
+                            aria-label="Seleccionar todos" />
+                        </th>
+                        <th style="width:72px;">Foto</th>
+                        <th>Matrícula</th>
+                        <th>Nombre</th>
+                        <th>Programa</th>
+                        <th>Periodo</th>
+                        <th>Estatus</th>
+                        <th class="text-end">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="alumnosTableBody">
+                      <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                          <span class="spinner-border spinner-border-sm me-2"></span>Cargando alumnos…
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- /paneConsultaAlumnos -->
+
+          <!-- ===== PESTAÑA: REGISTRAR / EDITAR ===== -->
+          <div class="tab-pane fade" id="paneRegistrarAlumno" role="tabpanel">
+            <div class="card card-form-registro mb-4">
+              <div class="card-header bg-soft-primary d-flex align-items-center">
+                <i class="bi bi-person-lines-fill me-2"></i>
+                <span>Datos del alumno</span>
+              </div>
+              <div class="card-body">
+                <form id="alumnoForm" onsubmit="return false;" novalidate>
+                  <input type="hidden" id="alumnoId" />
+
+                  <!-- ── SECCIÓN 1: Académico ── -->
+                  <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                      <i class="bi bi-mortarboard me-1"></i><span class="fw-semibold">Datos académicos</span>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-md-3">
+                        <label class="form-label">Matrícula</label>
+                        <input type="text" id="alumnoMatricula" class="form-control uppercase-input"
+                          maxlength="20" placeholder="Ej. 20230001" required />
+                      </div>
+                      <div class="col-md-5">
+                        <label class="form-label">Programa educativo</label>
+                        <select id="alumnoProgramaId" class="form-select" required>
+                          <option value="">Selecciona…</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Periodo de ingreso</label>
+                        <select id="alumnoPeriodoIngreso" class="form-select" disabled>
+                          <option value="">Selecciona programa…</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Turno</label>
+                        <select id="alumnoTurno" class="form-select">
+                          <option value="">— Selecciona —</option>
+                          <option value="MATUTINO">Matutino</option>
+                          <option value="VESPERTINO">Vespertino</option>
+                          <option value="MIXTO">Mixto</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Estatus de matrícula</label>
+                        <select id="alumnoEstatus" class="form-select" required
+                          onchange="if(typeof actualizarPeriodoCursandoPorEstatus==='function') actualizarPeriodoCursandoPorEstatus()">
+                          <option value="ACTIVA">Activa</option>
+                          <option value="BAJA_TEMPORAL">Baja temporal</option>
+                          <option value="BAJA_DEFINITIVA">Baja definitiva</option>
+                          <option value="EGRESADO">Egresado</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Periodo cursando</label>
+                        <input type="number" id="alumnoPeriodoCursando" class="form-control"
+                          min="1" max="20" placeholder="Ej. 3" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── SECCIÓN 2: Datos personales ── -->
+                  <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                      <i class="bi bi-person-vcard me-1"></i><span class="fw-semibold">Datos personales</span>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Nombre(s)</label>
+                        <input type="text" id="alumnoNombre" class="form-control uppercase-input"
+                          maxlength="80" required />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Apellido paterno</label>
+                        <input type="text" id="alumnoApellidoPaterno" class="form-control uppercase-input"
+                          maxlength="60" required />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Apellido materno</label>
+                        <input type="text" id="alumnoApellidoMaterno" class="form-control uppercase-input"
+                          maxlength="60" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">
+                          CURP
+                          <small class="text-muted ms-1" id="alumnoCurpCounter">0/18</small>
+                        </label>
+                        <input type="text" id="alumnoCurp" class="form-control"
+                          maxlength="18" style="text-transform:uppercase;" required />
+                      </div>
+                      <div class="col-md-2">
+                        <label class="form-label">Género</label>
+                        <select id="alumnoSexo" class="form-select">
+                          <option value="">—</option>
+                          <option value="MASCULINO">Masculino</option>
+                          <option value="FEMENINO">Femenino</option>
+                        </select>
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Fecha de nacimiento</label>
+                        <input type="date" id="alumnoFechaNacimiento" class="form-control" />
+                      </div>
+                      <div class="col-md-2">
+                        <label class="form-label">Código postal</label>
+                        <input type="text" id="alumnoCodigoPostal" class="form-control" maxlength="5" />
+                      </div>
+                      <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <input type="text" id="alumnoEstado" class="form-control uppercase-input" maxlength="50" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── SECCIÓN 3: Contacto ── -->
+                  <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                      <i class="bi bi-envelope me-1"></i><span class="fw-semibold">Contacto</span>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">
+                          Correo institucional
+                          <span class="text-danger">*</span>
+                          <small class="text-muted d-block">Será el acceso al sistema (contraseña: idee1234)</small>
+                        </label>
+                        <input type="email" id="alumnoCorreoInstitucional" class="form-control"
+                          maxlength="120" required placeholder="correo@institución.edu.mx" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Correo personal</label>
+                        <input type="email" id="alumnoCorreoPersonal" class="form-control"
+                          maxlength="120" placeholder="Opcional" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">
+                          Teléfono
+                          <small class="text-muted ms-1" id="alumnoTelefonoCounter">0/10</small>
+                        </label>
+                        <input type="tel" id="alumnoTelefono" class="form-control"
+                          maxlength="10" inputmode="numeric" placeholder="10 dígitos" required />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── SECCIÓN 4: Contacto de emergencia ── -->
+                  <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                      <i class="bi bi-person-exclamation me-1"></i><span class="fw-semibold">Contacto de emergencia</span>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" id="alumnoContactoNombre" class="form-control"
+                          maxlength="100" required />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">
+                          Teléfono
+                          <small class="text-muted ms-1" id="alumnoContactoTelefonoCounter">0/10</small>
+                        </label>
+                        <input type="tel" id="alumnoContactoTelefono" class="form-control"
+                          maxlength="10" inputmode="numeric" placeholder="10 dígitos" required />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── SECCIÓN 5: Foto y documentos ── -->
+                  <div class="form-section mb-4">
+                    <div class="form-section-header mb-3">
+                      <i class="bi bi-folder2 me-1"></i><span class="fw-semibold">Foto y documentos del expediente</span>
+                    </div>
+                    <div class="row g-3">
+                      <!-- Foto -->
+                      <div class="col-md-4">
+                        <label class="form-label">Foto del alumno</label>
+                        <input type="file" id="alumnoFoto" class="form-control form-control-sm"
+                          accept="image/jpeg,image/png,image/webp" />
+                        <div id="alumnoFotoPreview" class="mt-2 p-2 border rounded text-center bg-light"
+                          style="min-height:60px;">
+                          <small class="text-muted">Vista previa de la foto</small>
+                        </div>
+                      </div>
+                      <!-- Documentos -->
+                      <div class="col-md-8">
+                        <div class="row g-2">
+                          <div class="col-md-6">
+                            <label class="form-label small">Acta de nacimiento</label>
+                            <input type="file" id="alumnoDocActa" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small">CURP (documento)</label>
+                            <input type="file" id="alumnoDocCurp" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small">INE / Identificación</label>
+                            <input type="file" id="alumnoDocIne" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small">Certificado de estudios</label>
+                            <input type="file" id="alumnoDocCertificadoEstudios" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small">Título / Cédula</label>
+                            <input type="file" id="alumnoDocTitulo" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                          <div class="col-md-6">
+                            <label class="form-label small">Constancia situación fiscal</label>
+                            <input type="file" id="alumnoDocConstanciaFiscal" class="form-control form-control-sm"
+                              accept=".pdf,.jpg,.jpeg,.png" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ── SECCIÓN 6: Observaciones ── -->
+                  <div class="form-section mb-4">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label class="form-label">Observaciones</label>
+                        <textarea id="alumnoObservaciones" class="form-control" rows="3"
+                          maxlength="500" placeholder="Notas adicionales (opcional)"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Botones -->
+                  <div class="d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary"
+                      id="btnCancelarAlumnoForm"
+                      onclick="
+                        document.getElementById('alumnoId').value='';
+                        document.getElementById('alumnoForm').reset();
+                        document.getElementById('alumnoFotoPreview').innerHTML='<small class=\'text-muted\'>Vista previa de la foto</small>';
+                        bootstrap.Tab.getOrCreateInstance(document.getElementById('tab-consulta-alumnos')).show();
+                      ">
+                      <i class="bi bi-x-lg me-1"></i>Cancelar
+                    </button>
+                    <button type="button" id="btnGuardarAlumnoAdmin" class="btn btn-primary">
+                      <i class="bi bi-floppy me-1"></i>Guardar alumno
+                    </button>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- /paneRegistrarAlumno -->
+
+        </div><!-- /tab-content -->
+      </div><!-- /container -->
+    </main>
+  </div>
+
+  <!-- ===== MODALES ===== -->
+
+  <!-- Modal: Ver foto ampliada -->
+  <div class="modal fade" id="modalFotoAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Foto del alumno</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="modalFotoAlumnoImg" src="" alt="Foto alumno"
+            style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:8px;" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Datos / Kardex del alumno (al hacer clic en una fila) -->
+  <div class="modal fade" id="modalDatosAlumno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-soft-primary">
+          <h5 class="modal-title">
+            <i class="bi bi-person-badge me-2"></i>
+            <span id="modalDatosAlumnoNombre"></span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="modalDatosAlumnoContenido">
+          <div class="text-center py-5">
+            <span class="spinner-border spinner-border-sm me-2"></span>Cargando…
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Resultado carga masiva Excel -->
+  <div class="modal fade" id="modalCargaExcelAlumnos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-soft-primary">
+          <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2"></i>Resultado de carga masiva</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="modalCargaExcelAlumnosMsg" class="mb-1"></p>
+          <p id="modalCargaExcelAlumnosDetalle" class="text-muted small mb-0"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/load-sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/roles.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/sistema-roles-unified.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/ui-toast.js"></script>
+  <script src="../js/sidebar.js"></script>
+  <script src="../js/gestion-alumnos-admin.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof setupLogoutButtons === 'function') setupLogoutButtons();
+      if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+        window.location.href = '../index.html';
+        return;
+      }
+      var e = document.getElementById('userEmail');
+      if (e) e.textContent = localStorage.getItem('userEmail') || '';
+      if (!window.currentUser && localStorage.getItem('userTipo')) {
+        var rl = [];
+        try {
+          var jr = localStorage.getItem('userRoles');
+          if (jr) rl = JSON.parse(jr);
+        } catch (x) {}
+        if (!rl || !rl.length) rl = [localStorage.getItem('userTipo')];
+        window.currentUser = {
+          email: localStorage.getItem('userEmail') || '',
+          tipoUsuario: localStorage.getItem('userTipo'),
+          roles: rl
+        };
+      }
+      if (typeof aplicarPermisosSegunRol === 'function') aplicarPermisosSegunRol();
+      if (typeof validarAccesoModulo === 'function') validarAccesoModulo({ seccion: 'personalSection' });
+    });
+  </script>
 </body>
 </html>

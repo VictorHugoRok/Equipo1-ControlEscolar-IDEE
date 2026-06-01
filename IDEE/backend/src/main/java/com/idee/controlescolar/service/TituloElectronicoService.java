@@ -154,6 +154,16 @@ public class TituloElectronicoService {
     }
 
     /**
+     * Lista todos los títulos electrónicos registrados.
+     */
+    @Transactional(readOnly = true)
+    public List<TituloElectronicoResponse> listarTodos() {
+        return tituloRepository.findAll().stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Obtiene todos los títulos de un alumno.
      */
     @Transactional(readOnly = true)

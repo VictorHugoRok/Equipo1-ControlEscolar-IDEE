@@ -152,8 +152,8 @@
     var est = (document.getElementById('constFiltroEstatus') || {}).value || '';
 
     var filtrados = (alumnos || []).filter(function (a) {
-      if (!a || !a.programa || !a.programa.id) return false;
-      if (progId && String(a.programa.id) !== String(progId)) return false;
+      if (!a) return false;
+      if (progId && (!a.programa || String(a.programa.id) !== String(progId))) return false;
       if (est && String(a.estatusMatricula || '') !== String(est)) return false;
       if (!q) return true;
       var hay = [

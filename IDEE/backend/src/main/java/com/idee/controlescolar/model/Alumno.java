@@ -205,6 +205,7 @@ public class Alumno {
     }
 
     @Deprecated
+    @JsonProperty(value = "programa", access = Access.WRITE_ONLY)
     public void setPrograma(ProgramaEducativo programa) {
         if (programa == null || programa.getId() == null) return;
         AlumnoPrograma ap = programasAsignados.stream()
@@ -269,6 +270,7 @@ public class Alumno {
     }
 
     @Deprecated
+    @JsonProperty(value = "periodoCursando", access = Access.WRITE_ONLY)
     public void setPeriodoCursando(Integer v) {
         AlumnoPrograma ap = programasAsignados.stream().filter(java.util.Objects::nonNull).findFirst().orElse(null);
         if (ap != null) {
@@ -289,6 +291,7 @@ public class Alumno {
     }
 
     @Deprecated
+    @JsonProperty(value = "estatusMatricula", access = Access.WRITE_ONLY)
     public void setEstatusMatricula(EstatusMatricula estatus) {
         AlumnoPrograma ap = programasAsignados.stream().filter(java.util.Objects::nonNull).findFirst().orElse(null);
         if (ap == null || estatus == null) return;

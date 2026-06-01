@@ -4577,6 +4577,7 @@ function initStaffUnificadoPage() {
             if (el.id === 'btnLimpiarStaff') return;
             el.disabled = true;
         });
+    }
 
     // Modal expediente alumno: confirmar cierre si hay cambios sin guardar
     (function () {
@@ -4612,7 +4613,6 @@ function initStaffUnificadoPage() {
             });
         });
     })();
-    }
 
     staffActualizarVisibilidadSeccionesFormulario();
 }

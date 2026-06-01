@@ -29,6 +29,21 @@ public class TituloElectronicoController {
     private final TituloElectronicoService tituloService;
 
     /**
+     * Lista todos los títulos electrónicos.
+     *
+     * GET /api/titulos-electronicos
+     */
+    @GetMapping
+    public ResponseEntity<List<TituloElectronicoResponse>> listarTodos() {
+        try {
+            return ResponseEntity.ok(tituloService.listarTodos());
+        } catch (Exception e) {
+            log.error("Error al listar títulos: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al listar títulos: " + e.getMessage());
+        }
+    }
+
+    /**
      * Genera un nuevo título profesional electrónico.
      *
      * POST /api/titulos-electronicos
